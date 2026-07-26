@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supervisee_app/features/checkin/screens/checkin_screen.dart';
+import 'package:supervisee_app/core/backend/raahnuma_backend_service.dart';
+import 'package:supervisee_app/core/backend/models.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -233,172 +235,217 @@ class _FooterDisclaimer extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 // TAB 1: DASHBOARD
 // ─────────────────────────────────────────────────────────────────────────────
-class _DashboardTab extends StatelessWidget {
+class _DashboardTab extends StatefulWidget {
   final VoidCallback onNavigateToCheckIn;
-  const _DashboardTab({required this.onNavigateToCheckIn});
+  const _DashboardTab({required this.onNavigateToCheckIn, Key? key})
+      : super(key: key);
+
+  @override
+  State<_DashboardTab> createState() => _DashboardTabState();
+}
+
+class _DashboardTabState extends State<_DashboardTab> {
+  late Future<SuperviseeProfile> _profileFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  void _loadData() {
+    _profileFuture = RaahnumaBackendService.instance.getProfile();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const _BrandingHeader(
-        title: 'Raahnuma Dashboard',
-        urduTitle: 'نگہداشت ڈیش بورڈ',
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Supervisee Summary Card
-            Card(
-              elevation: 2,
-              color: Colors.white,
+    return FutureBuilder<SuperviseeProfile>(
+      future: _profileFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            appBar: _BrandingHeader(
+              title: 'Raahnuma Dashboard',
+              urduTitle: 'نگہداشت ڈیش بورڈ',
+            ),
+            body: Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0F5A47)),
+              ),
+            ),
+          );
+        }
+        final profile = snapshot.data ?? SuperviseeProfile.fallback();
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            setState(() {
+              _loadData();
+            });
+          },
+          child: Scaffold(
+            appBar: const _BrandingHeader(
+              title: 'Raahnuma Dashboard',
+              urduTitle: 'نگہداشت ڈیش بورڈ',
+            ),
+            body: _buildDashboard(context, profile),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDashboard(BuildContext context, SuperviseeProfile profile) {
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Card(
+            elevation: 2,
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: Colors.grey.shade200),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Supervisee Name / نام',
+                              style: TextStyle(
+                                  fontSize: 11, color: Colors.black54),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              profile.fullName,
+                              style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1E293B)),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Case Ref / کیس نمبر: ${profile.caseNumber}',
+                              style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Color(0xFF0F5A47),
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFDCFCE7),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.green),
+                        ),
+                        child: Text(
+                          profile.complianceStatus,
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 28),
+                  _buildInfoRow(
+                    Icons.calendar_month,
+                    'Next Reporting Date / اگلی حاضری',
+                    profile.nextReportingDate,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildInfoRow(
+                    Icons.person,
+                    'Assigned Officer / مقررہ افسر',
+                    profile.officerName,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildInfoRow(
+                    Icons.business,
+                    'District Office / ڈسٹرکٹ دفتر',
+                    profile.officeAddress,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildInfoRow(
+                    Icons.timer,
+                    'Supervision Expiry / اختتامِ نگرانی',
+                    profile.supervisionEndDate,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 58),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                side: BorderSide(color: Colors.grey.shade200),
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            icon: const Icon(Icons.check_circle_outline,
+                color: Colors.white, size: 24),
+            label: const Text(
+              'Start Digital Check-In / حاضری رپورٹ شروع کریں',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            onPressed: widget.onNavigateToCheckIn,
+          ),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              Text(
+                'Recent Activity / حالیہ سرگرمی',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1E293B)),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text(
-                                'Supervisee Name / نام',
-                                style: TextStyle(
-                                    fontSize: 11, color: Colors.black54),
-                              ),
-                              SizedBox(height: 2),
-                              Text(
-                                'Tariq Mehmood / طارق محمود',
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF1E293B)),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                'Case Ref / کیس نمبر: LHR-2026-089',
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    color: Color(0xFF0F5A47),
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFDCFCE7),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.green),
-                          ),
-                          child: const Text(
-                            'Compliant / تعمیل کنندہ',
-                            style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Divider(height: 28),
-                    _buildInfoRow(
-                      Icons.calendar_month,
-                      'Next Reporting Date / اگلی حاضری',
-                      '28 July 2026 / 28 جولائی 2026',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(
-                      Icons.person,
-                      'Assigned Officer / مقررہ افسر',
-                      'Officer Tahir Mahmood / افسر طاہر محمود',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(
-                      Icons.business,
-                      'District Office / ڈسٹرکٹ دفتر',
-                      'Lahore Central Office / لاہور سینٹرل دفتر',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(
-                      Icons.timer,
-                      'Supervision Expiry / اختتامِ نگرانی',
-                      '15 December 2026 / 15 دسمبر 2026',
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Main Large Action Button
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 58),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-              icon: const Icon(Icons.check_circle_outline,
-                  color: Colors.white, size: 24),
-              label: const Text(
-                'Start Digital Check-In / حاضری رپورٹ شروع کریں',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              onPressed: onNavigateToCheckIn,
-            ),
-            const SizedBox(height: 24),
-
-            // Recent Activity Section
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text(
-                  'Recent Activity / حالیہ سرگرمی',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B)),
-                ),
-                Icon(Icons.history, color: Colors.black54),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _ActivityTile(
-              icon: Icons.check_circle,
-              color: Colors.green,
-              title: 'Digital Check-In / ڈیجیٹل حاضری رپورٹ',
-              time: 'Yesterday 2:30 PM / کل دوپہر 2:30',
-              statusLabel: 'Verified / تصدیق شدہ',
-            ),
-            const SizedBox(height: 8),
-            _ActivityTile(
-              icon: Icons.event_available,
-              color: const Color(0xFF0F5A47),
-              title: 'Office Visit / دفتری ملاقات',
-              time: '22 July 2026 / 22 جولائی 2026',
-              statusLabel: 'Completed / مکمل',
-            ),
-            const SizedBox(height: 8),
-            _ActivityTile(
-              icon: Icons.school,
-              color: Colors.blue,
-              title: 'Rehab Session / بحالی سیشن',
-              time: '15 July 2026 / 15 جولائی 2026',
-              statusLabel: 'Attended / حاضری مکمل',
-            ),
-            const _FooterDisclaimer(),
-          ],
-        ),
+              Icon(Icons.history, color: Colors.black54),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _ActivityTile(
+            icon: Icons.check_circle,
+            color: Colors.green,
+            title: 'Digital Check-In / ڈیجیٹل حاضری رپورٹ',
+            time: 'Yesterday 2:30 PM / کل دوپہر 2:30',
+            statusLabel: 'Verified / تصدیق شدہ',
+          ),
+          const SizedBox(height: 8),
+          _ActivityTile(
+            icon: Icons.event_available,
+            color: const Color(0xFF0F5A47),
+            title: 'Office Visit / دفتری ملاقات',
+            time: '22 July 2026 / 22 جولائی 2026',
+            statusLabel: 'Completed / مکمل',
+          ),
+          const SizedBox(height: 8),
+          _ActivityTile(
+            icon: Icons.school,
+            color: Colors.blue,
+            title: 'Rehab Session / بحالی سیشن',
+            time: '15 July 2026 / 15 جولائی 2026',
+            statusLabel: 'Attended / حاضری مکمل',
+          ),
+          const _FooterDisclaimer(),
+        ],
       ),
     );
   }

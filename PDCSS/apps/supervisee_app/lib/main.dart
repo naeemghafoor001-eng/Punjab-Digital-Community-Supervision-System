@@ -3,7 +3,11 @@ import 'package:supervisee_app/core/theme/app_theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:supervisee_app/features/home/screens/home_screen.dart';
 
-void main() {
+import 'package:supervisee_app/core/backend/supabase_config.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SupabaseConfig.initialize();
   runApp(const PDCSSSuperviseeApp());
 }
 

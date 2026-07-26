@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supervisee_app/core/backend/raahnuma_backend_service.dart';
 
 class CheckInScreen extends StatefulWidget {
   const CheckInScreen({Key? key}) : super(key: key);
@@ -20,6 +21,9 @@ class _CheckInScreenState extends State<CheckInScreen> {
   bool _complyingConditions = true;
 
   final String _receiptNumber = "PPPS-CI-2026-8941";
+  String _dynamicReceiptNumber = "";
+  bool _isLoading = false;
+  String? _errorMessage;
   late String _submissionTimestamp;
 
   @override
@@ -59,6 +63,9 @@ class _CheckInScreenState extends State<CheckInScreen> {
       _changedEmployment = false;
       _needAssistance = false;
       _complyingConditions = true;
+      _dynamicReceiptNumber = "";
+      _errorMessage = null;
+      _isLoading = false;
       _updateTimestamp();
     });
   }
@@ -88,8 +95,27 @@ class _CheckInScreenState extends State<CheckInScreen> {
             else
               _buildReceiptStep(),
 
-            // Navigation Buttons (only for steps 1-3)
-            if (_currentStep < 3) ...[
+            if (_isLoading) ...[
+              const SizedBox(height: 24),
+              const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0F5A47)),
+                ),
+              ),
+            ] else if (_currentStep < 3) ...[
+              if (_errorMessage != null) ...[
+                const SizedBox(height: 12),
+                Center(
+                  child: Text(
+                    _errorMessage!,
+                    style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
               const SizedBox(height: 24),
               Row(
                 children: [
@@ -133,12 +159,38 @@ class _CheckInScreenState extends State<CheckInScreen> {
     return false;
   }
 
-  void _handleNext() {
+  void _handleNext() async {
     if (_currentStep < 2) {
       setState(() => _currentStep += 1);
     } else if (_currentStep == 2) {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
       _updateTimestamp();
-      setState(() => _currentStep = 3);
+
+      try {
+        final receipt = await RaahnumaBackendService.instance.submitCheckIn(
+          superviseeId: 'f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f',
+          scheduledReportingDate:
+              DateTime.now().toIso8601String().split('T')[0],
+          residingAtAddress: _residingAtAddress,
+          changedEmployment: _changedEmployment,
+          needAssistance: _needAssistance,
+          complyingConditions: _complyingConditions,
+        );
+        setState(() {
+          _dynamicReceiptNumber = receipt;
+          _currentStep = 3;
+          _isLoading = false;
+        });
+      } catch (e) {
+        setState(() {
+          _errorMessage =
+              "Failed to submit check-in. Please try again. / حاضری جمع کرنے میں خرابی۔ دوبارہ کوشش کریں۔";
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -434,7 +486,11 @@ class _CheckInScreenState extends State<CheckInScreen> {
                   fontWeight: FontWeight.bold),
             ),
             const Divider(height: 32),
-            _buildReceiptRow('Receipt Number / رسپٹ نمبر', _receiptNumber),
+            _buildReceiptRow(
+                'Receipt Number / رسپٹ نمبر',
+                _dynamicReceiptNumber.isNotEmpty
+                    ? _dynamicReceiptNumber
+                    : _receiptNumber),
             _buildReceiptRow('Supervisee Name / نام', 'Tariq Mehmood'),
             _buildReceiptRow('Case Reference / کیس نمبر', 'LHR-2026-089'),
             _buildReceiptRow(

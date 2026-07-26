@@ -4,6 +4,7 @@ import 'package:supervisee_app/main.dart';
 void main() {
   testWidgets('PDCSSSuperviseeApp smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(const PDCSSSuperviseeApp());
-    expect(find.textContaining('Raahnuma Dashboard'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.textContaining('Raahnuma Dashboard'), findsWidgets);
   });
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:officer_app/core/theme/officer_app_theme.dart';
+import 'package:officer_app/core/backend/raahnuma_backend_service.dart';
 
 class CaseloadScreen extends StatefulWidget {
   const CaseloadScreen({Key? key}) : super(key: key);
@@ -11,82 +12,59 @@ class CaseloadScreen extends StatefulWidget {
 class _CaseloadScreenState extends State<CaseloadScreen> {
   String _searchQuery = '';
   String _selectedFilter = 'All';
+  List<Map<String, dynamic>> _cases = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
-  final List<Map<String, dynamic>> _cases = [
-    {
-      'name': 'Tariq Mehmood',
-      'reg': 'LHR-2026-089',
-      'district': 'Lahore',
-      'type': 'Probation',
-      'risk': 'Low',
-      'status': 'Compliant',
-      'nextAppointment': '28 Jul 2026',
-      'startDate': '15 January 2026',
-      'expiryDate': '15 December 2026',
-      'conditions':
-          '• Monthly office reporting\n• Retain lawful employment\n• 40 hours community service',
-      'contacts':
-          '• 22 July 2026: Office Visit (Completed)\n• 15 June 2026: Initial Assessment',
-      'rnaScore': 'Low Risk — Score: 14 / 100',
-      'rehabPlan': 'TEVTA Vocational Computer Course (Enrolled)',
-      'nextAction': 'Review digital check-in scheduled for 28 July 2026',
-    },
-    {
-      'name': 'Ahmed Hassan',
-      'reg': 'LHR-2026-142',
-      'district': 'Lahore',
-      'type': 'Parole',
-      'risk': 'High',
-      'status': 'Overdue',
-      'nextAppointment': '25 Jul 2026 (Missed)',
-      'startDate': '01 March 2026',
-      'expiryDate': '01 March 2027',
-      'conditions':
-          '• Bi-weekly office reporting\n• Travel restriction within Lahore district\n• Substance misuse counselling',
-      'contacts':
-          '• 10 July 2026: Telephone Contact\n• 25 June 2026: Workplace Visit',
-      'rnaScore': 'High Risk — Score: 68 / 100',
-      'rehabPlan':
-          'Substance Avoidance Counselling and Family Support Programme',
-      'nextAction': 'Issue overdue reporting notice and schedule welfare visit',
-    },
-    {
-      'name': 'Umar Farooq',
-      'reg': 'LHR-2026-031',
-      'district': 'Lahore',
-      'type': 'Probation',
-      'risk': 'Medium',
-      'status': 'Compliant',
-      'nextAppointment': '01 Aug 2026',
-      'startDate': '10 February 2026',
-      'expiryDate': '10 February 2027',
-      'conditions':
-          '• Monthly office reporting\n• Enrolment in approved vocational training',
-      'contacts':
-          '• 18 July 2026: Office Visit\n• 02 June 2026: Residence Visit',
-      'rnaScore': 'Medium Risk — Score: 42 / 100',
-      'rehabPlan': 'TEVTA Electrical Trade Certification (In Progress)',
-      'nextAction': 'Conduct 90-day periodic Risk and Needs Assessment',
-    },
-    {
-      'name': 'Zubair Khan',
-      'reg': 'LHR-2026-217',
-      'district': 'Lahore',
-      'type': 'Probation',
-      'risk': 'High',
-      'status': 'Violation',
-      'nextAppointment': '29 Jul 2026 (Field Visit)',
-      'startDate': '20 April 2026',
-      'expiryDate': '20 April 2027',
-      'conditions':
-          '• Weekly office reporting\n• Mandatory residence verification\n• No change of address without approval',
-      'contacts':
-          '• 12 July 2026: Telephone (Unanswered)\n• 28 June 2026: Office Visit',
-      'rnaScore': 'High Risk — Score: 74 / 100',
-      'rehabPlan': 'Behavioural Intervention Programme (Referral Pending)',
-      'nextAction': 'Execute planned field visit for residence verification',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadCases();
+  }
+
+  Future<void> _loadCases() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final list = await RaahnumaBackendService.instance.getAssignedCases();
+      final mapped = list
+          .map((c) => {
+                'name': c.fullName,
+                'reg': c.caseNumber,
+                'district': 'Lahore',
+                'type': c.supervisionCategory.contains('Parole')
+                    ? 'Parole'
+                    : 'Probation',
+                'risk': c.complianceStatus == 'Non-Compliant' ? 'High' : 'Low',
+                'status': c.complianceStatus,
+                'nextAppointment': c.nextReportingDate,
+                'startDate': '15 June 2026',
+                'expiryDate': '15 December 2026',
+                'conditions':
+                    '• Monthly office reporting\n• Retain lawful employment\n• 40 hours community service',
+                'contacts': '• 22 July 2026: Office Visit (Completed)',
+                'rnaScore': c.complianceStatus == 'Non-Compliant'
+                    ? 'High Risk — Score: 68 / 100'
+                    : 'Low Risk — Score: 14 / 100',
+                'rehabPlan': 'TEVTA Vocational Computer Course (Enrolled)',
+                'nextAction': 'Review digital check-in scheduled',
+              })
+          .toList();
+
+      setState(() {
+        _cases = mapped;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to load caseload.';
+        _isLoading = false;
+      });
+    }
+  }
 
   List<Map<String, dynamic>> get _filteredCases {
     return _cases.where((c) {
@@ -176,20 +154,37 @@ class _CaseloadScreenState extends State<CaseloadScreen> {
           ),
           // List
           Expanded(
-            child: _filteredCases.isEmpty
+            child: _isLoading
                 ? const Center(
-                    child: Text('No cases match the selected filter.',
-                        style: TextStyle(color: kTextMuted)))
-                : ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-                    itemCount: _filteredCases.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
-                    itemBuilder: (ctx, i) {
-                      final c = _filteredCases[i];
-                      return _CaseCard(
-                          caseData: c, onTap: () => _openCaseProfile(c));
-                    },
-                  ),
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(kGovGreenMid),
+                    ),
+                  )
+                : _errorMessage != null
+                    ? Center(
+                        child: Text(
+                          _errorMessage!,
+                          style: const TextStyle(
+                              color: Colors.red, fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    : _filteredCases.isEmpty
+                        ? const Center(
+                            child: Text('No cases match the selected filter.',
+                                style: TextStyle(color: kTextMuted)),
+                          )
+                        : ListView.separated(
+                            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                            itemCount: _filteredCases.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 8),
+                            itemBuilder: (ctx, i) {
+                              final c = _filteredCases[i];
+                              return _CaseCard(
+                                  caseData: c,
+                                  onTap: () => _openCaseProfile(c));
+                            },
+                          ),
           ),
         ],
       ),

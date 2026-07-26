@@ -3,7 +3,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:officer_app/core/theme/officer_app_theme.dart';
 import 'package:officer_app/features/home/screens/officer_home_screen.dart';
 
-void main() {
+import 'package:officer_app/core/backend/supabase_config.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SupabaseConfig.initialize();
   runApp(const PDCSSOfficerApp());
 }
 
