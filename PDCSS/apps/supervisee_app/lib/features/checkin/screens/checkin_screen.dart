@@ -730,14 +730,14 @@ class _CheckInHeader extends StatelessWidget implements PreferredSizeWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
               Text(
-                'Digital Check-In',
+                'Raahnuma Check-In',
                 style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: Colors.white),
               ),
               Text(
-                'ڈیجیٹل حاضری رپورٹ',
+                'راہنما حاضری رپورٹ',
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,

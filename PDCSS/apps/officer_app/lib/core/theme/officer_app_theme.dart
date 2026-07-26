@@ -79,7 +79,7 @@ class DepartmentalAppBar extends StatelessWidget
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      'Punjab Probation and Parole Service',
+                      'Raahnuma Officer App',
                       style: TextStyle(
                         color: kGovWhite,
                         fontSize: 13,
@@ -90,18 +90,33 @@ class DepartmentalAppBar extends StatelessWidget
                       overflow: TextOverflow.ellipsis,
                     ),
                     const Text(
-                      'Home Department, Government of the Punjab',
+                      'Punjab Community Supervision System',
                       style: TextStyle(
-                          color: Color(0xFFB9F6CA), fontSize: 10, height: 1.3),
+                          color: Color(0xFFB9F6CA),
+                          fontSize: 10,
+                          height: 1.2,
+                          fontWeight: FontWeight.bold),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Text(
-                      screenTitle,
-                      style: const TextStyle(
-                          color: Color(0xFF81C784), fontSize: 10, height: 1.3),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Row(
+                      children: [
+                        Text(
+                          screenTitle,
+                          style: const TextStyle(
+                              color: Color(0xFF81C784),
+                              fontSize: 9,
+                              height: 1.2,
+                              fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const Text(
+                          '  |  Punjab Probation & Parole',
+                          style: TextStyle(
+                              color: Colors.white70, fontSize: 9, height: 1.2),
+                        ),
+                      ],
                     ),
                   ],
                 ),

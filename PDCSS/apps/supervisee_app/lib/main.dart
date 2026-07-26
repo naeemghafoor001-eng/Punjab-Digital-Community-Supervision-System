@@ -13,7 +13,7 @@ class PDCSSSuperviseeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'PDCSS Supervisee',
+      title: 'Raahnuma Supervisee App',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       localizationsDelegates: const [

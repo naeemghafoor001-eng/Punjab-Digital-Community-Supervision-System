@@ -293,7 +293,7 @@ class _DashboardHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Punjab Probation and Parole Service',
+                      'Raahnuma Officer App',
                       style: TextStyle(
                         color: kGovWhite,
                         fontSize: 14,
@@ -305,17 +305,30 @@ class _DashboardHeader extends StatelessWidget {
                     ),
                     SizedBox(height: 2),
                     Text(
-                      'Home Department, Government of the Punjab',
+                      'Punjab Community Supervision System',
                       style: TextStyle(
-                          color: Color(0xFFB9F6CA), fontSize: 11, height: 1.3),
+                          color: Color(0xFFB9F6CA),
+                          fontSize: 11,
+                          height: 1.3,
+                          fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      'Punjab Probation and Parole Service',
+                      style: TextStyle(
+                          color: Colors.white70, fontSize: 10, height: 1.3),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     SizedBox(height: 1),
                     Text(
-                      'Officer Supervision Dashboard',
+                      'Home Department, Government of the Punjab',
                       style: TextStyle(
-                          color: Color(0xFF81C784), fontSize: 10, height: 1.3),
+                          color: Colors.white70, fontSize: 9, height: 1.3),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),

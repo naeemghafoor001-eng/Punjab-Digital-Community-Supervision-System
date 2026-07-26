@@ -12,7 +12,7 @@ class PDCSSWebPortalApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'PDCSS Management Web Portal',
+      title: 'Raahnuma Management Portal',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.teal,

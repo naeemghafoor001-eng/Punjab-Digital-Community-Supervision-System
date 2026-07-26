@@ -2538,7 +2538,7 @@ class _TopHeader extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  'Punjab Probation and Parole Service',
+                  'Raahnuma Management Portal',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -2550,7 +2550,7 @@ class _TopHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 const Text(
-                  'Home Department, Government of the Punjab',
+                  'Directorate General Management and Monitoring Portal',
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -2564,7 +2564,7 @@ class _TopHeader extends StatelessWidget {
                   runSpacing: 2,
                   children: [
                     const Text(
-                      'Punjab Digital Community Supervision System',
+                      'Punjab Probation and Parole Service',
                       style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -2574,11 +2574,11 @@ class _TopHeader extends StatelessWidget {
                       const Text('|',
                           style: TextStyle(fontSize: 10, color: kTextMuted)),
                       const Text(
-                        'Directorate General Management and Monitoring Portal',
+                        'Home Department, Government of the Punjab',
                         style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
-                            color: kGovGreen),
+                            color: kTextMuted),
                       ),
                     ],
                   ],

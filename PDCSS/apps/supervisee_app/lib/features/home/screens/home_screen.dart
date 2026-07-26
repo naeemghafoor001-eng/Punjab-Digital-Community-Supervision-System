@@ -148,7 +148,7 @@ class _BrandingHeader extends StatelessWidget implements PreferredSizeWidget {
                     ),
                     SizedBox(height: 1),
                     Text(
-                      'Punjab Digital Community Supervision System',
+                      'Punjab Community Supervision System / پنجاب کمیونٹی سپرویژن سسٹم',
                       style: TextStyle(
                         fontSize: 9,
                         color: Colors.white54,
@@ -241,7 +241,7 @@ class _DashboardTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const _BrandingHeader(
-        title: 'PDCSS Supervisee Dashboard',
+        title: 'Raahnuma Dashboard',
         urduTitle: 'نگہداشت ڈیش بورڈ',
       ),
       body: SingleChildScrollView(
