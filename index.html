@@ -3,13 +3,60 @@
 <head>
   <meta charset="utf-8">
   <title>PDCSS Demo</title>
-  <meta http-equiv="refresh" content="0; url=PDCSS/demo/supervisee_app/">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 60px auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #0f766e;
+    }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 16px 0;
+      background: #f8fafc;
+    }
+    a.button {
+      display: inline-block;
+      padding: 12px 18px;
+      margin-top: 8px;
+      background: #0f766e;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
   <h1>Punjab Digital Community Supervision System</h1>
-  <p>This is a demonstration prototype using fictional data only.</p>
   <p>
-    <a href="PDCSS/demo/supervisee_app/">Open PDCSS Supervisee Demo</a>
+    Demonstration prototype using fictional data only. This system is not connected
+    to any official PP&amp;PS database, court record, prison system or government
+    identity service.
   </p>
+
+  <div class="card">
+    <h2>Supervisee App Demo</h2>
+    <p>Interface for probationers and parolees to view status, check-in, schedule and profile.</p>
+    <a class="button" href="PDCSS/demo/supervisee_app/">Open Supervisee App</a>
+  </div>
+
+  <div class="card">
+    <h2>Officer App Demo</h2>
+    <p>Interface for Probation and Parole Officers to view assigned cases and supervision tasks.</p>
+    <a class="button" href="PDCSS/demo/officer_app/">Open Officer App</a>
+  </div>
+
+  <div class="card">
+    <h2>Management Web Portal Demo</h2>
+    <p>Interface for monitoring, reporting and management review.</p>
+    <a class="button" href="PDCSS/demo/web_portal/">Open Web Portal</a>
+  </div>
 </body>
 </html>
