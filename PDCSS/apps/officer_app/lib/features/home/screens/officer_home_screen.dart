@@ -180,9 +180,9 @@ class _OfficerDashboardTab extends StatelessWidget {
                     crossAxisCount: wide ? 3 : 2,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: wide ? 1.8 : 1.55,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: wide ? 3.0 : 2.2,
                     children:
                         _metrics.map((m) => _MetricCard(data: m)).toList(),
                   ),
@@ -261,21 +261,27 @@ class _DashboardHeader extends StatelessWidget {
           child: Row(
             children: [
               // PP&PS Logo
-              ClipOval(
-                child: Image.asset(
-                  'assets/images/ppps_logo.png',
-                  width: 56,
-                  height: 56,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    width: 56,
-                    height: 56,
-                    decoration: const BoxDecoration(
-                      color: kGovGreenLight,
-                      shape: BoxShape.circle,
+              Container(
+                width: 60,
+                height: 60,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: ClipOval(
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Image.asset(
+                      'assets/images/ppps_logo.png',
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => const Icon(
+                        Icons.account_balance,
+                        color: kGovGreenMid,
+                        size: 32,
+                      ),
                     ),
-                    child: const Icon(Icons.account_balance,
-                        color: kGovWhite, size: 30),
                   ),
                 ),
               ),
@@ -399,15 +405,16 @@ class _MetricCard extends StatelessWidget {
     return Card(
       elevation: 1,
       color: kGovWhite,
+      margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(8),
         side: BorderSide(color: Colors.grey.shade200),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -415,40 +422,43 @@ class _MetricCard extends StatelessWidget {
                 Text(
                   data.value,
                   style: TextStyle(
-                    fontSize: 26,
+                    fontSize: 20,
                     fontWeight: FontWeight.w800,
                     color: data.color,
-                    height: 1,
+                    height: 1.0,
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
                     color: data.color.withAlpha(20),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Icon(data.icon, color: data.color, size: 18),
+                  child: Icon(data.icon, color: data.color, size: 14),
                 ),
               ],
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  data.title,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: kTextDark,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  data.note,
-                  style: const TextStyle(fontSize: 9, color: kTextMuted),
-                ),
-              ],
+            const SizedBox(height: 4),
+            Text(
+              data.title,
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: kTextDark,
+                height: 1.1,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              data.note,
+              style: const TextStyle(
+                fontSize: 8,
+                color: kTextMuted,
+                height: 1.1,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
