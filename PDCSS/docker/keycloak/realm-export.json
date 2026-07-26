@@ -1,0 +1,33 @@
+{
+  "realm": "pdcss",
+  "enabled": true,
+  "roles": {
+    "realm": [
+      { "name": "ROLE_SUPERVISEE", "description": "Probationer or Parolee user" },
+      { "name": "ROLE_PROBATION_OFFICER", "description": "Probation Officer managing court-ordered cases" },
+      { "name": "ROLE_PAROLE_OFFICER", "description": "Parole Officer managing executive parole cases" },
+      { "name": "ROLE_DISTRICT_SUPERVISOR", "description": "District Supervisory Officer / Assistant Director" },
+      { "name": "ROLE_DIVISIONAL_SUPERVISOR", "description": "Divisional Supervisory Officer / Deputy Director" },
+      { "name": "ROLE_MONITORING_OFFICER", "description": "Directorate Monitoring Officer" },
+      { "name": "ROLE_REHAB_OFFICER", "description": "Rehabilitation Specialist Officer" },
+      { "name": "ROLE_AUDIT_OFFICER", "description": "Internal and External Audit Officer" },
+      { "name": "ROLE_SYSTEM_ADMIN", "description": "System Infrastructure Administrator (No operational case data access)" },
+      { "name": "ROLE_EXECUTIVE_VIEWER", "description": "Director General and Executive Leadership" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "pdcss-backend",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "pdcss-client-secret",
+      "directAccessGrantsEnabled": true
+    },
+    {
+      "clientId": "pdcss-mobile",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true
+    }
+  ]
+}

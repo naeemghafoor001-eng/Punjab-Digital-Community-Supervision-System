@@ -1,0 +1,13 @@
+{
+  "appTitle": "PDCSS Supervisee",
+  "checkinHeading": "Digital Check-In Submission",
+  "consentTitle": "Privacy & Lawful Supervision Notice",
+  "consentMessage": "Location and camera access are used ONLY at this moment to verify your check-in submission as required by your supervision order. Continuous tracking is never performed.",
+  "agreeAndContinue": "I Understand & Consent",
+  "submitCheckin": "Submit Digital Check-In",
+  "receiptTitle": "Official Submission Receipt",
+  "receiptCode": "Receipt Code",
+  "statusVerified": "Submitted & Verified",
+  "statusOffline": "Saved Locally (Pending Sync)",
+  "languageToggle": "اردو / English"
+}
