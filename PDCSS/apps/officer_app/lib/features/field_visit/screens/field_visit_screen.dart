@@ -12,77 +12,213 @@ class FieldVisitPlannerScreen extends StatefulWidget {
 class _FieldVisitPlannerScreenState extends State<FieldVisitPlannerScreen> {
   final List<Map<String, String>> _visits = [
     {
-      'caseRef': 'LHR-2026-217',
-      'name': 'Zubair Khan',
-      'area': 'Gulberg III, Lahore',
-      'purpose': 'Residence & Employment Verification',
-      'time': '29 July 2026, 11:30 AM',
-      'safety': 'Standard daytime visit. Accompanied by paired officer.',
-      'outcome': 'Pending Visit Completion',
-    },
-    {
-      'caseRef': 'LHR-2026-142',
-      'name': 'Ahmed Hassan',
-      'area': 'Model Town, Lahore',
-      'purpose': 'Parole Compliance & Family Interview',
-      'time': '30 July 2026, 02:00 PM',
-      'safety': 'Prior phone confirmation required. No security alerts.',
-      'outcome': 'Pending Visit Completion',
-    },
-    {
       'caseRef': 'LHR-2026-089',
       'name': 'Tariq Mehmood',
-      'area': 'Johar Town, Lahore',
-      'purpose': 'Routine Home Visit & Supervision Review',
-      'time': '02 August 2026, 10:00 AM',
-      'safety': 'Standard daytime protocol.',
+      'type': 'Home Field Visit',
+      'area': 'Johar Town, Sector F, Lahore',
+      'purpose': 'Residence & Employment Verification',
+      'time': '29 July 2026 at 11:30 AM',
+      'safety': 'Standard daytime protocol. Co-officer assigned.',
+      'outcome': 'Scheduled',
+    },
+    {
+      'caseRef': 'LHR-2026-042',
+      'name': 'Muhammad Usama',
+      'type': 'Employer Contact',
+      'area': 'Gulberg Industrial Area, Lahore',
+      'purpose': 'Vocational Skills & Employment Check',
+      'time': '30 July 2026 at 02:00 PM',
+      'safety': 'Prior phone confirmation required.',
+      'outcome': 'Confirmed',
+    },
+    {
+      'caseRef': 'LHR-2026-118',
+      'name': 'Ali Raza',
+      'type': 'Office Contact Visit',
+      'area': 'Lahore Central Office, Home Dept',
+      'purpose': 'Monthly Supervision Reporting & Rehab Follow-up',
+      'time': '02 August 2026 at 10:00 AM',
+      'safety': 'Standard office reporting protocol.',
       'outcome': 'Scheduled',
     },
   ];
 
-  void _showAddVisitModal() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Schedule new field visit action triggered.'),
-        backgroundColor: kGovGreenMid,
-        behavior: SnackBarBehavior.floating,
-      ),
+  void _showRecordContactModal() {
+    final nameController =
+        TextEditingController(text: 'Tariq Mehmood (LHR-2026-089)');
+    final locationController =
+        TextEditingController(text: 'Johar Town, Sector F, Lahore');
+    final notesController = TextEditingController(
+        text:
+            'Supervisee present at residence. Verified employment status with employer.');
+    String contactType = 'Home Field Visit';
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: const [
+              Icon(Icons.edit_note, color: kGovGreen),
+              SizedBox(width: 8),
+              Text('Record Field Visit / Contact',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Contact / Visit Type',
+                    style:
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                DropdownButtonFormField<String>(
+                  value: contactType,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  ),
+                  items: [
+                    'Home Field Visit',
+                    'Office Contact Visit',
+                    'Telephone Contact',
+                    'Employer Verification',
+                  ]
+                      .map((t) => DropdownMenuItem(
+                          value: t,
+                          child: Text(t, style: const TextStyle(fontSize: 12))))
+                      .toList(),
+                  onChanged: (val) {
+                    if (val != null) contactType = val;
+                  },
+                ),
+                const SizedBox(height: 12),
+                const Text('Supervisee / Case Ref',
+                    style:
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text('Location / District Address',
+                    style:
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                TextField(
+                  controller: locationController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text('Officer Visit Notes & Outcome',
+                    style:
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                TextField(
+                  controller: notesController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    contentPadding: const EdgeInsets.all(10),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: kGovGreen),
+              onPressed: () {
+                Navigator.pop(context);
+                setState(() {
+                  _visits.insert(0, {
+                    'caseRef': 'LHR-2026-089',
+                    'name': nameController.text.split(' ')[0],
+                    'type': contactType,
+                    'area': locationController.text,
+                    'purpose': notesController.text,
+                    'time': 'Today at ${TimeOfDay.now().format(context)}',
+                    'safety': 'Standard protocol.',
+                    'outcome': 'Completed & Recorded',
+                  });
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content:
+                        Text('Field visit/contact record saved successfully.'),
+                    backgroundColor: kGovGreen,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+              child: const Text('Save Record',
+                  style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F0),
+      backgroundColor: const Color(0xFFF8FAFC),
       body: Column(
         children: [
           DepartmentalAppBar(
-            screenTitle: 'Field Visit Planner',
-            trailing: IconButton(
-              icon: const Icon(Icons.add_circle_outline,
-                  color: kGovWhite, size: 24),
-              onPressed: _showAddVisitModal,
-              tooltip: 'Schedule Field Visit',
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(minWidth: 32),
+            screenTitle: 'Field Visit & Contact Planner',
+            trailing: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: kGovGreen,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                minimumSize: Size.zero,
+              ),
+              icon: const Icon(Icons.add, size: 16),
+              label: const Text('Record Visit',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+              onPressed: _showRecordContactModal,
             ),
           ),
           Expanded(
-            child: ListView.separated(
+            child: ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: _visits.length + 1,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 if (index == _visits.length) {
                   return Padding(
-                    padding: const EdgeInsets.only(top: 12, bottom: 8),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Center(
                       child: Text(
-                        'Sample interface with fictional records for review and presentation purposes.',
+                        'Public prototype using fictional records for review and presentation purposes.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey.shade500,
+                            fontSize: 10.5,
+                            color: Colors.grey.shade600,
                             fontStyle: FontStyle.italic),
                       ),
                     ),
@@ -90,14 +226,18 @@ class _FieldVisitPlannerScreenState extends State<FieldVisitPlannerScreen> {
                 }
 
                 final visit = _visits[index];
-                final isPending = visit['outcome']!.contains('Pending');
+                final isCompleted = visit['outcome']!.contains('Completed');
 
                 return Card(
-                  elevation: 1,
-                  color: kGovWhite,
+                  elevation: 2,
+                  margin: const EdgeInsets.only(bottom: 12),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    side: BorderSide(color: Colors.grey.shade200),
+                    borderRadius: BorderRadius.circular(14),
+                    side: BorderSide(
+                      color: isCompleted
+                          ? Colors.green.shade300
+                          : Colors.grey.shade200,
+                    ),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -107,74 +247,97 @@ class _FieldVisitPlannerScreenState extends State<FieldVisitPlannerScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              '${visit['name']} (${visit['caseRef']})',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 15,
-                                  color: kGovGreen),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: kGovGreen.withAlpha(20),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(Icons.directions_walk,
+                                      color: kGovGreen, size: 18),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  visit['type']!,
+                                  style: const TextStyle(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: kGovGreen,
+                                  ),
+                                ),
+                              ],
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: isPending
-                                    ? const Color(0xFFE65100).withAlpha(20)
-                                    : kGovGreenMid.withAlpha(20),
-                                borderRadius: BorderRadius.circular(12),
+                                color: isCompleted
+                                    ? const Color(0xFFDCFCE7)
+                                    : const Color(0xFFEFF6FF),
+                                borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
-                                  color: isPending
-                                      ? const Color(0xFFE65100).withAlpha(80)
-                                      : kGovGreenMid.withAlpha(80),
+                                  color:
+                                      isCompleted ? Colors.green : Colors.blue,
                                 ),
                               ),
                               child: Text(
                                 visit['outcome']!,
                                 style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: isPending
-                                      ? const Color(0xFFE65100)
-                                      : kGovGreenMid,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: isCompleted
+                                      ? Colors.green.shade800
+                                      : Colors.blue.shade900,
                                 ),
                               ),
                             ),
                           ],
                         ),
                         const Divider(height: 20),
-                        _buildVisitRow(
-                            Icons.location_on_outlined, 'Area', visit['area']!),
-                        _buildVisitRow(Icons.assignment_outlined, 'Purpose',
-                            visit['purpose']!),
-                        _buildVisitRow(
-                            Icons.access_time, 'Planned Time', visit['time']!),
-                        _buildVisitRow(Icons.shield_outlined, 'Safety Note',
-                            visit['safety']!),
-                        const SizedBox(height: 14),
+                        Text(
+                          'Supervisee: ${visit['name']} (${visit['caseRef']})',
+                          style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: kTextDark),
+                        ),
+                        const SizedBox(height: 4),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            OutlinedButton.icon(
-                              icon:
-                                  const Icon(Icons.note_add_outlined, size: 16),
-                              label: const Text('Record Outcome',
-                                  style: TextStyle(fontSize: 12)),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: kGovGreenMid,
-                                side: const BorderSide(color: kGovGreenMid),
+                            const Icon(Icons.location_on_outlined,
+                                size: 14, color: kTextMuted),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                visit['area']!,
+                                style: const TextStyle(
+                                    fontSize: 11.5, color: kTextMuted),
                               ),
-                              onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                        'Visit outcome recorded for ${visit['caseRef']}'),
-                                    backgroundColor: kGovGreenMid,
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              },
                             ),
                           ],
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            const Icon(Icons.schedule,
+                                size: 14, color: kTextMuted),
+                            const SizedBox(width: 4),
+                            Text(
+                              visit['time']!,
+                              style: const TextStyle(
+                                  fontSize: 11.5,
+                                  color: kTextDark,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Purpose & Notes: ${visit['purpose']}',
+                          style: const TextStyle(
+                              fontSize: 11.5, color: kTextDark, height: 1.3),
                         ),
                       ],
                     ),
@@ -183,30 +346,6 @@ class _FieldVisitPlannerScreenState extends State<FieldVisitPlannerScreen> {
               },
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildVisitRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 16, color: kTextMuted),
-          const SizedBox(width: 8),
-          Text('$label: ',
-              style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12,
-                  color: kTextMuted)),
-          Expanded(
-              child: Text(value,
-                  style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: kTextDark))),
         ],
       ),
     );

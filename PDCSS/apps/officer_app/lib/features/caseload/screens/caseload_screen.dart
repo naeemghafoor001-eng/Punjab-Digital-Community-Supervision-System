@@ -34,23 +34,24 @@ class _CaseloadScreenState extends State<CaseloadScreen> {
           .map((c) => {
                 'name': c.fullName,
                 'reg': c.caseNumber,
-                'district': 'Lahore',
+                'district': 'Lahore Central Office',
+                'officer': 'Officer Tahir Mahmood',
                 'type': c.supervisionCategory.contains('Parole')
                     ? 'Parole'
                     : 'Probation',
                 'risk': c.complianceStatus == 'Non-Compliant' ? 'High' : 'Low',
                 'status': c.complianceStatus,
                 'nextAppointment': c.nextReportingDate,
-                'startDate': '15 June 2026',
+                'startDate': '15 May 2026',
                 'expiryDate': '15 December 2026',
                 'conditions':
-                    '• Monthly office reporting\n• Retain lawful employment\n• 40 hours community service',
-                'contacts': '• 22 July 2026: Office Visit (Completed)',
+                    '• Monthly office reporting & digital check-in\n• Retain approved residence & employment\n• 40 hours mandatory community rehabilitation',
+                'contacts': '• 22 July 2026: Office Reporting (Completed)',
                 'rnaScore': c.complianceStatus == 'Non-Compliant'
-                    ? 'High Risk — Score: 68 / 100'
-                    : 'Low Risk — Score: 14 / 100',
-                'rehabPlan': 'TEVTA Vocational Computer Course (Enrolled)',
-                'nextAction': 'Review digital check-in scheduled',
+                    ? 'High Risk — RNA Score: 68 / 100'
+                    : 'Low Risk — RNA Score: 14 / 100',
+                'rehabPlan': 'TEVTA Vocational Skills Course (Enrolled)',
+                'nextAction': 'Review digital check-in submission',
               })
           .toList();
 
@@ -60,7 +61,7 @@ class _CaseloadScreenState extends State<CaseloadScreen> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Failed to load caseload.';
+        _errorMessage = 'Failed to load caseload records.';
         _isLoading = false;
       });
     }
@@ -71,14 +72,19 @@ class _CaseloadScreenState extends State<CaseloadScreen> {
       final q = _searchQuery.toLowerCase();
       final matchesSearch = (c['name'] as String).toLowerCase().contains(q) ||
           (c['reg'] as String).toLowerCase().contains(q);
-      if (_selectedFilter == 'All') return matchesSearch;
-      if (_selectedFilter == 'Probation')
-        return matchesSearch && c['type'] == 'Probation';
-      if (_selectedFilter == 'Parole')
-        return matchesSearch && c['type'] == 'Parole';
-      return matchesSearch &&
-          (c['status'] as String).toLowerCase() ==
-              _selectedFilter.toLowerCase();
+      if (!matchesSearch) return false;
+
+      if (_selectedFilter == 'All') return true;
+      if (_selectedFilter == 'Probation') return c['type'] == 'Probation';
+      if (_selectedFilter == 'Parole') return c['type'] == 'Parole';
+      if (_selectedFilter == 'Low Risk') return c['risk'] == 'Low';
+      if (_selectedFilter == 'Medium Risk') return c['risk'] == 'Medium';
+      if (_selectedFilter == 'High Risk') return c['risk'] == 'High';
+      if (_selectedFilter == 'Overdue') return c['status'] == 'Overdue';
+      if (_selectedFilter == 'Pending Review') return c['status'] == 'Pending';
+
+      return (c['status'] as String).toLowerCase() ==
+          _selectedFilter.toLowerCase();
     }).toList();
   }
 
@@ -92,28 +98,30 @@ class _CaseloadScreenState extends State<CaseloadScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F0),
+      backgroundColor: const Color(0xFFF8FAFC),
       body: Column(
         children: [
-          DepartmentalAppBar(screenTitle: 'Case Management — My Caseload'),
-          // Search + Filter
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          const DepartmentalAppBar(screenTitle: 'Assigned Caseload Monitoring'),
+
+          // Search & Filter Panel
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            color: Colors.white,
             child: Column(
               children: [
                 TextField(
                   onChanged: (v) => setState(() => _searchQuery = v),
                   decoration: InputDecoration(
-                    hintText: 'Search by supervisee name or reference number…',
-                    hintStyle: const TextStyle(fontSize: 13),
+                    hintText: 'Search by supervisee name or case reference…',
+                    hintStyle: const TextStyle(fontSize: 12.5),
                     prefixIcon:
-                        const Icon(Icons.search, color: kGovGreenMid, size: 20),
+                        const Icon(Icons.search, color: kGovGreen, size: 20),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(color: Colors.grey.shade300),
                     ),
                     filled: true,
-                    fillColor: kGovWhite,
+                    fillColor: const Color(0xFFF8FAFC),
                     contentPadding: const EdgeInsets.symmetric(vertical: 10),
                   ),
                 ),
@@ -125,22 +133,23 @@ class _CaseloadScreenState extends State<CaseloadScreen> {
                       'All',
                       'Probation',
                       'Parole',
+                      'Low Risk',
+                      'High Risk',
                       'Compliant',
                       'Overdue',
-                      'Violation'
                     ].map((f) {
                       final sel = _selectedFilter == f;
                       return Padding(
-                        padding: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.only(right: 6),
                         child: ChoiceChip(
                           label: Text(f,
                               style: TextStyle(
-                                  fontSize: 12,
-                                  color: sel ? kGovWhite : kTextDark,
-                                  fontWeight: FontWeight.w500)),
+                                  fontSize: 11.5,
+                                  color: sel ? Colors.white : kTextDark,
+                                  fontWeight: FontWeight.bold)),
                           selected: sel,
-                          selectedColor: kGovGreenMid,
-                          backgroundColor: kGovWhite,
+                          selectedColor: kGovGreen,
+                          backgroundColor: const Color(0xFFF1F5F9),
                           onSelected: (_) =>
                               setState(() => _selectedFilter = f),
                           visualDensity: VisualDensity.compact,
@@ -152,320 +161,395 @@ class _CaseloadScreenState extends State<CaseloadScreen> {
               ],
             ),
           ),
-          // List
+          const Divider(height: 1),
+
+          // Caseload List View
           Expanded(
             child: _isLoading
                 ? const Center(
                     child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(kGovGreenMid),
+                      valueColor: AlwaysStoppedAnimation<Color>(kGovGreen),
                     ),
                   )
                 : _errorMessage != null
                     ? Center(
-                        child: Text(
-                          _errorMessage!,
-                          style: const TextStyle(
-                              color: Colors.red, fontWeight: FontWeight.bold),
-                        ),
+                        child: Text(_errorMessage!,
+                            style: const TextStyle(color: Colors.red)),
                       )
                     : _filteredCases.isEmpty
                         ? const Center(
-                            child: Text('No cases match the selected filter.',
-                                style: TextStyle(color: kTextMuted)),
+                            child: Text(
+                              'No matching cases found.',
+                              style: TextStyle(color: kTextMuted),
+                            ),
                           )
-                        : ListView.separated(
-                            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-                            itemCount: _filteredCases.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 8),
-                            itemBuilder: (ctx, i) {
-                              final c = _filteredCases[i];
-                              return _CaseCard(
-                                  caseData: c,
-                                  onTap: () => _openCaseProfile(c));
-                            },
+                        : RefreshIndicator(
+                            onRefresh: _loadCases,
+                            child: ListView.builder(
+                              padding: const EdgeInsets.all(16),
+                              itemCount: _filteredCases.length,
+                              itemBuilder: (context, i) {
+                                final c = _filteredCases[i];
+                                return _buildCaseCard(c);
+                              },
+                            ),
                           ),
           ),
         ],
       ),
     );
   }
-}
 
-// ─── Case List Card ──────────────────────────────────────────────────────────
-class _CaseCard extends StatelessWidget {
-  final Map<String, dynamic> caseData;
-  final VoidCallback onTap;
-  const _CaseCard({required this.caseData, required this.onTap});
+  Widget _buildCaseCard(Map<String, dynamic> c) {
+    final risk = c['risk'] as String;
+    final rColor = riskColor(risk);
+    final sColor = statusColor(c['status'] as String);
 
-  @override
-  Widget build(BuildContext context) {
-    final sc = statusColor(caseData['status'] as String);
-    final rc = riskColor(caseData['risk'] as String);
-    return Material(
-      color: kGovWhite,
-      borderRadius: BorderRadius.circular(10),
-      elevation: 1,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(10),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Row(
-            children: [
-              // Left accent bar
-              Container(
-                width: 4,
-                height: 54,
-                decoration: BoxDecoration(
-                  color: sc,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          caseData['name'] as String,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                              color: kTextDark),
-                        ),
-                        _MiniChip(
-                            label: caseData['status'] as String, color: sc),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Text(
-                          '${caseData['reg']}',
-                          style: const TextStyle(
-                              fontSize: 12,
-                              color: kTextMuted,
-                              fontWeight: FontWeight.w500),
-                        ),
-                        const Text(' · ', style: TextStyle(color: kTextMuted)),
-                        _MiniChip(
-                            label: caseData['type'] as String,
-                            color: kGovGreenMid),
-                        const SizedBox(width: 4),
-                        _MiniChip(
-                            label: 'Risk: ${caseData['risk']}', color: rc),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.calendar_today_outlined,
-                            size: 11, color: kTextMuted),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Next: ${caseData['nextAppointment']}',
-                          style:
-                              const TextStyle(fontSize: 11, color: kTextMuted),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 20),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _MiniChip extends StatelessWidget {
-  final String label;
-  final Color color;
-  const _MiniChip({required this.label, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withAlpha(22),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withAlpha(80)),
-      ),
-      child: Text(label,
-          style: TextStyle(
-              fontSize: 10, color: color, fontWeight: FontWeight.w600)),
-    );
-  }
-}
-
-// ─── Case Profile Screen ─────────────────────────────────────────────────────
-class CaseProfileScreen extends StatelessWidget {
-  final Map<String, dynamic> caseData;
-  const CaseProfileScreen({Key? key, required this.caseData}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final sc = statusColor(caseData['status'] as String);
-    return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F0),
-      body: Column(
-        children: [
-          DepartmentalAppBar(screenTitle: 'Case Profile — ${caseData['reg']}'),
-          // Case header band
-          Container(
-            color: kGovGreen,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: kGovWhite.withAlpha(30),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.person, color: kGovWhite, size: 28),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(caseData['name'] as String,
-                          style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w800,
-                              color: kGovWhite)),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${caseData['reg']} · ${caseData['type']} · ${caseData['district']}',
-                        style: const TextStyle(
-                            fontSize: 12, color: Color(0xFFB9F6CA)),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: sc.withAlpha(40),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: sc.withAlpha(120)),
-                  ),
-                  child: Text(caseData['status'] as String,
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: sc == kGovGreenMid ? Colors.white : sc)),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  _profileSection('Case Information', Icons.badge_outlined, [
-                    ['Supervision Start', caseData['startDate'] as String],
-                    ['Supervision Expiry', caseData['expiryDate'] as String],
-                    ['Next Appointment', caseData['nextAppointment'] as String],
-                    ['Risk Level', caseData['risk'] as String],
-                  ]),
-                  _profileSection(
-                      'Supervision Conditions', Icons.gavel_outlined, null,
-                      bodyText: caseData['conditions'] as String),
-                  _profileSection(
-                      'Contact History', Icons.history_outlined, null,
-                      bodyText: caseData['contacts'] as String),
-                  _profileSection('Risk and Needs Assessment',
-                      Icons.analytics_outlined, null,
-                      bodyText: caseData['rnaScore'] as String),
-                  _profileSection(
-                      'Rehabilitation Plan', Icons.school_outlined, null,
-                      bodyText: caseData['rehabPlan'] as String),
-                  _profileSection('Next Required Action',
-                      Icons.pending_actions_outlined, null,
-                      bodyText: caseData['nextAction'] as String,
-                      accentColor: kGovGreenMid),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _profileSection(String title, IconData icon, List<List<String>>? rows,
-      {String? bodyText, Color? accentColor}) {
     return Card(
-      elevation: 1,
+      elevation: 2,
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: Colors.grey.shade200),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(icon, color: kGovGreenMid, size: 18),
-                const SizedBox(width: 8),
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: kTextDark)),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        c['name'] as String,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: kTextDark,
+                        ),
+                      ),
+                      Text(
+                        'Case Ref: ${c['reg']} · Type: ${c['type']}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: kGovGreen,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: rColor.withAlpha(20),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: rColor),
+                      ),
+                      child: Text(
+                        '$risk Risk',
+                        style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: rColor),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: sColor.withAlpha(20),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: sColor),
+                      ),
+                      child: Text(
+                        c['status'] as String,
+                        style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: sColor),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
-            const Divider(height: 16),
-            if (rows != null)
-              ...rows.map((r) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Text(r[0],
-                              style: const TextStyle(
-                                  fontSize: 12, color: kTextMuted)),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Text(r[1],
-                              style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: kTextDark)),
-                        ),
-                      ],
-                    ),
-                  )),
-            if (bodyText != null)
-              Text(bodyText,
-                  style: TextStyle(
-                      fontSize: 13,
-                      height: 1.5,
-                      color: accentColor ?? kTextDark,
-                      fontWeight: accentColor != null
-                          ? FontWeight.w600
-                          : FontWeight.normal)),
+            const Divider(height: 20),
+            Row(
+              children: [
+                const Icon(Icons.business_outlined,
+                    size: 15, color: kTextMuted),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Office: ${c['district']} · Officer: ${c['officer']}',
+                    style: const TextStyle(fontSize: 11.5, color: kTextMuted),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.calendar_today_outlined,
+                    size: 15, color: kGovGreen),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Next Reporting: ${c['nextAppointment']}',
+                    style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: kTextDark),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () => _openCaseProfile(c),
+                  icon: const Icon(Icons.folder_open, size: 16),
+                  label: const Text('View Full Case Profile',
+                      style: TextStyle(fontSize: 11)),
+                  style: OutlinedButton.styleFrom(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    minimumSize: Size.zero,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COMPREHENSIVE CASE PROFILE SCREEN
+// ─────────────────────────────────────────────────────────────────────────────
+class CaseProfileScreen extends StatelessWidget {
+  final Map<String, dynamic> caseData;
+  const CaseProfileScreen({required this.caseData, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: DepartmentalAppBar(
+        screenTitle: 'Supervisee Case Profile — ${caseData['reg']}',
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Supervisee Header Card
+            Card(
+              elevation: 2,
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+                side: const BorderSide(color: kGovGreen, width: 1.2),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(18),
+                child: Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 32,
+                      backgroundColor: kGovGreen,
+                      child: Icon(Icons.person, size: 40, color: Colors.white),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            caseData['name'] as String,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: kTextDark,
+                            ),
+                          ),
+                          Text(
+                            'Case Ref: ${caseData['reg']} · Type: ${caseData['type']}',
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.bold,
+                              color: kGovGreen,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Status: ${caseData['status']} · Risk: ${caseData['risk']} Risk',
+                            style: const TextStyle(
+                                fontSize: 11.5, color: kTextMuted),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Section 1: Case Overview
+            const SectionHeading(
+                title: 'Case Overview & Registration',
+                icon: Icons.badge_outlined),
+            Card(
+              elevation: 1,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    _buildRow('Masked CNIC', '35201-xxxxxxx-x'),
+                    const Divider(),
+                    _buildRow(
+                        'Supervision Category', caseData['type'] as String),
+                    const Divider(),
+                    _buildRow('Assigned Probation Officer',
+                        caseData['officer'] as String),
+                    const Divider(),
+                    _buildRow(
+                        'District Office', caseData['district'] as String),
+                    const Divider(),
+                    _buildRow('Supervision Start Date',
+                        caseData['startDate'] as String),
+                    const Divider(),
+                    _buildRow('Supervision Expiry Date',
+                        caseData['expiryDate'] as String),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+
+            // Section 2: Supervision Conditions
+            const SectionHeading(
+                title: 'Court / Parole Supervision Conditions',
+                icon: Icons.gavel_outlined),
+            Card(
+              elevation: 1,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  caseData['conditions'] as String,
+                  style: const TextStyle(
+                      fontSize: 12.5, height: 1.5, color: kTextDark),
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+
+            // Section 3: Risk & Needs Assessment
+            const SectionHeading(
+                title: 'Risk & Needs Assessment (RNA)',
+                icon: Icons.analytics_outlined),
+            Card(
+              elevation: 1,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  caseData['rnaScore'] as String,
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: kGovGreen),
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+
+            // Section 4: Rehabilitation Plan
+            const SectionHeading(
+                title: 'Rehabilitation & Reintegration Plan',
+                icon: Icons.volunteer_activism_outlined),
+            Card(
+              elevation: 1,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  caseData['rehabPlan'] as String,
+                  style: const TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.bold,
+                      color: kTextDark),
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+
+            // Section 5: Recent Contact Notes
+            const SectionHeading(
+                title: 'Officer Contact & Field Visit History',
+                icon: Icons.edit_note_outlined),
+            Card(
+              elevation: 1,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  caseData['contacts'] as String,
+                  style: const TextStyle(
+                      fontSize: 12, height: 1.4, color: kTextDark),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            Center(
+              child: Text(
+                'Public prototype using fictional records for review and presentation purposes.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey.shade600,
+                    fontStyle: FontStyle.italic),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label,
+              style: const TextStyle(fontSize: 11.5, color: kTextMuted)),
+          Text(value,
+              style: const TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.bold,
+                  color: kTextDark)),
+        ],
       ),
     );
   }

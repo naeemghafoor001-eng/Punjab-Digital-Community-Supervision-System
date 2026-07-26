@@ -57,14 +57,15 @@ class _AlertsScreenState extends State<AlertsScreen> {
 
   Color _severityColor(String severity) {
     switch (severity) {
+      case 'Critical':
       case 'High':
       case 'Overdue':
       case 'Violation':
-        return const Color(0xFFC62828);
+        return const Color(0xFFDC2626);
       case 'Medium':
-        return const Color(0xFFE65100);
+        return const Color(0xFFD97706);
       default:
-        return const Color(0xFF1565C0);
+        return const Color(0xFF0284C7);
     }
   }
 
@@ -72,7 +73,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Action recorded: "$actionLabel" — Alert $alertId'),
-        backgroundColor: kGovGreenMid,
+        backgroundColor: kGovGreen,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -97,9 +98,11 @@ class _AlertsScreenState extends State<AlertsScreen> {
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update alert status.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update alert status.')),
+        );
+      }
     }
   }
 
@@ -113,266 +116,252 @@ class _AlertsScreenState extends State<AlertsScreen> {
       await RaahnumaBackendService.instance
           .updateAlertStatus(alert['id'] as String, status);
       await _loadAlerts();
-      _recordAction(alert['id'] as String, 'Alert set to $status');
+      _recordAction(alert['id'] as String, 'Alert status updated to $status');
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update alert status.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update alert status.')),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final unresolved = _alerts.where((a) => !(a['resolved'] as bool)).length;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F0),
+      backgroundColor: const Color(0xFFF8FAFC),
       body: Column(
         children: [
           DepartmentalAppBar(
-            screenTitle: 'Supervision Alerts ($unresolved Active)',
+            screenTitle: 'Supervision Alerts & Compliance Triggers',
+            trailing: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: unresolved > 0 ? const Color(0xFFDC2626) : kGovGreen,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '$unresolved Open Alert${unresolved == 1 ? '' : 's'}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ),
+
+          // Explicit Legal/Administrative Notice
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            color: const Color(0xFFFEF3C7),
+            child: Row(
+              children: const [
+                Icon(Icons.info_outline, color: Color(0xFFB45309), size: 18),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Alerts support officer review and do not constitute automatic violation findings.',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF92400E),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           Expanded(
             child: _isLoading
                 ? const Center(
                     child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(kGovGreenMid),
+                      valueColor: AlwaysStoppedAnimation<Color>(kGovGreen),
                     ),
                   )
                 : _errorMessage != null
                     ? Center(
-                        child: Text(
-                          _errorMessage!,
-                          style: const TextStyle(
-                              color: Colors.red, fontWeight: FontWeight.bold),
-                        ),
+                        child: Text(_errorMessage!,
+                            style: const TextStyle(color: Colors.red)),
                       )
                     : _alerts.isEmpty
                         ? const Center(
                             child: Text(
-                              'No active alerts.',
+                              'No supervision alerts registered.',
                               style: TextStyle(color: kTextMuted),
                             ),
                           )
-                        : ListView.separated(
-                            padding: const EdgeInsets.all(16),
-                            itemCount: _alerts.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 10),
-                            itemBuilder: (ctx, i) {
-                              final alert = _alerts[i];
-                              final resolved = alert['resolved'] as bool;
-                              final sColor =
-                                  _severityColor(alert['severity'] as String);
-
-                              return AnimatedOpacity(
-                                opacity: resolved ? 0.55 : 1.0,
-                                duration: const Duration(milliseconds: 300),
-                                child: Card(
-                                  elevation: resolved ? 0 : 1,
-                                  color: resolved
-                                      ? Colors.grey.shade100
-                                      : kGovWhite,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    side: BorderSide(
-                                        color: resolved
-                                            ? Colors.grey.shade200
-                                            : sColor.withAlpha(60)),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(14),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        // Header row
-                                        Row(
-                                          children: [
-                                            Container(
-                                              width: 4,
-                                              height: 40,
-                                              decoration: BoxDecoration(
-                                                color: resolved
-                                                    ? Colors.grey.shade400
-                                                    : sColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 10),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      Expanded(
-                                                        child: Text(
-                                                          alert['category']
-                                                              as String,
-                                                          style: TextStyle(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            color: resolved
-                                                                ? Colors.grey
-                                                                : kTextDark,
-                                                            decoration: resolved
-                                                                ? TextDecoration
-                                                                    .lineThrough
-                                                                : null,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      _SeverityBadge(
-                                                        label: alert['severity']
-                                                            as String,
-                                                        color: sColor,
-                                                        resolved: resolved,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  const SizedBox(height: 3),
-                                                  Text(
-                                                    '${alert['name']}  ·  ${alert['caseRef']}  ·  ${alert['type']}  ·  ${alert['date']}',
-                                                    style: const TextStyle(
-                                                        fontSize: 11,
-                                                        color: kTextMuted,
-                                                        fontWeight:
-                                                            FontWeight.w500),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Text(
-                                          alert['detail'] as String,
-                                          style: const TextStyle(
-                                              fontSize: 13,
-                                              color: kTextDark,
-                                              height: 1.4),
-                                        ),
-                                        const SizedBox(height: 12),
-                                        const Divider(height: 1),
-                                        const SizedBox(height: 10),
-                                        // Action buttons
-                                        Wrap(
-                                          spacing: 8,
-                                          runSpacing: 6,
-                                          children: [
-                                            OutlinedButton.icon(
-                                              icon: const Icon(
-                                                  Icons.visibility_outlined,
-                                                  size: 15),
-                                              label: const Text('Review',
-                                                  style:
-                                                      TextStyle(fontSize: 12)),
-                                              style: OutlinedButton.styleFrom(
-                                                foregroundColor: kGovGreenMid,
-                                                side: const BorderSide(
-                                                    color: kGovGreenMid),
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 12,
-                                                        vertical: 6),
-                                                minimumSize: Size.zero,
-                                              ),
-                                              onPressed: () =>
-                                                  _updateAlertStatus(
-                                                      i, 'In Review'),
-                                            ),
-                                            OutlinedButton.icon(
-                                              icon: const Icon(
-                                                  Icons.edit_note_outlined,
-                                                  size: 15),
-                                              label: const Text('Record Action',
-                                                  style:
-                                                      TextStyle(fontSize: 12)),
-                                              style: OutlinedButton.styleFrom(
-                                                foregroundColor:
-                                                    const Color(0xFF1565C0),
-                                                side: const BorderSide(
-                                                    color: Color(0xFF1565C0)),
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 12,
-                                                        vertical: 6),
-                                                minimumSize: Size.zero,
-                                              ),
-                                              onPressed: () => _recordAction(
-                                                  alert['id'] as String,
-                                                  'Action Noted'),
-                                            ),
-                                            ElevatedButton.icon(
-                                              icon: Icon(
-                                                  resolved
-                                                      ? Icons.undo_outlined
-                                                      : Icons
-                                                          .check_circle_outline,
-                                                  size: 15),
-                                              label: Text(
-                                                  resolved
-                                                      ? 'Reopen'
-                                                      : 'Mark as Resolved',
-                                                  style: const TextStyle(
-                                                      fontSize: 12)),
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: resolved
-                                                    ? Colors.grey
-                                                    : kGovGreenMid,
-                                                foregroundColor: kGovWhite,
-                                                elevation: 0,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 12,
-                                                        vertical: 6),
-                                                minimumSize: Size.zero,
-                                              ),
-                                              onPressed: () =>
-                                                  _toggleResolve(i),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
+                        : RefreshIndicator(
+                            onRefresh: _loadAlerts,
+                            child: ListView.builder(
+                              padding: const EdgeInsets.all(16),
+                              itemCount: _alerts.length,
+                              itemBuilder: (context, i) {
+                                final a = _alerts[i];
+                                return _buildAlertCard(i, a);
+                              },
+                            ),
                           ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12, top: 4),
+            child: Center(
+              child: Text(
+                'Public prototype using fictional records for review and presentation purposes.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 10.5,
+                    color: Colors.grey.shade600,
+                    fontStyle: FontStyle.italic),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
-}
 
-class _SeverityBadge extends StatelessWidget {
-  final String label;
-  final Color color;
-  final bool resolved;
-  const _SeverityBadge(
-      {required this.label, required this.color, required this.resolved});
+  Widget _buildAlertCard(int index, Map<String, dynamic> alert) {
+    final isResolved = alert['resolved'] as bool;
+    final sev = alert['severity'] as String;
+    final sevColor = _severityColor(sev);
 
-  @override
-  Widget build(BuildContext context) {
-    final c = resolved ? Colors.grey : color;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: c.withAlpha(20),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: c.withAlpha(80)),
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(
+          color: isResolved ? Colors.grey.shade300 : sevColor.withAlpha(100),
+          width: isResolved ? 1 : 1.5,
+        ),
       ),
-      child: Text(label,
-          style:
-              TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: c)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: sevColor.withAlpha(20),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: sevColor),
+                      ),
+                      child: Text(
+                        '$sev Severity',
+                        style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: sevColor),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      alert['category'] as String,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: kTextDark,
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: isResolved
+                        ? const Color(0xFFDCFCE7)
+                        : const Color(0xFFFEF3C7),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    alert['status'] as String,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: isResolved
+                          ? Colors.green.shade800
+                          : Colors.amber.shade900,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Supervisee: ${alert['name']} (${alert['caseRef']})',
+              style: const TextStyle(
+                  fontSize: 13, fontWeight: FontWeight.bold, color: kGovGreen),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              alert['detail'] as String,
+              style:
+                  const TextStyle(fontSize: 12, color: kTextDark, height: 1.35),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Date Triggered: ${alert['date']}',
+              style: const TextStyle(fontSize: 10.5, color: kTextMuted),
+            ),
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.visibility_outlined, size: 15),
+                  label: const Text('Mark In Review',
+                      style: TextStyle(fontSize: 11)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: kGovGreen,
+                    side: const BorderSide(color: kGovGreen),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    minimumSize: Size.zero,
+                  ),
+                  onPressed: () => _updateAlertStatus(index, 'In Review'),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton.icon(
+                  icon: Icon(
+                    isResolved ? Icons.replay : Icons.check_circle,
+                    size: 15,
+                    color: Colors.white,
+                  ),
+                  label: Text(
+                    isResolved ? 'Reopen Alert' : 'Resolve Alert',
+                    style: const TextStyle(fontSize: 11),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        isResolved ? Colors.grey.shade700 : kGovGreen,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                    minimumSize: Size.zero,
+                  ),
+                  onPressed: () => _toggleResolve(index),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
