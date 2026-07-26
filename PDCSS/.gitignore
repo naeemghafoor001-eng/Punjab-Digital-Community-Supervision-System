@@ -5,3 +5,10 @@ build/
 .env
 *.env
 !.env.example
+# Local secret files
+Secret.txt
+*.secret
+.env
+.env.local
+*.key
+
