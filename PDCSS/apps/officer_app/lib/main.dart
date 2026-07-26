@@ -12,11 +12,16 @@ class PDCSSOfficerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'PDCSS Officer',
+      title: 'PDCSS Officer App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.teal,
         useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF0D9488),
+          brightness: Brightness.light,
+        ),
       ),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -25,7 +30,6 @@ class PDCSSOfficerApp extends StatelessWidget {
       ],
       supportedLocales: const [
         Locale('en', 'US'),
-        Locale('ur', 'PK'),
       ],
       home: const OfficerHomeScreen(),
     );

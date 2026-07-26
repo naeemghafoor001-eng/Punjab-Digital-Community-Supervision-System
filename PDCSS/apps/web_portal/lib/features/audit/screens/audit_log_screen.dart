@@ -10,93 +10,169 @@ class AuditLogScreen extends StatefulWidget {
 class _AuditLogScreenState extends State<AuditLogScreen> {
   bool _verifying = false;
   bool _verifiedIntact = true;
-  String _message = "آڈٹ لیجر مکمل طور پر محفوظ ہے۔ / Audit chain 100% verified intact.";
+  String _message = "Audit chain 100% verified intact. All records untampered.";
 
   void _runIntegrityCheck() {
     setState(() {
       _verifying = true;
     });
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(milliseconds: 800), () {
       setState(() {
         _verifying = false;
         _verifiedIntact = true;
-        _message = "HMAC-SHA256 ہیش چین کی تصدیق مکمل: تمام رکارڈز اصلی اور غیر تبدیل شدہ ہیں۔\nHMAC-SHA256 Hash Chain Verified: All records authentic and untampered.";
+        _message =
+            "HMAC-SHA256 Hash Chain Verified: All demonstration audit logs are authentic and checksum-validated.";
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("آڈٹ اینڈ سیکیورٹی لیجر / Tamper-Evident Audit Ledger"),
-        backgroundColor: const Color(0xFF1E293B),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F766E),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Audit & Security Ledger',
+                      style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF0F172A))),
+                  SizedBox(height: 4),
+                  Text(
+                      'Tamper-evident system activity and verification history',
+                      style: TextStyle(fontSize: 13, color: Colors.black54)),
+                ],
               ),
-              icon: _verifying
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : const Icon(Icons.verified_user, color: Colors.white),
-              label: const Text("ہیش چین کی تصدیق کریں / Run Hash Chain Integrity Check", style: TextStyle(color: Colors.white, fontSize: 16)),
-              onPressed: _verifying ? null : _runIntegrityCheck,
-            ),
-            const SizedBox(height: 20),
-
-            Card(
-              color: _verifiedIntact ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    Icon(_verifiedIntact ? Icons.check_circle : Icons.error, color: _verifiedIntact ? Colors.green : Colors.red, size: 36),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Text(_message, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                    ),
-                  ],
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0F766E),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                 ),
+                icon: _verifying
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2))
+                    : const Icon(Icons.verified_user, color: Colors.white),
+                label: const Text("Run Hash Chain Integrity Check",
+                    style: TextStyle(color: Colors.white, fontSize: 14)),
+                onPressed: _verifying ? null : _runIntegrityCheck,
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Card(
+            color: _verifiedIntact
+                ? const Color(0xFFF0FDF4)
+                : const Color(0xFFFEF2F2),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Icon(_verifiedIntact ? Icons.check_circle : Icons.error,
+                      color: _verifiedIntact ? Colors.green : Colors.red,
+                      size: 32),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(_message,
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold)),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 24),
-
-            const Text("حالیہ لاگز / Recent Audit Log Records", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-
-            Card(
-              elevation: 2,
+          ),
+          const SizedBox(height: 24),
+          const Text("Demonstration System Audit Records",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          Card(
+            elevation: 2,
+            child: SizedBox(
+              width: double.infinity,
               child: DataTable(
                 columns: const [
-                  DataColumn(label: Text("وقت / Timestamp")),
-                  DataColumn(label: Text("صارف / User Role")),
-                  DataColumn(label: Text("کارروائی / Action")),
-                  DataColumn(label: Text("ہیش چین / HMAC Hash Checksum")),
+                  DataColumn(label: Text("Timestamp")),
+                  DataColumn(label: Text("User Role")),
+                  DataColumn(label: Text("Action")),
+                  DataColumn(label: Text("Details")),
+                  DataColumn(label: Text("Checksum Hash")),
                 ],
                 rows: const [
                   DataRow(cells: [
-                    DataCell(Text("2026-07-25 21:30:02")),
-                    DataCell(Text("ROLE_PROBATION_OFFICER")),
-                    DataCell(Text("CREATE_SUPERVISEE_DOSSIER")),
-                    DataCell(Text("a8f9b2c3d4e5f6... (Match)", style: TextStyle(fontFamily: 'Monospace', color: Colors.green))),
+                    DataCell(Text("2026-07-26 10:15:22")),
+                    DataCell(Chip(
+                        label: Text("DIRECTORATE_ADMIN",
+                            style:
+                                TextStyle(fontSize: 10, color: Colors.white)),
+                        backgroundColor: Colors.indigo)),
+                    DataCell(Text("User viewed dashboard")),
+                    DataCell(Text("Provincial summary metrics loaded")),
+                    DataCell(Text("8f9a2b4c5e6f... (Valid)",
+                        style: TextStyle(
+                            fontFamily: 'Monospace',
+                            color: Colors.green,
+                            fontSize: 12))),
                   ]),
                   DataRow(cells: [
-                    DataCell(Text("2026-07-25 21:15:10")),
-                    DataCell(Text("ROLE_SUPERVISEE")),
-                    DataCell(Text("SUBMIT_DIGITAL_CHECKIN")),
-                    DataCell(Text("7c9e6679-7425... (Match)", style: TextStyle(fontFamily: 'Monospace', color: Colors.green))),
+                    DataCell(Text("2026-07-26 09:42:10")),
+                    DataCell(Chip(
+                        label: Text("PROBATION_OFFICER",
+                            style:
+                                TextStyle(fontSize: 10, color: Colors.white)),
+                        backgroundColor: Color(0xFF0F766E))),
+                    DataCell(Text("Officer reviewed case")),
+                    DataCell(Text("Case profile LHR-2026-089 accessed")),
+                    DataCell(Text("e3c1a7b9d0e2... (Valid)",
+                        style: TextStyle(
+                            fontFamily: 'Monospace',
+                            color: Colors.green,
+                            fontSize: 12))),
+                  ]),
+                  DataRow(cells: [
+                    DataCell(Text("2026-07-26 08:30:05")),
+                    DataCell(Chip(
+                        label: Text("SUPERVISEE",
+                            style:
+                                TextStyle(fontSize: 10, color: Colors.white)),
+                        backgroundColor: Colors.teal)),
+                    DataCell(Text("Demo check-in submitted")),
+                    DataCell(Text("Receipt DEMO-CI-2026-0001 generated")),
+                    DataCell(Text("b5d8f2e4c1a9... (Valid)",
+                        style: TextStyle(
+                            fontFamily: 'Monospace',
+                            color: Colors.green,
+                            fontSize: 12))),
+                  ]),
+                  DataRow(cells: [
+                    DataCell(Text("2026-07-26 07:12:00")),
+                    DataCell(Chip(
+                        label: Text("SYSTEM",
+                            style:
+                                TextStyle(fontSize: 10, color: Colors.white)),
+                        backgroundColor: Colors.blueGrey)),
+                    DataCell(Text("Report generated")),
+                    DataCell(Text("District Performance Report exported")),
+                    DataCell(Text("4a9f1c3e5b7d... (Valid)",
+                        style: TextStyle(
+                            fontFamily: 'Monospace',
+                            color: Colors.green,
+                            fontSize: 12))),
                   ]),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

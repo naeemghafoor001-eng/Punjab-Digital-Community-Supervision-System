@@ -27,30 +27,37 @@ class AppTheme {
           style: ElevatedButton.styleFrom(
             backgroundColor: _primaryTeal,
             foregroundColor: Colors.white,
-            minimumSize: const Size(double.infinity, 52), // >= 48dp touch target
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            minimumSize:
+                const Size(double.infinity, 52), // >= 48dp touch target
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            textStyle:
+                const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
             minimumSize: const Size(double.infinity, 52),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           filled: true,
           fillColor: Colors.white,
         ),
         cardTheme: CardThemeData(
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           margin: EdgeInsets.zero,
         ),
         chipTheme: ChipThemeData(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         ),
         iconTheme: const IconThemeData(color: _primaryTeal),
       );

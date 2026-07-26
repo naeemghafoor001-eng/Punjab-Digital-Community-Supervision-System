@@ -41,32 +41,43 @@ class _RNAScreenState extends State<RNAScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 24),
-
             Card(
               elevation: 2,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    Text("تشخیص کا کل اسکور / Score: ${_score.round()}", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    Text("تشخیص کا کل اسکور / Score: ${_score.round()}",
+                        style: const TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold)),
                     Slider(
                       value: _score,
                       min: 0,
                       max: 100,
                       divisions: 100,
-                      activeColor: _riskCategory == "HIGH" ? Colors.red : (_riskCategory == "MEDIUM" ? Colors.orange : Colors.green),
+                      activeColor: _riskCategory == "HIGH"
+                          ? Colors.red
+                          : (_riskCategory == "MEDIUM"
+                              ? Colors.orange
+                              : Colors.green),
                       onChanged: _updateCategory,
                     ),
                     Chip(
-                      label: Text("درجہ بندی: $_riskCategory RISK", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                      backgroundColor: _riskCategory == "HIGH" ? Colors.red : (_riskCategory == "MEDIUM" ? Colors.orange : Colors.green),
+                      label: Text("درجہ بندی: $_riskCategory RISK",
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)),
+                      backgroundColor: _riskCategory == "HIGH"
+                          ? Colors.red
+                          : (_riskCategory == "MEDIUM"
+                              ? Colors.orange
+                              : Colors.green),
                     ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 24),
-
             const TextField(
               maxLines: 4,
               decoration: InputDecoration(
@@ -75,7 +86,6 @@ class _RNAScreenState extends State<RNAScreen> {
               ),
             ),
             const SizedBox(height: 24),
-
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0D9488),
@@ -86,7 +96,8 @@ class _RNAScreenState extends State<RNAScreen> {
                   const SnackBar(content: Text("RNA Assessment Recorded")),
                 );
               },
-              child: const Text("تشخیص محفوظ کریں / Save Assessment", style: TextStyle(color: Colors.white, fontSize: 16)),
+              child: const Text("تشخیص محفوظ کریں / Save Assessment",
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
             ),
           ],
         ),

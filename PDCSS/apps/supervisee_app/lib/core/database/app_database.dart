@@ -10,7 +10,8 @@ class LocalCheckIns extends Table {
   RealColumn get accuracyMeters => real().nullable()();
   TextColumn get photoPath => text().nullable()();
   TextColumn get receiptCode => text()();
-  TextColumn get syncStatus => text().withDefault(const Constant('PENDING'))(); // PENDING, SYNCED
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('PENDING'))(); // PENDING, SYNCED
 
   Set<Column> get primaryKeys => {id};
 }

@@ -17,6 +17,11 @@ class PDCSSWebPortalApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.teal,
         useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF0F766E),
+          brightness: Brightness.light,
+        ),
       ),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -25,7 +30,6 @@ class PDCSSWebPortalApp extends StatelessWidget {
       ],
       supportedLocales: const [
         Locale('en', 'US'),
-        Locale('ur', 'PK'),
       ],
       home: const DistrictDashboardScreen(),
     );

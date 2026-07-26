@@ -1,13 +1,282 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>PDCSS Demo</title>
-  <meta http-equiv="refresh" content="0; url=PDCSS/demo/supervisee_app/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Punjab Digital Community Supervision System (PDCSS) - Demonstration Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0f766e;
+      --primary-dark: #0d9488;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --warning-bg: #fef3c7;
+      --warning-border: #f59e0b;
+      --warning-text: #92400e;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    header {
+      background-color: var(--primary);
+      color: white;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.18);
+      padding: 0.25rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+    header h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    header p.subtitle {
+      font-size: 1.1rem;
+      opacity: 0.92;
+      max-width: 800px;
+      margin: 0 auto 0.75rem auto;
+    }
+    header p.org {
+      font-size: 0.95rem;
+      font-weight: 500;
+      opacity: 0.82;
+    }
+    .container {
+      max-width: 1140px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+    .disclaimer-banner {
+      background-color: var(--warning-bg);
+      border: 1px solid var(--warning-border);
+      color: var(--warning-text);
+      padding: 1.25rem;
+      border-radius: 0.75rem;
+      margin-bottom: 2.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .disclaimer-banner svg {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+    .disclaimer-banner strong {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-size: 1rem;
+    }
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.75rem;
+      margin-bottom: 3rem;
+    }
+    .demo-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .demo-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    .demo-card .tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+    .demo-card h2 {
+      font-size: 1.35rem;
+      margin-bottom: 0.75rem;
+      color: var(--text);
+    }
+    .demo-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+    .btn {
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      background-color: var(--primary);
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 0.85rem 1.25rem;
+      border-radius: 0.5rem;
+      transition: background-color 0.2s;
+    }
+    .btn:hover {
+      background-color: var(--primary-dark);
+    }
+    .info-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    .info-section h3 {
+      font-size: 1.25rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .info-section ul {
+      list-style-type: none;
+    }
+    .info-section li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    .info-section li::before {
+      content: "•";
+      position: absolute;
+      left: 0.5rem;
+      color: var(--primary);
+      font-weight: bold;
+    }
+    footer {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      border-top: 1px solid var(--border);
+      background: #ffffff;
+      margin-top: 3rem;
+    }
+  </style>
 </head>
 <body>
-  <h1>Punjab Digital Community Supervision System</h1>
-  <p>This is a demonstration prototype using fictional data only.</p>
-  <p><a href="PDCSS/demo/supervisee_app/">Open PDCSS Supervisee Demo</a></p>
+
+  <header>
+    <div class="badge">Prototype Demo Version v1.2</div>
+    <h1>Punjab Digital Community Supervision System</h1>
+    <p class="subtitle">Demonstration prototype for community-based supervision, rehabilitation and compliance monitoring.</p>
+    <p class="org">Punjab Probation and Parole Service · Home Department, Government of the Punjab</p>
+  </header>
+
+  <div class="container">
+
+    <div class="disclaimer-banner">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+      <div>
+        <strong>Mandatory Demonstration Disclaimer</strong>
+        <p>Demonstration prototype using fictional data only. Not connected to any official PP&PS database, court record, prison system or government identity service.</p>
+      </div>
+    </div>
+
+    <div class="demo-grid">
+      <!-- Card 1: Supervisee App -->
+      <div class="demo-card">
+        <div>
+          <div class="tag">Bilingual (English / Urdu)</div>
+          <h2>Supervisee App Demo</h2>
+          <p>Designed for probationers and parolees featuring simple digital reporting, step-by-step check-in confirmation, schedule tracking, and profile overview.</p>
+        </div>
+        <a href="demo/supervisee_app/" class="btn">Open Supervisee App Demo</a>
+      </div>
+
+      <!-- Card 2: Officer App -->
+      <div class="demo-card">
+        <div>
+          <div class="tag">English Only</div>
+          <h2>Officer App Demo</h2>
+          <p>Designed for Probation and Parole Officers featuring caseload management, 6 key dashboard metrics, contact recording, alert management, and field visit planning.</p>
+        </div>
+        <a href="demo/officer_app/" class="btn">Open Officer App Demo</a>
+      </div>
+
+      <!-- Card 3: Management Web Portal -->
+      <div class="demo-card">
+        <div>
+          <div class="tag">English Only · Desktop View</div>
+          <h2>Management Web Portal Demo</h2>
+          <p>Designed for Directorate and executive review featuring 8 provincial metrics, district monitoring tables, divisional summaries, compliance dashboards, reports, and audit logs.</p>
+        </div>
+        <a href="demo/web_portal/" class="btn">Open Management Web Portal Demo</a>
+      </div>
+    </div>
+
+    <!-- Scope Section -->
+    <div class="info-section">
+      <h3>Project Scope</h3>
+      <ul>
+        <li>Modernizing community supervision for non-custodial probationers and parolees across Punjab.</li>
+        <li>Promoting structured rehabilitation, vocational training enrollment, and reduced recidivism.</li>
+        <li>Providing transparent district-level compliance monitoring for officers and executive management.</li>
+      </ul>
+    </div>
+
+    <!-- Demo Limitations Section -->
+    <div class="info-section">
+      <h3>Demonstration Limitations</h3>
+      <ul>
+        <li>All workflows are non-operational demonstration models using 100% fictional data.</li>
+        <li>No real probationer, parolee, officer, CNIC, or court data is stored or processed.</li>
+        <li>No device sensors, camera permissions, GPS location tracking, or biometrics are accessed.</li>
+        <li>No live backend API connections or official government database integrations exist.</li>
+      </ul>
+    </div>
+
+    <!-- Privacy Principles Section -->
+    <div class="info-section">
+      <h3>Privacy Principles</h3>
+      <ul>
+        <li>Strict adherence to data minimization and non-intrusive community supervision standards.</li>
+        <li>Demonstration identity numbers are synthetic and fully masked (e.g. 00000-0000000-0).</li>
+        <li>Designed with ethical technology practices prioritizing user privacy and dignity.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <footer>
+    <p><strong>Punjab Digital Community Supervision System (PDCSS)</strong></p>
+    <p>Punjab Probation and Parole Service · Home Department, Government of the Punjab</p>
+    <p style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.8;">Prototype Demo Version v1.2 · Last updated: July 2026</p>
+  </footer>
+
 </body>
-</html>
+</html>

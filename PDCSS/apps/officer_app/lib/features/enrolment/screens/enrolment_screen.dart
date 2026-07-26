@@ -35,7 +35,6 @@ class _OfficerEnrolmentScreenState extends State<OfficerEnrolmentScreen> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-
               TextFormField(
                 controller: _cnicController,
                 decoration: const InputDecoration(
@@ -50,7 +49,6 @@ class _OfficerEnrolmentScreenState extends State<OfficerEnrolmentScreen> {
                 },
               ),
               const SizedBox(height: 16),
-
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
@@ -60,7 +58,6 @@ class _OfficerEnrolmentScreenState extends State<OfficerEnrolmentScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-
               TextFormField(
                 controller: _fatherNameController,
                 decoration: const InputDecoration(
@@ -70,7 +67,6 @@ class _OfficerEnrolmentScreenState extends State<OfficerEnrolmentScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-
               DropdownButtonFormField<String>(
                 value: _supervisionType,
                 decoration: const InputDecoration(
@@ -78,13 +74,16 @@ class _OfficerEnrolmentScreenState extends State<OfficerEnrolmentScreen> {
                   border: OutlineInputBorder(),
                 ),
                 items: const [
-                  DropdownMenuItem(value: "PROBATION", child: Text("پروبیشن / Probation (Court Order)")),
-                  DropdownMenuItem(value: "PAROLE", child: Text("پیرول / Parole (Executive Release)")),
+                  DropdownMenuItem(
+                      value: "PROBATION",
+                      child: Text("پروبیشن / Probation (Court Order)")),
+                  DropdownMenuItem(
+                      value: "PAROLE",
+                      child: Text("پیرول / Parole (Executive Release)")),
                 ],
                 onChanged: (val) => setState(() => _supervisionType = val!),
               ),
               const SizedBox(height: 16),
-
               DropdownButtonFormField<String>(
                 value: _deviceMode,
                 decoration: const InputDecoration(
@@ -98,13 +97,13 @@ class _OfficerEnrolmentScreenState extends State<OfficerEnrolmentScreen> {
                   ),
                   DropdownMenuItem(
                     value: "OFFICER_ASSISTED",
-                    child: Text("افسر معاونت کیوسک / Officer-Assisted Fallback"),
+                    child:
+                        Text("افسر معاونت کیوسک / Officer-Assisted Fallback"),
                   ),
                 ],
                 onChanged: (val) => setState(() => _deviceMode = val!),
               ),
               const SizedBox(height: 24),
-
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -113,7 +112,9 @@ class _OfficerEnrolmentScreenState extends State<OfficerEnrolmentScreen> {
                   _photoCaptured ? Icons.check_circle : Icons.camera_alt,
                   color: _photoCaptured ? Colors.green : Colors.teal,
                 ),
-                label: Text(_photoCaptured ? "بنیادی تصویر محفوظ کر لی گئی / Base Photo Captured" : "بنیادی تصویر لیں / Capture Base Photo"),
+                label: Text(_photoCaptured
+                    ? "بنیادی تصویر محفوظ کر لی گئی / Base Photo Captured"
+                    : "بنیادی تصویر لیں / Capture Base Photo"),
                 onPressed: () {
                   setState(() {
                     _photoCaptured = true;
@@ -121,21 +122,23 @@ class _OfficerEnrolmentScreenState extends State<OfficerEnrolmentScreen> {
                 },
               ),
               const SizedBox(height: 24),
-
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0D9488),
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Supervisee Enroled Successfully!")),
+                      const SnackBar(
+                          content: Text("Supervisee Enroled Successfully!")),
                     );
                   }
                 },
-                child: const Text("اندراج مکمل کریں / Register Supervisee", style: TextStyle(color: Colors.white, fontSize: 16)),
+                child: const Text("اندراج مکمل کریں / Register Supervisee",
+                    style: TextStyle(color: Colors.white, fontSize: 16)),
               ),
             ],
           ),
