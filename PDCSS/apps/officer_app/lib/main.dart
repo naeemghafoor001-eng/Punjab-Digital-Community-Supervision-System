@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:officer_app/core/theme/officer_app_theme.dart';
 import 'package:officer_app/features/home/screens/officer_home_screen.dart';
 
 void main() {
@@ -12,15 +13,31 @@ class PDCSSOfficerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'PDCSS Officer App',
+      title: 'Punjab Probation and Parole Service',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.teal,
         useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+        scaffoldBackgroundColor: const Color(0xFFF1F5F0),
+        primaryColor: kGovGreen,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF0D9488),
+          seedColor: kGovGreen,
+          primary: kGovGreen,
+          secondary: kGovGreenMid,
+          surface: kGovWhite,
           brightness: Brightness.light,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: kGovGreen,
+          foregroundColor: kGovWhite,
+          elevation: 0,
+        ),
+        cardTheme: CardTheme(
+          color: kGovWhite,
+          elevation: 1,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(color: Colors.grey.shade200),
+          ),
         ),
       ),
       localizationsDelegates: const [

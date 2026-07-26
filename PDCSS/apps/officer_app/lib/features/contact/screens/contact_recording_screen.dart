@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:officer_app/core/theme/officer_app_theme.dart';
 
 class ContactRecordingScreen extends StatefulWidget {
   const ContactRecordingScreen({Key? key}) : super(key: key);
@@ -41,9 +42,9 @@ class _ContactRecordingScreenState extends State<ContactRecordingScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Demonstration Contact Record Saved: $_selectedContactType for $_selectedCase',
+            'Contact Record Saved: $_selectedContactType for $_selectedCase',
           ),
-          backgroundColor: const Color(0xFF0D9488),
+          backgroundColor: kGovGreenMid,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -55,129 +56,186 @@ class _ContactRecordingScreenState extends State<ContactRecordingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Contact Recording',
-            style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color(0xFF0D9488),
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Notice banner
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFF59E0B)),
-                ),
-                child: const Row(
+      backgroundColor: const Color(0xFFF1F5F0),
+      body: Column(
+        children: [
+          const DepartmentalAppBar(screenTitle: 'Record Supervision Contact'),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.info_outline, color: Color(0xFF92400E)),
-                    SizedBox(width: 10),
-                    Expanded(
+                    Card(
+                      elevation: 1,
+                      color: kGovWhite,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: BorderSide(color: Colors.grey.shade200),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Supervisee Case',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13,
+                                    color: kTextDark)),
+                            const SizedBox(height: 8),
+                            DropdownButtonFormField<String>(
+                              value: _selectedCase,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide:
+                                      BorderSide(color: Colors.grey.shade300),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 12),
+                                prefixIcon: const Icon(Icons.person_outline,
+                                    color: kGovGreenMid, size: 20),
+                              ),
+                              items: _cases
+                                  .map((c) => DropdownMenuItem(
+                                      value: c,
+                                      child: Text(c,
+                                          style:
+                                              const TextStyle(fontSize: 13))))
+                                  .toList(),
+                              onChanged: (val) =>
+                                  setState(() => _selectedCase = val!),
+                            ),
+                            const SizedBox(height: 18),
+                            const Text('Contact Type',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13,
+                                    color: kTextDark)),
+                            const SizedBox(height: 8),
+                            DropdownButtonFormField<String>(
+                              value: _selectedContactType,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide:
+                                      BorderSide(color: Colors.grey.shade300),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 12),
+                                prefixIcon: const Icon(
+                                    Icons.connect_without_contact,
+                                    color: kGovGreenMid,
+                                    size: 20),
+                              ),
+                              items: _contactTypes
+                                  .map((t) => DropdownMenuItem(
+                                      value: t,
+                                      child: Text(t,
+                                          style:
+                                              const TextStyle(fontSize: 13))))
+                                  .toList(),
+                              onChanged: (val) =>
+                                  setState(() => _selectedContactType = val!),
+                            ),
+                            const SizedBox(height: 18),
+                            const Text('Officer Observations & Notes',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13,
+                                    color: kTextDark)),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _notesController,
+                              maxLines: 5,
+                              style: const TextStyle(fontSize: 13),
+                              decoration: InputDecoration(
+                                hintText:
+                                    'Enter supervision contact notes, behavioral observations, and compliance details...',
+                                hintStyle: const TextStyle(
+                                    fontSize: 13, color: kTextMuted),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide:
+                                      BorderSide(color: Colors.grey.shade300),
+                                ),
+                              ),
+                              validator: (val) {
+                                if (val == null || val.trim().isEmpty) {
+                                  return 'Please enter contact notes before saving.';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 14),
+                            Theme(
+                              data: Theme.of(context).copyWith(
+                                  unselectedWidgetColor: kGovGreenMid),
+                              child: CheckboxListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text('Follow-up Action Required',
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: kTextDark)),
+                                subtitle: const Text(
+                                    'Flag this case for scheduled follow-up or supervisor review',
+                                    style: TextStyle(
+                                        fontSize: 11, color: kTextMuted)),
+                                value: _followUpRequired,
+                                activeColor: kGovGreenMid,
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                                onChanged: (val) => setState(
+                                    () => _followUpRequired = val ?? false),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: kGovGreen,
+                                  foregroundColor: kGovWhite,
+                                  elevation: 0,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                icon: const Icon(Icons.save_outlined, size: 18),
+                                label: const Text('Save Contact Record',
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700)),
+                                onPressed: _saveRecord,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Center(
                       child: Text(
-                        'Demonstration Form: Records are stored temporarily in UI state only.',
+                        'Sample interface with fictional records for review and presentation purposes.',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF92400E),
-                            fontWeight: FontWeight.bold),
+                            fontSize: 10,
+                            color: Colors.grey.shade500,
+                            fontStyle: FontStyle.italic),
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-
-              const Text('Select Supervisee Case',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                value: _selectedCase,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person, color: Color(0xFF0D9488)),
-                ),
-                items: _cases
-                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                    .toList(),
-                onChanged: (val) => setState(() => _selectedCase = val!),
-              ),
-              const SizedBox(height: 16),
-
-              const Text('Contact Type',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                value: _selectedContactType,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.connect_without_contact,
-                      color: Color(0xFF0D9488)),
-                ),
-                items: _contactTypes
-                    .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                    .toList(),
-                onChanged: (val) => setState(() => _selectedContactType = val!),
-              ),
-              const SizedBox(height: 16),
-
-              const Text('Officer Observations & Notes',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _notesController,
-                maxLines: 4,
-                decoration: const InputDecoration(
-                  hintText:
-                      'Enter supervision contact notes, progress, and observations...',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (val) {
-                  if (val == null || val.trim().isEmpty) {
-                    return 'Please enter contact notes before saving.';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-
-              CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Follow-up Action Required'),
-                subtitle: const Text(
-                    'Check if a scheduled follow-up or supervisor review is needed'),
-                value: _followUpRequired,
-                activeColor: const Color(0xFF0D9488),
-                onChanged: (val) =>
-                    setState(() => _followUpRequired = val ?? false),
-              ),
-              const SizedBox(height: 24),
-
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0D9488),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  icon: const Icon(Icons.save, color: Colors.white),
-                  label: const Text('Save Record (Demo)',
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold)),
-                  onPressed: _saveRecord,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

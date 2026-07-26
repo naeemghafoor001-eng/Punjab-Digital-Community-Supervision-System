@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:officer_app/core/theme/officer_app_theme.dart';
 import 'package:officer_app/features/caseload/screens/caseload_screen.dart';
 import 'package:officer_app/features/contact/screens/contact_recording_screen.dart';
 import 'package:officer_app/features/alerts/screens/alerts_screen.dart';
 import 'package:officer_app/features/field_visit/screens/field_visit_screen.dart';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Root shell with bottom navigation
+// ─────────────────────────────────────────────────────────────────────────────
 class OfficerHomeScreen extends StatefulWidget {
   const OfficerHomeScreen({Key? key}) : super(key: key);
 
@@ -29,30 +33,34 @@ class _OfficerHomeScreenState extends State<OfficerHomeScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (i) => setState(() => _currentIndex = i),
+        backgroundColor: kGovWhite,
+        indicatorColor: kGovGreenSurface,
+        height: 62,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
+            selectedIcon: Icon(Icons.dashboard, color: kGovGreenMid),
             label: 'Dashboard',
           ),
           NavigationDestination(
-            icon: Icon(Icons.people_outline),
-            selectedIcon: Icon(Icons.people),
+            icon: Icon(Icons.folder_open_outlined),
+            selectedIcon: Icon(Icons.folder_open, color: kGovGreenMid),
             label: 'Cases',
           ),
           NavigationDestination(
-            icon: Icon(Icons.notifications_active_outlined),
-            selectedIcon: Icon(Icons.notifications_active),
+            icon: Icon(Icons.notifications_outlined),
+            selectedIcon: Icon(Icons.notifications_active, color: kGovGreenMid),
             label: 'Alerts',
           ),
           NavigationDestination(
             icon: Icon(Icons.directions_walk_outlined),
-            selectedIcon: Icon(Icons.directions_walk),
+            selectedIcon: Icon(Icons.directions_walk, color: kGovGreenMid),
             label: 'Field Visits',
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
+            icon: Icon(Icons.badge_outlined),
+            selectedIcon: Icon(Icons.badge, color: kGovGreenMid),
             label: 'Profile',
           ),
         ],
@@ -61,248 +69,287 @@ class _OfficerHomeScreenState extends State<OfficerHomeScreen> {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Dashboard Tab
+// ─────────────────────────────────────────────────────────────────────────────
 class _OfficerDashboardTab extends StatelessWidget {
   const _OfficerDashboardTab();
 
+  static const _metrics = [
+    _MetricData(
+      title: 'Assigned Cases',
+      value: '124',
+      icon: Icons.folder_shared_outlined,
+      color: kGovGreen,
+      note: 'Active caseload',
+    ),
+    _MetricData(
+      title: 'Due Today',
+      value: '18',
+      icon: Icons.today_outlined,
+      color: Color(0xFF1565C0),
+      note: 'Appointments today',
+    ),
+    _MetricData(
+      title: 'Missed Check-Ins',
+      value: '6',
+      icon: Icons.event_busy_outlined,
+      color: Color(0xFFC62828),
+      note: 'Require follow-up',
+    ),
+    _MetricData(
+      title: 'Pending Field Visits',
+      value: '5',
+      icon: Icons.directions_walk_outlined,
+      color: Color(0xFFE65100),
+      note: 'Scheduled this week',
+    ),
+    _MetricData(
+      title: 'Risk Assessments',
+      value: '9',
+      icon: Icons.analytics_outlined,
+      color: Color(0xFF4527A0),
+      note: 'Overdue reviews',
+    ),
+    _MetricData(
+      title: 'Alerts',
+      value: '3',
+      icon: Icons.warning_amber_outlined,
+      color: Color(0xFFBF360C),
+      note: 'Requiring review',
+    ),
+  ];
+
+  static const _priorities = [
+    'Review all missed check-ins and initiate follow-up contacts.',
+    'Complete pending field visit plans and confirm appointment times.',
+    'Update Risk and Needs Assessments for overdue cases.',
+    'Record contact notes from this week\'s office reporting sessions.',
+  ];
+
+  static const _recentActivity = [
+    _ActivityItem(
+      icon: Icons.edit_note,
+      color: kGovGreen,
+      text: 'Office visit recorded for DEMO-PB-0001',
+      time: 'Today, 10:15 AM',
+    ),
+    _ActivityItem(
+      icon: Icons.check_circle_outline,
+      color: Color(0xFF1565C0),
+      text: 'Digital check-in reviewed for DEMO-PB-0007',
+      time: 'Today, 09:42 AM',
+    ),
+    _ActivityItem(
+      icon: Icons.directions_walk,
+      color: Color(0xFFE65100),
+      text: 'Field visit scheduled for DEMO-PR-0003',
+      time: 'Yesterday, 04:00 PM',
+    ),
+    _ActivityItem(
+      icon: Icons.analytics_outlined,
+      color: Color(0xFF4527A0),
+      text: 'Risk assessment due for DEMO-PB-0012',
+      time: 'Yesterday, 02:30 PM',
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
+    final wide = MediaQuery.of(context).size.width > 600;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0D9488),
-        title: const Text('PDCSS Officer Dashboard',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const AlertsScreen()));
-            },
-            tooltip: 'Alerts',
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Demonstration Banner
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFEF3C7),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFF59E0B)),
-              ),
-              child: const Row(
+      backgroundColor: const Color(0xFFF1F5F0),
+      body: Column(
+        children: [
+          // ── Departmental Header ──────────────────────────────────────────
+          _DashboardHeader(),
+
+          // ── Scrollable Content ───────────────────────────────────────────
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.science, color: Color(0xFFB45309), size: 20),
-                  SizedBox(width: 8),
-                  Expanded(
+                  // Metric Cards
+                  const SectionHeading(
+                    title: 'Caseload Overview',
+                    icon: Icons.bar_chart_outlined,
+                  ),
+                  GridView.count(
+                    crossAxisCount: wide ? 3 : 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    childAspectRatio: wide ? 1.8 : 1.55,
+                    children:
+                        _metrics.map((m) => _MetricCard(data: m)).toList(),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Today's Priorities
+                  const SectionHeading(
+                    title: "Today's Priorities",
+                    icon: Icons.checklist_outlined,
+                  ),
+                  ..._priorities.asMap().entries.map(
+                        (e) => _PriorityRow(index: e.key + 1, text: e.value),
+                      ),
+                  const SizedBox(height: 20),
+
+                  // Recent Case Activity
+                  const SectionHeading(
+                    title: 'Recent Case Activity',
+                    icon: Icons.history_outlined,
+                  ),
+                  ..._recentActivity.map((a) => _ActivityRow(item: a)),
+                  const SizedBox(height: 20),
+
+                  // Quick Actions
+                  const SectionHeading(
+                    title: 'Quick Actions',
+                    icon: Icons.flash_on_outlined,
+                  ),
+                  _QuickActionsGrid(),
+                  const SizedBox(height: 24),
+
+                  // Discreet footer note
+                  Center(
                     child: Text(
-                      'Demonstration Prototype · Punjab Probation and Parole Service',
+                      'Sample interface with fictional records for review and presentation purposes.',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF92400E)),
+                          fontSize: 10,
+                          color: Colors.grey.shade500,
+                          fontStyle: FontStyle.italic),
                     ),
                   ),
+                  const SizedBox(height: 8),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-            // Mandatory Disclaimer Card
-            Card(
-              color: const Color(0xFFF8FAFC),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                side: BorderSide(color: Colors.grey.shade300),
+// ─────────────────────────────────────────────────────────────────────────────
+// Dashboard Header (non-AppBar custom header)
+// ─────────────────────────────────────────────────────────────────────────────
+class _DashboardHeader extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [kGovGreen, kGovGreenMid],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+              color: Color(0x3300000), blurRadius: 8, offset: Offset(0, 2)),
+        ],
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              // PP&PS Logo
+              ClipOval(
+                child: Image.asset(
+                  'assets/images/ppps_logo.png',
+                  width: 56,
+                  height: 56,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    width: 56,
+                    height: 56,
+                    decoration: const BoxDecoration(
+                      color: kGovGreenLight,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.account_balance,
+                        color: kGovWhite, size: 30),
+                  ),
+                ),
               ),
-              child: const Padding(
-                padding: EdgeInsets.all(12),
-                child: Row(
+              const SizedBox(width: 12),
+
+              // Department titles
+              const Expanded(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.info_outline,
-                        color: Color(0xFF0D9488), size: 20),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'Demonstration prototype using fictional data only. Not connected to any official PP&PS database, court record, prison system or government identity service.',
-                        style: TextStyle(
-                            fontSize: 11, color: Colors.black87, height: 1.4),
+                    Text(
+                      'Punjab Probation and Parole Service',
+                      style: TextStyle(
+                        color: kGovWhite,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.1,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      'Home Department, Government of the Punjab',
+                      style: TextStyle(
+                          color: Color(0xFFB9F6CA), fontSize: 11, height: 1.3),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 1),
+                    Text(
+                      'Officer Supervision Dashboard',
+                      style: TextStyle(
+                          color: Color(0xFF81C784), fontSize: 10, height: 1.3),
                     ),
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
 
-            const Text(
-              'Caseload & Monitoring Overview',
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F172A)),
-            ),
-            const SizedBox(height: 12),
-
-            // 6 Required Metric Cards Grid
-            GridView.count(
-              crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.6,
-              children: const [
-                _MetricCard(
-                    'Assigned Cases', '124', Color(0xFF0D9488), Icons.people),
-                _MetricCard('Due Today', '18', Colors.green, Icons.today),
-                _MetricCard(
-                    'Missed Check-Ins', '6', Colors.red, Icons.event_busy),
-                _MetricCard('Pending Field Visits', '5', Colors.orange,
-                    Icons.directions_walk),
-                _MetricCard('Pending Risk Assessments', '9', Colors.indigo,
-                    Icons.analytics),
-                _MetricCard('Alerts Requiring Review', '3', Colors.deepOrange,
-                    Icons.warning_amber),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            const Text(
-              'Officer Workflows',
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F172A)),
-            ),
-            const SizedBox(height: 12),
-
-            Row(
-              children: [
-                Expanded(
-                  child: _QuickAction(
-                    icon: Icons.note_add_outlined,
-                    label: 'Record Contact',
-                    color: const Color(0xFF0D9488),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const ContactRecordingScreen()),
+              // Notification + officer chip
+              Column(
+                children: [
+                  Builder(
+                    builder: (ctx) => IconButton(
+                      icon: const Icon(Icons.notifications_outlined,
+                          color: kGovWhite, size: 22),
+                      onPressed: () => Navigator.push(
+                        ctx,
+                        MaterialPageRoute(builder: (_) => const AlertsScreen()),
+                      ),
+                      tooltip: 'Supervision Alerts',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(minWidth: 32),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _QuickAction(
-                    icon: Icons.notifications_active_outlined,
-                    label: 'Manage Alerts',
-                    color: Colors.deepOrange,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const AlertsScreen()),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: kGovGreen,
+                      borderRadius: BorderRadius.circular(20),
+                      border:
+                          Border.all(color: const Color(0xFF81C784), width: 1),
+                    ),
+                    child: const Text(
+                      'Demo Officer',
+                      style: TextStyle(
+                          color: Color(0xFFB9F6CA),
+                          fontSize: 9,
+                          fontWeight: FontWeight.w600),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _QuickAction(
-                    icon: Icons.map_outlined,
-                    label: 'Field Visit Planner',
-                    color: Colors.indigo,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const FieldVisitPlannerScreen()),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MetricCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final Color color;
-  final IconData icon;
-  const _MetricCard(this.title, this.value, this.color, this.icon);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(value,
-                    style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: color)),
-                Icon(icon, color: color, size: 24),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(title,
-                style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w500)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _QuickAction extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-  const _QuickAction(
-      {required this.icon,
-      required this.label,
-      required this.color,
-      required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Icon(icon, color: color, size: 32),
-              const SizedBox(height: 8),
-              Text(label,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.w600)),
+                ],
+              ),
             ],
           ),
         ),
@@ -311,65 +358,415 @@ class _QuickAction extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Data models (private)
+// ─────────────────────────────────────────────────────────────────────────────
+class _MetricData {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color color;
+  final String note;
+  const _MetricData(
+      {required this.title,
+      required this.value,
+      required this.icon,
+      required this.color,
+      required this.note});
+}
+
+class _ActivityItem {
+  final IconData icon;
+  final Color color;
+  final String text;
+  final String time;
+  const _ActivityItem(
+      {required this.icon,
+      required this.color,
+      required this.text,
+      required this.time});
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Metric Card
+// ─────────────────────────────────────────────────────────────────────────────
+class _MetricCard extends StatelessWidget {
+  final _MetricData data;
+  const _MetricCard({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 1,
+      color: kGovWhite,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(color: Colors.grey.shade200),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  data.value,
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    color: data.color,
+                    height: 1,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: data.color.withAlpha(20),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(data.icon, color: data.color, size: 18),
+                ),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data.title,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: kTextDark,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  data.note,
+                  style: const TextStyle(fontSize: 9, color: kTextMuted),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Priority Row
+// ─────────────────────────────────────────────────────────────────────────────
+class _PriorityRow extends StatelessWidget {
+  final int index;
+  final String text;
+  const _PriorityRow({required this.index, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 22,
+            height: 22,
+            decoration: const BoxDecoration(
+              color: kGovGreenSurface,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                '$index',
+                style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: kGovGreenMid),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style:
+                  const TextStyle(fontSize: 13, color: kTextDark, height: 1.4),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Activity Row
+// ─────────────────────────────────────────────────────────────────────────────
+class _ActivityRow extends StatelessWidget {
+  final _ActivityItem item;
+  const _ActivityRow({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: item.color.withAlpha(20),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(item.icon, color: item.color, size: 16),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(item.text,
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: kTextDark)),
+                const SizedBox(height: 2),
+                Text(item.time,
+                    style: const TextStyle(fontSize: 11, color: kTextMuted)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Quick Actions Grid
+// ─────────────────────────────────────────────────────────────────────────────
+class _QuickActionsGrid extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final actions = [
+      _QAData(Icons.folder_open_outlined, 'View Assigned Cases', kGovGreen,
+          () => _navigate(context, const CaseloadScreen())),
+      _QAData(
+          Icons.edit_note_outlined,
+          'Record Contact',
+          const Color(0xFF1565C0),
+          () => _navigate(context, const ContactRecordingScreen())),
+      _QAData(
+          Icons.notifications_outlined,
+          'Review Alerts',
+          const Color(0xFFC62828),
+          () => _navigate(context, const AlertsScreen())),
+      _QAData(
+          Icons.directions_walk_outlined,
+          'Plan Field Visit',
+          const Color(0xFFE65100),
+          () => _navigate(context, const FieldVisitPlannerScreen())),
+    ];
+
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
+      childAspectRatio: 3.0,
+      children: actions.map((a) => _QuickActionButton(data: a)).toList(),
+    );
+  }
+
+  void _navigate(BuildContext context, Widget screen) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+  }
+}
+
+class _QAData {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+  const _QAData(this.icon, this.label, this.color, this.onTap);
+}
+
+class _QuickActionButton extends StatelessWidget {
+  final _QAData data;
+  const _QuickActionButton({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: kGovWhite,
+      borderRadius: BorderRadius.circular(8),
+      elevation: 1,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: data.onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Row(
+            children: [
+              Icon(data.icon, color: data.color, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  data.label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: data.color,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Profile Tab
+// ─────────────────────────────────────────────────────────────────────────────
 class _OfficerProfileTab extends StatelessWidget {
   const _OfficerProfileTab();
+
+  static const _fields = [
+    ['Designation', 'Probation Officer'],
+    ['District', 'Lahore Demo District'],
+    ['Office', 'Lahore Central Office'],
+    ['Assigned Cases', '124'],
+    ['Officer ID (Demo)', 'PO-LHR-DEMO-01'],
+    ['Role', 'Officer App Demo User'],
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0D9488),
-        title: const Text('Officer Profile',
-            style: TextStyle(color: Colors.white)),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: const [
-          Center(
-            child: CircleAvatar(
-              radius: 44,
-              backgroundColor: Color(0xFF0D9488),
-              child: Icon(Icons.badge, size: 52, color: Colors.white),
-            ),
-          ),
-          SizedBox(height: 16),
-          Center(
-            child: Text('Officer Tahir Mahmood',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          ),
-          Center(
-            child: Text('Probation Officer — District Lahore Central',
-                style: TextStyle(color: Colors.black54, fontSize: 13)),
-          ),
-          SizedBox(height: 24),
-          Card(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  ListTile(
-                    leading:
-                        Icon(Icons.badge_outlined, color: Color(0xFF0D9488)),
-                    title: Text('Officer ID'),
-                    subtitle: Text('PO-LHR-1042'),
+      backgroundColor: const Color(0xFFF1F5F0),
+      body: Column(
+        children: [
+          DepartmentalAppBar(screenTitle: 'Officer Profile'),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                // Avatar
+                Center(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 8),
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: kGovGreenSurface,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: kGovGreenMid, width: 2),
+                        ),
+                        child: const Icon(Icons.badge,
+                            size: 44, color: kGovGreenMid),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'Demo Officer',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: kTextDark,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Probation Officer · Lahore Central Office',
+                        style: TextStyle(
+                            fontSize: 13, color: Colors.grey.shade600),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Punjab Probation and Parole Service',
+                        style: TextStyle(
+                            fontSize: 11, color: Colors.grey.shade500),
+                      ),
+                    ],
                   ),
-                  Divider(),
-                  ListTile(
-                    leading:
-                        Icon(Icons.business_outlined, color: Color(0xFF0D9488)),
-                    title: Text('Jurisdiction'),
-                    subtitle: Text('Lahore Central Division'),
+                ),
+                const SizedBox(height: 20),
+
+                // Details card
+                Card(
+                  elevation: 1,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    side: BorderSide(color: Colors.grey.shade200),
                   ),
-                  Divider(),
-                  ListTile(
-                    leading:
-                        Icon(Icons.cases_outlined, color: Color(0xFF0D9488)),
-                    title: Text('Active Caseload'),
-                    subtitle:
-                        Text('124 Active Cases (88 Probation, 36 Parole)'),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < _fields.length; i++) ...[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    _fields[i][0],
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        color: kTextMuted,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 3,
+                                  child: Text(
+                                    _fields[i][1],
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: kTextDark,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (i < _fields.length - 1)
+                            Divider(height: 1, color: Colors.grey.shade100),
+                        ],
+                      ],
+                    ),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 20),
+                Center(
+                  child: Text(
+                    'Sample data for interface preview.',
+                    style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey.shade400,
+                        fontStyle: FontStyle.italic),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
