@@ -1,4 +1,5 @@
 import 'package:officer_app/core/backend/models.dart';
+import 'package:officer_app/core/backend/prna_models.dart';
 
 class DemoFallbackService {
   static final DemoFallbackService instance = DemoFallbackService._();
@@ -107,5 +108,39 @@ class DemoFallbackService {
         createdAt: old.createdAt,
       );
     }
+  }
+
+  final List<PRNAAssessmentModel> _prnaAssessments =
+      List.generate(4, (i) => PRNAAssessmentModel.fallback(i));
+  final List<CasePlanModel> _casePlans = [CasePlanModel.fallback()];
+
+  Future<List<PRNAAssessmentModel>> getPRNAAssessments() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return _prnaAssessments;
+  }
+
+  Future<void> savePRNAAssessment(PRNAAssessmentModel assessment) async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    final index = _prnaAssessments.indexWhere((a) => a.id == assessment.id);
+    if (index != -1) {
+      _prnaAssessments[index] = assessment;
+    } else {
+      _prnaAssessments.insert(0, assessment);
+    }
+  }
+
+  Future<List<CasePlanModel>> getCasePlans() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return _casePlans;
+  }
+
+  Future<String> convertActionToAssignedActivity({
+    required String superviseeId,
+    required String topNeed,
+    required String smartGoal,
+    required String interventionReferral,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return 'act-converted-${DateTime.now().millisecondsSinceEpoch}';
   }
 }

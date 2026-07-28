@@ -29,7 +29,7 @@ This checklist defines the safety regulations, environment restrictions, and aud
 ## 3. Row Level Security & Access Control
 
 - [ ] **Verify active RLS Policies**:
-  - Run database queries to verify that `ROW LEVEL SECURITY` is enabled on all 10 tables.
+  - Run database queries to verify that `ROW LEVEL SECURITY` is enabled on all 14 tables.
   - Verify that **no DELETE policies** exist on any table.
 - [ ] **Disable Anonymous Access**:
   - Ensure that no database table has a policy permitting read/write operations to the `anon` (anonymous public) role in production.
@@ -37,8 +37,13 @@ This checklist defines the safety regulations, environment restrictions, and aud
 
 ---
 
-## 4. Hardware, Attendance & Decision Restrictions
+## 4. Hardware, Attendance, PRNA & Decision Restrictions
 
+- [ ] **PRNA Decision Support Safeguards**:
+  - Initial assessment must be completed within 30 days of offender placement.
+  - Risk scores and provisional risk bands serve exclusively for officer supervision intensity allocation and case planning.
+  - The PRNA Module must **never** create automatic legal consequences, sanctions, or violation findings without officer and supervisor review.
+  - Supervisee App must strictly conceal all risk scores (SRI, DNI, PCR, PFI, Total) and risk band classifications, presenting only pro-social supervision goals and assigned activities.
 - [ ] **Single-Point GPS Capture**:
   - Location must be captured ONLY once at the time of attendance submission after explicit user permission.
   - No continuous background GPS tracking is permitted.
@@ -53,6 +58,7 @@ This checklist defines the safety regulations, environment restrictions, and aud
 - [ ] **No Automated Supervision Decisions**:
   - Location/photo/liveness indicators serve solely as decision support aids for officer review.
   - The system must not create automated legal violation findings or disciplinary sanctions without formal officer review and hearing.
+
 
 ---
 

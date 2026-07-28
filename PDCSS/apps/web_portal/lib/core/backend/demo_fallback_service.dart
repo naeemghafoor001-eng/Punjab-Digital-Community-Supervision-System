@@ -67,4 +67,19 @@ class DemoFallbackService {
     await Future.delayed(const Duration(milliseconds: 400));
     return List.generate(5, (i) => PortalActivityAttendanceRow.fallback(i));
   }
+
+  Future<PortalPRNASummary> getPRNASummary() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return PortalPRNASummary.fallback();
+  }
+
+  Future<List<PortalDistrictPRNARow>> getDistrictPRNARows() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return List.generate(6, (i) => PortalDistrictPRNARow.fallback(i));
+  }
+
+  Future<List<PortalOfficerPRNARow>> getOfficerPRNARows() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return List.generate(4, (i) => PortalOfficerPRNARow.fallback(i));
+  }
 }

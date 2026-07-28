@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supervisee_app/features/checkin/screens/checkin_screen.dart';
 import 'package:supervisee_app/features/activities/screens/assigned_activities_screen.dart';
+import 'package:supervisee_app/features/plan/screens/supervision_plan_screen.dart';
 import 'package:supervisee_app/core/backend/raahnuma_backend_service.dart';
 import 'package:supervisee_app/core/backend/supabase_config.dart';
 import 'package:supervisee_app/core/backend/models.dart';
@@ -29,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       const CheckInScreen(),
       const AssignedActivitiesScreen(),
+      const SupervisionPlanScreen(),
       const _ScheduleTab(),
       const _ProfileTab(),
       const _HelpTab(),
@@ -56,6 +58,11 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Activities / سرگرمیاں',
           ),
           NavigationDestination(
+            icon: Icon(Icons.stars_outlined),
+            selectedIcon: Icon(Icons.stars),
+            label: 'Plan / منصوبہ',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.calendar_month_outlined),
             selectedIcon: Icon(Icons.calendar_month),
             label: 'Schedule / شیڈول',
@@ -68,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
           NavigationDestination(
             icon: Icon(Icons.help_outline),
             selectedIcon: Icon(Icons.help),
-            label: 'Help / مدد',
+            label: 'Help / امداد',
           ),
         ],
       ),

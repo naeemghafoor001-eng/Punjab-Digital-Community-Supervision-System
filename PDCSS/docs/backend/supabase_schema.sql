@@ -172,6 +172,81 @@ CREATE TABLE public.activity_attendance (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 11. PRNA_ASSESSMENTS TABLE
+-- Punjab Risk & Needs Assessment (PRNA) adult offender evaluation records
+CREATE TABLE public.prna_assessments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    supervisee_id UUID NOT NULL REFERENCES public.supervisees(id) ON DELETE CASCADE,
+    officer_id UUID NOT NULL REFERENCES public.officers(id) ON DELETE CASCADE,
+    assessment_type TEXT NOT NULL CONSTRAINT check_prna_type CHECK (assessment_type IN ('Initial', 'Reassessment', 'Major Event Review')),
+    placement_date DATE NOT NULL,
+    due_date DATE NOT NULL,
+    completed_at TIMESTAMPTZ,
+    status TEXT NOT NULL DEFAULT 'Draft' CONSTRAINT check_prna_status CHECK (status IN ('Draft', 'Completed', 'Supervisor Review Pending', 'Approved', 'Returned for Correction', 'Reassessment Due')),
+    sri_score INTEGER NOT NULL DEFAULT 0,
+    dni_score INTEGER NOT NULL DEFAULT 0,
+    pcr_score INTEGER NOT NULL DEFAULT 0,
+    pfi_score INTEGER NOT NULL DEFAULT 0,
+    total_score INTEGER NOT NULL DEFAULT 0,
+    risk_band TEXT NOT NULL DEFAULT 'Low' CONSTRAINT check_prna_risk_band CHECK (risk_band IN ('Low', 'Moderate', 'High', 'Very High')),
+    supervision_intensity TEXT,
+    next_reassessment_date DATE,
+    assessor_remarks TEXT,
+    supervisor_remarks TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 12. PRNA_RESPONSES TABLE
+-- Itemized responses and scoring breakdown for PRNA sections
+CREATE TABLE public.prna_responses (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    assessment_id UUID NOT NULL REFERENCES public.prna_assessments(id) ON DELETE CASCADE,
+    section_code TEXT NOT NULL,
+    item_code TEXT NOT NULL,
+    item_label TEXT NOT NULL,
+    selected_option TEXT NOT NULL,
+    score INTEGER NOT NULL DEFAULT 0,
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 13. CASE_PLANS TABLE
+-- RNR-aligned case management plans based on PRNA criminogenic needs
+CREATE TABLE public.case_plans (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    assessment_id UUID NOT NULL REFERENCES public.prna_assessments(id) ON DELETE CASCADE,
+    supervisee_id UUID NOT NULL REFERENCES public.supervisees(id) ON DELETE CASCADE,
+    officer_id UUID NOT NULL REFERENCES public.officers(id) ON DELETE CASCADE,
+    plan_title TEXT NOT NULL,
+    plan_status TEXT NOT NULL DEFAULT 'Draft' CONSTRAINT check_case_plan_status CHECK (plan_status IN ('Draft', 'Active', 'Supervisor Review Pending', 'Approved', 'Completed', 'Closed')),
+    top_needs JSONB,
+    employment_education_steps TEXT,
+    housing_steps TEXT,
+    family_mentor_engagement TEXT,
+    compliance_incentives TEXT,
+    start_date DATE,
+    review_date DATE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 14. CASE_PLAN_ACTIONS TABLE
+-- Specific SMART action items within a case plan, linkable to assigned activities
+CREATE TABLE public.case_plan_actions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    case_plan_id UUID NOT NULL REFERENCES public.case_plans(id) ON DELETE CASCADE,
+    top_need TEXT NOT NULL,
+    smart_goal TEXT NOT NULL,
+    intervention_referral TEXT NOT NULL,
+    responsible TEXT NOT NULL,
+    start_date DATE,
+    review_date DATE,
+    status TEXT NOT NULL DEFAULT 'Planned' CONSTRAINT check_action_status CHECK (status IN ('Planned', 'In Progress', 'Completed', 'Needs Follow-up', 'Cancelled')),
+    linked_assigned_activity_id UUID REFERENCES public.assigned_activities(id) ON DELETE SET NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Indexes for performance queries
 CREATE INDEX idx_profiles_role ON public.profiles(role);
 CREATE INDEX idx_supervisees_assigned_officer ON public.supervisees(assigned_officer_id);
@@ -187,4 +262,14 @@ CREATE INDEX idx_activity_attendance_supervisee ON public.activity_attendance(su
 CREATE INDEX idx_activity_attendance_officer ON public.activity_attendance(officer_id);
 CREATE INDEX idx_activity_attendance_review_status ON public.activity_attendance(review_status);
 CREATE INDEX idx_activity_attendance_created_at ON public.activity_attendance(created_at);
+CREATE INDEX idx_prna_assessments_supervisee ON public.prna_assessments(supervisee_id);
+CREATE INDEX idx_prna_assessments_officer ON public.prna_assessments(officer_id);
+CREATE INDEX idx_prna_assessments_status ON public.prna_assessments(status);
+CREATE INDEX idx_prna_assessments_due_date ON public.prna_assessments(due_date);
+CREATE INDEX idx_prna_responses_assessment ON public.prna_responses(assessment_id);
+CREATE INDEX idx_case_plans_supervisee ON public.case_plans(supervisee_id);
+CREATE INDEX idx_case_plans_assessment ON public.case_plans(assessment_id);
+CREATE INDEX idx_case_plan_actions_case_plan ON public.case_plan_actions(case_plan_id);
+CREATE INDEX idx_case_plan_actions_activity ON public.case_plan_actions(linked_assigned_activity_id);
+
 

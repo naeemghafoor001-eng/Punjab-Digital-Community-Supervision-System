@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:officer_app/core/backend/supabase_config.dart';
 import 'package:officer_app/core/backend/demo_fallback_service.dart';
 import 'package:officer_app/core/backend/models.dart';
+import 'package:officer_app/core/backend/prna_models.dart';
 
 class RaahnumaBackendService {
   static final RaahnumaBackendService instance = RaahnumaBackendService._();
@@ -215,6 +216,135 @@ class RaahnumaBackendService {
     } catch (e) {
       await DemoFallbackService.instance
           .reviewActivityAttendance(attendanceId, reviewStatus, remarks);
+    }
+  }
+
+  // ── PRNA & CASE PLANNING ───────────────────────────────────────────────────
+
+  Future<List<PRNAAssessmentModel>> getPRNAAssessments() async {
+    if (!SupabaseConfig.hasBackend) {
+      return DemoFallbackService.instance.getPRNAAssessments();
+    }
+    try {
+      final response = await _supabase
+          .from('prna_assessments')
+          .select('*, supervisees(*, profiles(*)), officers(*, profiles(*))')
+          .order('created_at', ascending: false);
+
+      if ((response as List).isEmpty) {
+        return DemoFallbackService.instance.getPRNAAssessments();
+      }
+
+      return (response as List)
+          .map((map) => PRNAAssessmentModel.fromMap(map))
+          .toList();
+    } catch (_) {
+      return DemoFallbackService.instance.getPRNAAssessments();
+    }
+  }
+
+  Future<void> savePRNAAssessment(PRNAAssessmentModel assessment) async {
+    if (!SupabaseConfig.hasBackend) {
+      await DemoFallbackService.instance.savePRNAAssessment(assessment);
+      return;
+    }
+    try {
+      await _supabase.from('prna_assessments').upsert({
+        'id': assessment.id.startsWith('prna-doc') ? null : assessment.id,
+        'supervisee_id': assessment.superviseeId,
+        'officer_id': _mockOfficerId,
+        'assessment_type': assessment.assessmentType,
+        'placement_date': assessment.placementDate,
+        'due_date': assessment.dueDate,
+        'status': assessment.status,
+        'sri_score': assessment.sriScore,
+        'dni_score': assessment.dniScore,
+        'pcr_score': assessment.pcrScore,
+        'pfi_score': assessment.pfiScore,
+        'total_score': assessment.totalScore,
+        'risk_band': assessment.riskBand,
+        'supervision_intensity': assessment.supervisionIntensity,
+        'next_reassessment_date': assessment.nextReassessmentDate,
+        'assessor_remarks': assessment.assessorRemarks,
+        'supervisor_remarks': assessment.supervisorRemarks,
+        'completed_at':
+            assessment.status == 'Completed' || assessment.status == 'Approved'
+                ? DateTime.now().toIso8601String()
+                : null,
+      });
+
+      // Insert audit activity
+      await _supabase.from('activities').insert({
+        'actor_id': _mockOfficerId,
+        'event_type': 'PRNA_ASSESSMENT_SAVE',
+        'description':
+            'Officer saved PRNA assessment for ${assessment.superviseeName} (${assessment.caseNumber}). Risk band: ${assessment.riskBand}, Total score: ${assessment.totalScore}. Status: ${assessment.status}.',
+        'user_agent': 'Flutter Mobile App (Officer)',
+      });
+    } catch (_) {
+      await DemoFallbackService.instance.savePRNAAssessment(assessment);
+    }
+  }
+
+  Future<String> convertActionToAssignedActivity({
+    required String superviseeId,
+    required String topNeed,
+    required String smartGoal,
+    required String interventionReferral,
+  }) async {
+    if (!SupabaseConfig.hasBackend) {
+      return DemoFallbackService.instance.convertActionToAssignedActivity(
+        superviseeId: superviseeId,
+        topNeed: topNeed,
+        smartGoal: smartGoal,
+        interventionReferral: interventionReferral,
+      );
+    }
+    try {
+      String category = 'Reporting';
+      if (topNeed.contains('Education') ||
+          topNeed.contains('Employment') ||
+          topNeed.contains('Skills')) {
+        category = 'Skills';
+      } else if (topNeed.contains('Counselling') ||
+          topNeed.contains('Mental')) {
+        category = 'Counselling';
+      } else if (topNeed.contains('Health') || topNeed.contains('Substance')) {
+        category = 'Health';
+      } else if (topNeed.contains('Community')) {
+        category = 'Community Service';
+      } else if (topNeed.contains('Personal') ||
+          topNeed.contains('Discipline')) {
+        category = 'Personal Discipline';
+      }
+
+      final res = await _supabase
+          .from('assigned_activities')
+          .insert({
+            'supervisee_id': superviseeId,
+            'officer_id': _mockOfficerId,
+            'activity_title': smartGoal,
+            'activity_category': category,
+            'instructions': 'Case Plan Intervention: $interventionReferral',
+            'frequency': 'Weekly',
+            'due_time': '10:00:00',
+            'start_date': DateTime.now().toIso8601String().substring(0, 10),
+            'status': 'Active',
+            'requires_location': true,
+            'requires_photo': true,
+            'requires_liveness': false,
+          })
+          .select('id')
+          .single();
+
+      return res['id']?.toString() ?? '';
+    } catch (_) {
+      return DemoFallbackService.instance.convertActionToAssignedActivity(
+        superviseeId: superviseeId,
+        topNeed: topNeed,
+        smartGoal: smartGoal,
+        interventionReferral: interventionReferral,
+      );
     }
   }
 }

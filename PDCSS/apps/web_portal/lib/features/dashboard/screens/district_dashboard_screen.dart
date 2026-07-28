@@ -3,6 +3,7 @@ import 'package:web_portal/core/backend/raahnuma_portal_service.dart';
 import 'package:web_portal/core/backend/models.dart';
 import 'package:web_portal/core/backend/supabase_config.dart';
 import 'package:web_portal/features/dashboard/widgets/verified_attendance_monitoring_widget.dart';
+import 'package:web_portal/features/dashboard/widgets/prna_monitoring_widget.dart';
 
 // ─── Color Palette ──────────────────────────────────────────────────────────
 const Color kGovGreen = Color(0xFF0F5A47); // Official PP&PS Green
@@ -37,6 +38,7 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
 
   final List<String> _navItems = [
     'Overview',
+    'PRNA & Case Planning',
     'Verified Attendance',
     'Districts',
     'Divisions',
@@ -96,24 +98,26 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
       case 0:
         return _buildExecutiveOverview();
       case 1:
-        return const VerifiedAttendanceMonitoringWidget();
+        return const PRNAMonitoringWidget();
       case 2:
-        return _buildDistrictMonitoring();
+        return const VerifiedAttendanceMonitoringWidget();
       case 3:
-        return _buildDivisionalSummary();
+        return _buildDistrictMonitoring();
       case 4:
-        return _buildOfficerWorkload();
+        return _buildDivisionalSummary();
       case 5:
-        return _buildComplianceDashboard();
+        return _buildOfficerWorkload();
       case 6:
-        return _buildAlertsDashboard();
+        return _buildComplianceDashboard();
       case 7:
-        return _buildRehabReferrals();
+        return _buildAlertsDashboard();
       case 8:
-        return _buildReports();
+        return _buildRehabReferrals();
       case 9:
-        return _buildAuditTrail();
+        return _buildReports();
       case 10:
+        return _buildAuditTrail();
+      case 11:
         return _buildSystemSafeguards();
       default:
         return _buildExecutiveOverview();

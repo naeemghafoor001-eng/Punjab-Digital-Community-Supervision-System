@@ -376,8 +376,7 @@ class _VerifiedAttendanceMonitoringWidgetState
           child: ClipRRect(
             borderRadius: BorderRadius.circular(14),
             child: DataTable(
-              headingRowColor:
-                  WidgetStateProperty.all(const Color(0xFFF1F5F9)),
+              headingRowColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
               columns: const [
                 DataColumn(
                     label: Text('Supervisee & Case',

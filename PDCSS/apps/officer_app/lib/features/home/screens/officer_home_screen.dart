@@ -4,6 +4,7 @@ import 'package:officer_app/features/caseload/screens/caseload_screen.dart';
 import 'package:officer_app/features/alerts/screens/alerts_screen.dart';
 import 'package:officer_app/features/field_visit/screens/field_visit_screen.dart';
 import 'package:officer_app/features/activities/screens/verified_attendance_review_screen.dart';
+import 'package:officer_app/features/prna/screens/prna_dashboard_screen.dart';
 import 'package:officer_app/core/backend/raahnuma_backend_service.dart';
 import 'package:officer_app/core/backend/models.dart';
 
@@ -28,6 +29,7 @@ class _OfficerHomeScreenState extends State<OfficerHomeScreen> {
     final List<Widget> pages = [
       _OfficerDashboardTab(onNavigateToTab: _navigateToTab),
       const CaseloadScreen(),
+      const PRNADashboardScreen(),
       const _CheckInReviewScreen(),
       const VerifiedAttendanceReviewScreen(),
       const AlertsScreen(),
@@ -54,6 +56,11 @@ class _OfficerHomeScreenState extends State<OfficerHomeScreen> {
             icon: Icon(Icons.folder_shared_outlined),
             selectedIcon: Icon(Icons.folder_shared, color: kGovGreen),
             label: 'Caseload',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.assignment_outlined),
+            selectedIcon: Icon(Icons.assignment, color: kGovGreen),
+            label: 'PRNA',
           ),
           NavigationDestination(
             icon: Icon(Icons.fact_check_outlined),

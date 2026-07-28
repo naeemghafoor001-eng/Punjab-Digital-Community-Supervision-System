@@ -3,6 +3,10 @@
 -- Location: docs/backend/supabase_seed_demo.sql
 
 -- Clear existing fictional data (in correct dependency order)
+TRUNCATE public.case_plan_actions CASCADE;
+TRUNCATE public.case_plans CASCADE;
+TRUNCATE public.prna_responses CASCADE;
+TRUNCATE public.prna_assessments CASCADE;
 TRUNCATE public.activity_attendance CASCADE;
 TRUNCATE public.assigned_activities CASCADE;
 TRUNCATE public.activities CASCADE;
@@ -90,4 +94,25 @@ INSERT INTO public.activity_attendance (
   ('11111111-1111-1111-1111-111111111111', 'f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', now() - INTERVAL '2 days', 'Submitted', 31.5602, 74.3351, 8.5, now() - INTERVAL '2 days', 'Granted', 31.5601, 74.3352, 18.2, 300, 'Within Radius', 'https://whqmwzoqmopgamfacncg.supabase.co/storage/v1/object/public/attendance-photos/demo_photo_1.jpg', 'Uploaded', 'Prompt Completed', 'Arrived on time at Lahore office.', 'Accepted', 'PPPS-VA-2026-1042', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', now() - INTERVAL '1 day', now() - INTERVAL '2 days'),
   ('22222222-2222-2222-2222-222222222222', 'f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', now() - INTERVAL '5 hours', 'Submitted', 31.5208, 74.3582, 12.0, now() - INTERVAL '5 hours', 'Granted', 31.5204, 74.3587, 65.4, 400, 'Within Radius', 'https://whqmwzoqmopgamfacncg.supabase.co/storage/v1/object/public/attendance-photos/demo_photo_2.jpg', 'Uploaded', 'Not Required', 'Attended TEVTA practical class.', 'Pending Review', 'PPPS-VA-2026-3891', NULL, NULL, now() - INTERVAL '5 hours'),
   ('33333333-3333-3333-3333-333333333333', 'f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', now() - INTERVAL '1 day', 'Late', 31.4890, 74.3290, 25.0, now() - INTERVAL '1 day', 'Granted', 31.4822, 74.3211, 1050.8, 500, 'Outside Radius', NULL, 'Not Required', 'Not Required', 'Submitted location while travelling near site.', 'Needs Follow-up', 'PPPS-VA-2026-7723', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', now() - INTERVAL '4 hours', now() - INTERVAL '1 day');
+
+-- 12. SEED PRNA ASSESSMENTS
+INSERT INTO public.prna_assessments (
+  id, supervisee_id, officer_id, assessment_type, placement_date, due_date, completed_at, status, sri_score, dni_score, pcr_score, pfi_score, total_score, risk_band, supervision_intensity, next_reassessment_date, assessor_remarks, supervisor_remarks, created_at, updated_at
+) VALUES
+  ('a1111111-1111-1111-1111-111111111111', 'f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 'Initial', '2026-06-15', '2026-07-15', now() - INTERVAL '20 days', 'Approved', 8, 14, 4, -4, 22, 'Moderate', 'Standard Supervision (Bi-Weekly Reporting)', '2026-09-15', 'Initial assessment completed within 30-day window. Supervisee exhibits moderate criminogenic needs in employment and companions.', 'Approved by District Supervisor.', now() - INTERVAL '20 days', now() - INTERVAL '20 days');
+
+-- 13. SEED CASE PLANS
+INSERT INTO public.case_plans (
+  id, assessment_id, supervisee_id, officer_id, plan_title, plan_status, top_needs, employment_education_steps, housing_steps, family_mentor_engagement, compliance_incentives, start_date, review_date, created_at, updated_at
+) VALUES
+  ('c1111111-1111-1111-1111-111111111111', 'a1111111-1111-1111-1111-111111111111', 'f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 'Initial Rehabilitation Supervision Plan for Tariq Mehmood', 'Active', '["Education and Employment", "Companions / Peers", "Counselling"]'::jsonb, 'Enroll in TEVTA electrician course and complete weekly practical sessions.', 'Maintain stable residence at family home in Lahore.', 'Bi-weekly family check-in with pro-social uncle as mentor.', 'Reduction in reporting frequency upon 60 days of clean compliance.', '2026-06-20', '2026-09-20', now() - INTERVAL '20 days', now() - INTERVAL '20 days');
+
+-- 14. SEED CASE PLAN ACTIONS
+INSERT INTO public.case_plan_actions (
+  id, case_plan_id, top_need, smart_goal, intervention_referral, responsible, start_date, review_date, status, linked_assigned_activity_id, created_at
+) VALUES
+  ('ca111111-1111-1111-1111-111111111111', 'c1111111-1111-1111-1111-111111111111', 'Education and Employment', 'Complete 3-month TEVTA vocational electrical certificate by Sept 2026.', 'TEVTA Lahore Center Referral', 'Supervisee & Probation Officer', '2026-07-01', '2026-09-30', 'In Progress', '22222222-2222-2222-2222-222222222222', now() - INTERVAL '20 days'),
+  ('ca222222-2222-2222-2222-222222222222', 'c1111111-1111-1111-1111-111111111111', 'Counselling', 'Attend monthly guidance counselling for social integration.', 'District Probation Guidance Center', 'Probation Officer Tahir Mahmood', '2026-06-20', '2026-12-20', 'In Progress', '44444444-4444-4444-4444-444444444444', now() - INTERVAL '20 days'),
+  ('ca333333-3333-3333-3333-333333333333', 'c1111111-1111-1111-1111-111111111111', 'Personal Discipline', 'Engage in voluntary pro-social discipline activity as agreed in rehabilitation plan.', 'Community Support Group', 'Supervisee', '2026-07-01', '2026-12-31', 'In Progress', '55555555-5555-5555-5555-555555555555', now() - INTERVAL '20 days');
+
 

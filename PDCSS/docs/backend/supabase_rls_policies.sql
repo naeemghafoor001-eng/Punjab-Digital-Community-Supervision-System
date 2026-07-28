@@ -13,6 +13,10 @@ ALTER TABLE public.alerts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.activities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.assigned_activities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.activity_attendance ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.prna_assessments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.prna_responses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.case_plans ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.case_plan_actions ENABLE ROW LEVEL SECURITY;
 
 -- Helper functions for role identification
 CREATE OR REPLACE FUNCTION public.is_admin()
@@ -364,8 +368,55 @@ CREATE POLICY update_activity_attendance ON public.activity_attendance
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
+-- 11-14. PRNA & CASE PLANNING POLICIES
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Prototype Anonymous Public Policies (FOR FICTIONAL DEMO ONLY)
+-- Note: In production, remove anon policies and enforce authenticated role-based policies.
+CREATE POLICY select_prna_assessments_anon ON public.prna_assessments FOR SELECT TO anon USING (TRUE);
+CREATE POLICY insert_prna_assessments_anon ON public.prna_assessments FOR INSERT TO anon WITH CHECK (TRUE);
+CREATE POLICY update_prna_assessments_anon ON public.prna_assessments FOR UPDATE TO anon USING (TRUE) WITH CHECK (TRUE);
+
+CREATE POLICY select_prna_responses_anon ON public.prna_responses FOR SELECT TO anon USING (TRUE);
+CREATE POLICY insert_prna_responses_anon ON public.prna_responses FOR INSERT TO anon WITH CHECK (TRUE);
+
+CREATE POLICY select_case_plans_anon ON public.case_plans FOR SELECT TO anon USING (TRUE);
+CREATE POLICY insert_case_plans_anon ON public.case_plans FOR INSERT TO anon WITH CHECK (TRUE);
+CREATE POLICY update_case_plans_anon ON public.case_plans FOR UPDATE TO anon USING (TRUE) WITH CHECK (TRUE);
+
+CREATE POLICY select_case_plan_actions_anon ON public.case_plan_actions FOR SELECT TO anon USING (TRUE);
+CREATE POLICY insert_case_plan_actions_anon ON public.case_plan_actions FOR INSERT TO anon WITH CHECK (TRUE);
+CREATE POLICY update_case_plan_actions_anon ON public.case_plan_actions FOR UPDATE TO anon USING (TRUE) WITH CHECK (TRUE);
+
+-- Authenticated PRNA Assessments Policy (Officers manage assigned, Admins view all)
+CREATE POLICY select_prna_assessments ON public.prna_assessments FOR SELECT TO authenticated
+    USING (public.is_admin() OR officer_id = auth.uid() OR (public.is_officer() AND EXISTS (
+        SELECT 1 FROM public.supervisees s WHERE s.id = public.prna_assessments.supervisee_id AND s.assigned_officer_id = auth.uid()
+    )));
+
+CREATE POLICY manage_prna_assessments ON public.prna_assessments FOR ALL TO authenticated
+    USING (public.is_admin() OR public.is_officer()) WITH CHECK (public.is_admin() OR public.is_officer());
+
+-- Authenticated Case Plans Policy (Officers manage, Supervisees view active plan)
+CREATE POLICY select_case_plans ON public.case_plans FOR SELECT TO authenticated
+    USING (supervisee_id = auth.uid() OR officer_id = auth.uid() OR public.is_admin() OR public.is_officer());
+
+CREATE POLICY manage_case_plans ON public.case_plans FOR ALL TO authenticated
+    USING (public.is_admin() OR public.is_officer()) WITH CHECK (public.is_admin() OR public.is_officer());
+
+CREATE POLICY select_case_plan_actions ON public.case_plan_actions FOR SELECT TO authenticated
+    USING (public.is_admin() OR public.is_officer() OR EXISTS (
+        SELECT 1 FROM public.case_plans cp WHERE cp.id = public.case_plan_actions.case_plan_id AND cp.supervisee_id = auth.uid()
+    ));
+
+CREATE POLICY manage_case_plan_actions ON public.case_plan_actions FOR ALL TO authenticated
+    USING (public.is_admin() OR public.is_officer()) WITH CHECK (public.is_admin() OR public.is_officer());
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
 -- DELETION PREVENTION RULE (No DELETE policies created for any table)
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Soft delete columns or updates must be used instead of hard deletes to protect
 -- system audit trail integrity in the Punjab Probation and Parole Service.
+
 

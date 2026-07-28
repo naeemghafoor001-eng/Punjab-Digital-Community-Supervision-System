@@ -15,7 +15,7 @@ This guide documents the procedures for configuring the PostgreSQL database sche
 3. Navigate to the **SQL Editor** tab from the left sidebar.
 4. Click **New Query** to create a fresh editor page.
 5. Open [supabase_schema.sql](file:///d:/Antigravity/PDCSS/docs/backend/supabase_schema.sql), copy the entire file content, paste it into the editor, and click **Run**.
-6. Verify that all 10 tables are created in the `public` schema:
+6. Verify that all 14 tables are created in the `public` schema:
    - `profiles`
    - `officers`
    - `supervisees`
@@ -26,6 +26,10 @@ This guide documents the procedures for configuring the PostgreSQL database sche
    - `activities`
    - `assigned_activities`
    - `activity_attendance`
+   - `prna_assessments`
+   - `prna_responses`
+   - `case_plans`
+   - `case_plan_actions`
 
 ---
 
@@ -35,8 +39,8 @@ By default, RLS is disabled. We must explicitly enable it to restrict data acces
 
 1. Open a new query tab in the Supabase SQL Editor.
 2. Copy the content of [supabase_rls_policies.sql](file:///d:/Antigravity/PDCSS/docs/backend/supabase_rls_policies.sql), paste it into the editor, and click **Run**.
-3. Go to the **Database** tab -> **Policies** to confirm that RLS is active on all 10 tables.
-4. For fictional public testing (GitHub Pages demo), anonymous public SELECT/INSERT policies are configured.
+3. Go to the **Database** tab -> **Policies** to confirm that RLS is active on all 14 tables.
+4. For fictional public testing (GitHub Pages demo), anonymous public SELECT/INSERT/UPDATE policies are configured.
 5. **For future real pilot deployments**: All anonymous public policies must be removed and replaced exclusively with authenticated role-based RLS policies. Note that there are **no DELETE policies** created.
 
 ---

@@ -496,3 +496,138 @@ class PortalActivityAttendanceRow {
     );
   }
 }
+
+class PortalPRNASummary {
+  final int totalPrnaCompleted;
+  final int prnaPending;
+  final int prnaOverdueBeyond30Days;
+  final int reassessmentsDue;
+  final int casePlansCompleted;
+  final int casePlansPendingReview;
+  final Map<String, int> riskBandDistribution; // Low, Moderate, High, Very High
+  final Map<String, int> topCriminogenicNeeds;
+
+  PortalPRNASummary({
+    required this.totalPrnaCompleted,
+    required this.prnaPending,
+    required this.prnaOverdueBeyond30Days,
+    required this.reassessmentsDue,
+    required this.casePlansCompleted,
+    required this.casePlansPendingReview,
+    required this.riskBandDistribution,
+    required this.topCriminogenicNeeds,
+  });
+
+  factory PortalPRNASummary.fallback() {
+    return PortalPRNASummary(
+      totalPrnaCompleted: 2412,
+      prnaPending: 184,
+      prnaOverdueBeyond30Days: 28,
+      reassessmentsDue: 142,
+      casePlansCompleted: 2180,
+      casePlansPendingReview: 96,
+      riskBandDistribution: {
+        'Low': 815,
+        'Moderate': 1140,
+        'High': 350,
+        'Very High': 107,
+      },
+      topCriminogenicNeeds: {
+        'Education & Employment': 1240,
+        'Companions / Peers': 890,
+        'Substance Use History': 620,
+        'Family / Marital': 510,
+        'Attitudes & Cognition': 430,
+        'Leisure & Recreation': 290,
+      },
+    );
+  }
+}
+
+class PortalDistrictPRNARow {
+  final String district;
+  final int totalSupervisees;
+  final int prnaCompleted;
+  final int prnaPending;
+  final int prnaOverdue;
+  final double completionRatePercent;
+
+  PortalDistrictPRNARow({
+    required this.district,
+    required this.totalSupervisees,
+    required this.prnaCompleted,
+    required this.prnaPending,
+    required this.prnaOverdue,
+    required this.completionRatePercent,
+  });
+
+  factory PortalDistrictPRNARow.fallback(int index) {
+    final districts = [
+      'Lahore',
+      'Rawalpindi',
+      'Faisalabad',
+      'Multan',
+      'Gujranwala',
+      'Sargodha'
+    ];
+    final totals = [640, 480, 520, 390, 310, 240];
+    final completed = [590, 435, 470, 355, 280, 215];
+    final pending = [42, 38, 41, 29, 24, 20];
+    final overdue = [8, 7, 9, 6, 6, 5];
+
+    final i = index % districts.length;
+    final rate = (completed[i] / totals[i]) * 100;
+
+    return PortalDistrictPRNARow(
+      district: districts[i],
+      totalSupervisees: totals[i],
+      prnaCompleted: completed[i],
+      prnaPending: pending[i],
+      prnaOverdue: overdue[i],
+      completionRatePercent: rate,
+    );
+  }
+}
+
+class PortalOfficerPRNARow {
+  final String officerName;
+  final String district;
+  final int assignedCases;
+  final int prnaCompleted;
+  final int pendingAssessments;
+  final int overdue30Days;
+
+  PortalOfficerPRNARow({
+    required this.officerName,
+    required this.district,
+    required this.assignedCases,
+    required this.prnaCompleted,
+    required this.pendingAssessments,
+    required this.overdue30Days,
+  });
+
+  factory PortalOfficerPRNARow.fallback(int index) {
+    final officers = [
+      'Tahir Mahmood',
+      'Asad Iqbal',
+      'Kashif Raza',
+      'Zahid Hussain'
+    ];
+    final districts = ['Lahore', 'Lahore', 'Rawalpindi', 'Faisalabad'];
+    final cases = [42, 38, 44, 36];
+    final done = [38, 32, 40, 31];
+    final pending = [4, 6, 4, 5];
+    final overdue = [1, 2, 1, 1];
+
+    final i = index % officers.length;
+
+    return PortalOfficerPRNARow(
+      officerName: officers[i],
+      district: districts[i],
+      assignedCases: cases[i],
+      prnaCompleted: done[i],
+      pendingAssessments: pending[i],
+      overdue30Days: overdue[i],
+    );
+  }
+}
