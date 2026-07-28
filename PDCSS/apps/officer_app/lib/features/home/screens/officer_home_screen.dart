@@ -3,6 +3,7 @@ import 'package:officer_app/core/theme/officer_app_theme.dart';
 import 'package:officer_app/features/caseload/screens/caseload_screen.dart';
 import 'package:officer_app/features/alerts/screens/alerts_screen.dart';
 import 'package:officer_app/features/field_visit/screens/field_visit_screen.dart';
+import 'package:officer_app/features/activities/screens/verified_attendance_review_screen.dart';
 import 'package:officer_app/core/backend/raahnuma_backend_service.dart';
 import 'package:officer_app/core/backend/models.dart';
 
@@ -28,6 +29,7 @@ class _OfficerHomeScreenState extends State<OfficerHomeScreen> {
       _OfficerDashboardTab(onNavigateToTab: _navigateToTab),
       const CaseloadScreen(),
       const _CheckInReviewScreen(),
+      const VerifiedAttendanceReviewScreen(),
       const AlertsScreen(),
       const FieldVisitPlannerScreen(),
       const _OfficerProfileTab(),
@@ -57,6 +59,11 @@ class _OfficerHomeScreenState extends State<OfficerHomeScreen> {
             icon: Icon(Icons.fact_check_outlined),
             selectedIcon: Icon(Icons.fact_check, color: kGovGreen),
             label: 'Check-Ins',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.verified_outlined),
+            selectedIcon: Icon(Icons.verified, color: kGovGreen),
+            label: 'Attendance',
           ),
           NavigationDestination(
             icon: Icon(Icons.notifications_outlined),
@@ -113,7 +120,8 @@ class _OfficerDashboardTabState extends State<_OfficerDashboardTab> {
           backgroundColor: const Color(0xFFF8FAFC),
           body: Column(
             children: [
-              const DepartmentalAppBar(screenTitle: 'Executive Operational Dashboard'),
+              const DepartmentalAppBar(
+                  screenTitle: 'Executive Operational Dashboard'),
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {
@@ -416,7 +424,8 @@ class _OfficerDashboardTabState extends State<_OfficerDashboardTab> {
               icon: Icons.fact_check,
               color: const Color(0xFFD97706),
               title: 'Review Submitted Check-Ins',
-              subtitle: '4 digital reporting check-ins submitted today require officer verification.',
+              subtitle:
+                  '4 digital reporting check-ins submitted today require officer verification.',
               actionLabel: 'Review (4)',
               onPressed: () => widget.onNavigateToTab(2),
             ),
@@ -425,7 +434,8 @@ class _OfficerDashboardTabState extends State<_OfficerDashboardTab> {
               icon: Icons.warning_amber_rounded,
               color: const Color(0xFFDC2626),
               title: 'Address Active Supervision Alerts',
-              subtitle: '1 missed reporting alert for Tariq Mehmood (LHR-2026-089) pending review.',
+              subtitle:
+                  '1 missed reporting alert for Tariq Mehmood (LHR-2026-089) pending review.',
               actionLabel: 'Alerts (3)',
               onPressed: () => widget.onNavigateToTab(3),
             ),
@@ -434,7 +444,8 @@ class _OfficerDashboardTabState extends State<_OfficerDashboardTab> {
               icon: Icons.directions_walk,
               color: const Color(0xFF0284C7),
               title: 'Conduct Scheduled Field Visits',
-              subtitle: '2 home visits scheduled in Model Town & Gulberg sector today.',
+              subtitle:
+                  '2 home visits scheduled in Model Town & Gulberg sector today.',
               actionLabel: 'Visits (5)',
               onPressed: () => widget.onNavigateToTab(4),
             ),
@@ -443,7 +454,8 @@ class _OfficerDashboardTabState extends State<_OfficerDashboardTab> {
               icon: Icons.volunteer_activism,
               color: const Color(0xFF059669),
               title: 'Follow Up Rehabilitation Referrals',
-              subtitle: 'Verify TEVTA vocational training attendance for Muhammad Usama.',
+              subtitle:
+                  'Verify TEVTA vocational training attendance for Muhammad Usama.',
               actionLabel: 'View Plan',
               onPressed: () => widget.onNavigateToTab(1),
             ),
@@ -590,9 +602,7 @@ class _OfficerDashboardTabState extends State<_OfficerDashboardTab> {
           child: Text(
             status,
             style: TextStyle(
-                fontSize: 10,
-                color: statusColor,
-                fontWeight: FontWeight.bold),
+                fontSize: 10, color: statusColor, fontWeight: FontWeight.bold),
           ),
         ),
       ],
@@ -609,19 +619,23 @@ class _OfficerDashboardTabState extends State<_OfficerDashboardTab> {
         child: Row(
           children: [
             Expanded(
-              child: _buildReportStatItem('38', 'Check-Ins\nReviewed', kGovGreen),
+              child:
+                  _buildReportStatItem('38', 'Check-Ins\nReviewed', kGovGreen),
             ),
             Container(width: 1, height: 40, color: Colors.grey.shade300),
             Expanded(
-              child: _buildReportStatItem('24', 'Office Visits\nCompleted', Colors.blue.shade700),
+              child: _buildReportStatItem(
+                  '24', 'Office Visits\nCompleted', Colors.blue.shade700),
             ),
             Container(width: 1, height: 40, color: Colors.grey.shade300),
             Expanded(
-              child: _buildReportStatItem('3', 'Alerts\nResolved', Colors.purple.shade700),
+              child: _buildReportStatItem(
+                  '3', 'Alerts\nResolved', Colors.purple.shade700),
             ),
             Container(width: 1, height: 40, color: Colors.grey.shade300),
             Expanded(
-              child: _buildReportStatItem('5', 'Rehab\nReferrals', Colors.orange.shade800),
+              child: _buildReportStatItem(
+                  '5', 'Rehab\nReferrals', Colors.orange.shade800),
             ),
           ],
         ),
@@ -653,7 +667,8 @@ class _OfficerDashboardTabState extends State<_OfficerDashboardTab> {
         _buildActivityRow(
           icon: Icons.check_circle_outline,
           color: kGovGreen,
-          text: 'Officer Tahir Mahmood verified check-in for Tariq Mehmood (LHR-2026-089)',
+          text:
+              'Officer Tahir Mahmood verified check-in for Tariq Mehmood (LHR-2026-089)',
           time: 'Today at 10:15 AM',
         ),
         const SizedBox(height: 8),
@@ -792,7 +807,8 @@ class _CheckInReviewScreenState extends State<_CheckInReviewScreen> {
       backgroundColor: const Color(0xFFF8FAFC),
       body: Column(
         children: [
-          const DepartmentalAppBar(screenTitle: 'Digital Check-In Verification'),
+          const DepartmentalAppBar(
+              screenTitle: 'Digital Check-In Verification'),
           Expanded(
             child: _isLoading
                 ? const Center(
@@ -858,7 +874,10 @@ class _CheckInReviewScreenState extends State<_CheckInReviewScreen> {
                       ),
                       Text(
                         'Receipt: ${item.receiptNumber} · District: Lahore',
-                        style: const TextStyle(fontSize: 11.5, color: kGovGreen, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 11.5,
+                            color: kGovGreen,
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -903,10 +922,15 @@ class _CheckInReviewScreenState extends State<_CheckInReviewScreen> {
               ),
               child: Column(
                 children: [
-                  _buildAnswerRow('Residing at approved address?', item.residingAtAddress),
-                  _buildAnswerRow('Changed employment status?', !item.changedEmployment),
-                  _buildAnswerRow('Requested PP&PS assistance?', item.needAssistance, isPositive: true),
-                  _buildAnswerRow('Complying with rules?', item.complyingConditions),
+                  _buildAnswerRow(
+                      'Residing at approved address?', item.residingAtAddress),
+                  _buildAnswerRow(
+                      'Changed employment status?', !item.changedEmployment),
+                  _buildAnswerRow(
+                      'Requested PP&PS assistance?', item.needAssistance,
+                      isPositive: true),
+                  _buildAnswerRow(
+                      'Complying with rules?', item.complyingConditions),
                 ],
               ),
             ),
@@ -917,10 +941,12 @@ class _CheckInReviewScreenState extends State<_CheckInReviewScreen> {
                 ElevatedButton.icon(
                   onPressed: isReviewed ? null : () => _markReviewed(item),
                   icon: const Icon(Icons.check, size: 16, color: Colors.white),
-                  label: Text(isReviewed ? 'Reviewed' : 'Mark Reviewed', style: const TextStyle(fontSize: 11)),
+                  label: Text(isReviewed ? 'Reviewed' : 'Mark Reviewed',
+                      style: const TextStyle(fontSize: 11)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: kGovGreen,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                     minimumSize: Size.zero,
                   ),
                 ),
@@ -932,7 +958,8 @@ class _CheckInReviewScreenState extends State<_CheckInReviewScreen> {
     );
   }
 
-  Widget _buildAnswerRow(String question, bool isPassed, {bool isPositive = false}) {
+  Widget _buildAnswerRow(String question, bool isPassed,
+      {bool isPositive = false}) {
     final textColor = isPositive
         ? kGovGreen
         : isPassed
@@ -944,10 +971,12 @@ class _CheckInReviewScreenState extends State<_CheckInReviewScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(question, style: const TextStyle(fontSize: 11.5, color: kTextDark)),
+          Text(question,
+              style: const TextStyle(fontSize: 11.5, color: kTextDark)),
           Text(
             isPassed ? 'Yes' : 'No',
-            style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: textColor),
+            style: TextStyle(
+                fontSize: 11.5, fontWeight: FontWeight.bold, color: textColor),
           ),
         ],
       ),
@@ -967,7 +996,8 @@ class _OfficerProfileTab extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       body: Column(
         children: [
-          const DepartmentalAppBar(screenTitle: 'Officer Credentials & Settings'),
+          const DepartmentalAppBar(
+              screenTitle: 'Officer Credentials & Settings'),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(18),
@@ -1084,8 +1114,7 @@ class _ProfileInfoRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label,
-                    style:
-                        const TextStyle(fontSize: 10.5, color: kTextMuted)),
+                    style: const TextStyle(fontSize: 10.5, color: kTextMuted)),
                 const SizedBox(height: 1),
                 Text(value,
                     style: const TextStyle(

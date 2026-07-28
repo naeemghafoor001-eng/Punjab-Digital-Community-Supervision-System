@@ -11,6 +11,8 @@ ALTER TABLE public.checkins ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.contacts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.alerts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.activities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.assigned_activities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.activity_attendance ENABLE ROW LEVEL SECURITY;
 
 -- Helper functions for role identification
 CREATE OR REPLACE FUNCTION public.is_admin()
@@ -293,7 +295,77 @@ CREATE POLICY update_activities ON public.activities
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
+-- 9. ASSIGNED ACTIVITIES POLICIES
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Prototype Anonymous Public Policy (FOR FICTIONAL DEMO ONLY)
+-- Note: In production, remove anon policy and enforce authenticated role-based policies.
+CREATE POLICY select_assigned_activities_anon ON public.assigned_activities
+    FOR SELECT TO anon USING (TRUE);
+
+-- Authenticated Select Policy
+CREATE POLICY select_assigned_activities ON public.assigned_activities
+    FOR SELECT TO authenticated
+    USING (
+        supervisee_id = auth.uid() 
+        OR officer_id = auth.uid() 
+        OR public.is_admin()
+        OR (public.is_officer() AND EXISTS (
+            SELECT 1 FROM public.supervisees s 
+            WHERE s.id = public.assigned_activities.supervisee_id AND s.assigned_officer_id = auth.uid()
+        ))
+    );
+
+-- Authenticated Manage Policy (Officers and Admins create/update assigned activities)
+CREATE POLICY manage_assigned_activities ON public.assigned_activities
+    FOR ALL TO authenticated
+    USING (public.is_admin() OR public.is_officer())
+    WITH CHECK (public.is_admin() OR public.is_officer());
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 10. ACTIVITY ATTENDANCE POLICIES
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Prototype Anonymous Public Policies (FOR FICTIONAL DEMO ONLY)
+-- Note: In production, remove anon policies and enforce authenticated role-based policies.
+CREATE POLICY select_activity_attendance_anon ON public.activity_attendance
+    FOR SELECT TO anon USING (TRUE);
+
+CREATE POLICY insert_activity_attendance_anon ON public.activity_attendance
+    FOR INSERT TO anon WITH CHECK (TRUE);
+
+CREATE POLICY update_activity_attendance_anon ON public.activity_attendance
+    FOR UPDATE TO anon USING (TRUE) WITH CHECK (TRUE);
+
+-- Authenticated Select Policy
+CREATE POLICY select_activity_attendance ON public.activity_attendance
+    FOR SELECT TO authenticated
+    USING (
+        supervisee_id = auth.uid()
+        OR officer_id = auth.uid()
+        OR public.is_admin()
+        OR (public.is_officer() AND EXISTS (
+            SELECT 1 FROM public.supervisees s 
+            WHERE s.id = public.activity_attendance.supervisee_id AND s.assigned_officer_id = auth.uid()
+        ))
+    );
+
+-- Authenticated Insert Policy (Supervisee inserts own attendance)
+CREATE POLICY insert_activity_attendance ON public.activity_attendance
+    FOR INSERT TO authenticated
+    WITH CHECK (supervisee_id = auth.uid() OR public.is_admin());
+
+-- Authenticated Update Policy (Officer updates review status & comments)
+CREATE POLICY update_activity_attendance ON public.activity_attendance
+    FOR UPDATE TO authenticated
+    USING (public.is_admin() OR public.is_officer())
+    WITH CHECK (public.is_admin() OR public.is_officer());
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
 -- DELETION PREVENTION RULE (No DELETE policies created for any table)
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Soft delete columns or updates must be used instead of hard deletes to protect
 -- system audit trail integrity in the Punjab Probation and Parole Service.
+

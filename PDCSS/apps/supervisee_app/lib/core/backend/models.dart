@@ -111,3 +111,173 @@ class AppointmentModel {
     );
   }
 }
+
+class AssignedActivityModel {
+  final String id;
+  final String superviseeId;
+  final String officerId;
+  final String activityTitle;
+  final String activityCategory;
+  final String instructions;
+  final String frequency;
+  final String? dueTime;
+  final String startDate;
+  final String endDate;
+  final String status;
+  final String? expectedLocationName;
+  final double? expectedLatitude;
+  final double? expectedLongitude;
+  final int allowedRadiusMeters;
+  final bool requiresLocation;
+  final bool requiresPhoto;
+  final bool requiresLiveness;
+  final String reviewStatus;
+
+  AssignedActivityModel({
+    required this.id,
+    required this.superviseeId,
+    required this.officerId,
+    required this.activityTitle,
+    required this.activityCategory,
+    required this.instructions,
+    required this.frequency,
+    this.dueTime,
+    required this.startDate,
+    required this.endDate,
+    required this.status,
+    this.expectedLocationName,
+    this.expectedLatitude,
+    this.expectedLongitude,
+    this.allowedRadiusMeters = 300,
+    this.requiresLocation = false,
+    this.requiresPhoto = false,
+    this.requiresLiveness = false,
+    this.reviewStatus = 'Not Submitted',
+  });
+
+  factory AssignedActivityModel.fromMap(Map<String, dynamic> map,
+      {String? reviewStatus}) {
+    return AssignedActivityModel(
+      id: map['id']?.toString() ?? '',
+      superviseeId: map['supervisee_id']?.toString() ?? '',
+      officerId: map['officer_id']?.toString() ?? '',
+      activityTitle: map['activity_title']?.toString() ?? '',
+      activityCategory: map['activity_category']?.toString() ?? 'General',
+      instructions: map['instructions']?.toString() ?? '',
+      frequency: map['frequency']?.toString() ?? 'Weekly',
+      dueTime: map['due_time']?.toString(),
+      startDate: map['start_date']?.toString() ?? '',
+      endDate: map['end_date']?.toString() ?? '',
+      status: map['status']?.toString() ?? 'Active',
+      expectedLocationName: map['expected_location_name']?.toString(),
+      expectedLatitude: map['expected_latitude'] != null
+          ? (map['expected_latitude'] as num).toDouble()
+          : null,
+      expectedLongitude: map['expected_longitude'] != null
+          ? (map['expected_longitude'] as num).toDouble()
+          : null,
+      allowedRadiusMeters: map['allowed_radius_meters'] != null
+          ? (map['allowed_radius_meters'] as num).toInt()
+          : 300,
+      requiresLocation: map['requires_location'] == true,
+      requiresPhoto: map['requires_photo'] == true,
+      requiresLiveness: map['requires_liveness'] == true,
+      reviewStatus: reviewStatus ?? 'Not Submitted',
+    );
+  }
+}
+
+class ActivityAttendanceModel {
+  final String id;
+  final String assignedActivityId;
+  final String superviseeId;
+  final String? officerId;
+  final String submittedAt;
+  final String attendanceStatus;
+  final double? latitude;
+  final double? longitude;
+  final double? accuracyMeters;
+  final String locationPermissionStatus;
+  final double? expectedLatitude;
+  final double? expectedLongitude;
+  final double? distanceFromExpectedMeters;
+  final int? allowedRadiusMeters;
+  final String locationMatchStatus;
+  final String? photoUrl;
+  final String photoStatus;
+  final String livenessStatus;
+  final String? remarks;
+  final String reviewStatus;
+  final String receiptNo;
+  final String? reviewedBy;
+  final String? reviewedAt;
+
+  ActivityAttendanceModel({
+    required this.id,
+    required this.assignedActivityId,
+    required this.superviseeId,
+    this.officerId,
+    required this.submittedAt,
+    required this.attendanceStatus,
+    this.latitude,
+    this.longitude,
+    this.accuracyMeters,
+    required this.locationPermissionStatus,
+    this.expectedLatitude,
+    this.expectedLongitude,
+    this.distanceFromExpectedMeters,
+    this.allowedRadiusMeters,
+    required this.locationMatchStatus,
+    this.photoUrl,
+    required this.photoStatus,
+    required this.livenessStatus,
+    this.remarks,
+    required this.reviewStatus,
+    required this.receiptNo,
+    this.reviewedBy,
+    this.reviewedAt,
+  });
+
+  factory ActivityAttendanceModel.fromMap(Map<String, dynamic> map) {
+    return ActivityAttendanceModel(
+      id: map['id']?.toString() ?? '',
+      assignedActivityId: map['assigned_activity_id']?.toString() ?? '',
+      superviseeId: map['supervisee_id']?.toString() ?? '',
+      officerId: map['officer_id']?.toString(),
+      submittedAt: map['submitted_at']?.toString() ?? '',
+      attendanceStatus: map['attendance_status']?.toString() ?? 'Submitted',
+      latitude:
+          map['latitude'] != null ? (map['latitude'] as num).toDouble() : null,
+      longitude: map['longitude'] != null
+          ? (map['longitude'] as num).toDouble()
+          : null,
+      accuracyMeters: map['accuracy_meters'] != null
+          ? (map['accuracy_meters'] as num).toDouble()
+          : null,
+      locationPermissionStatus:
+          map['location_permission_status']?.toString() ?? 'Not Required',
+      expectedLatitude: map['expected_latitude'] != null
+          ? (map['expected_latitude'] as num).toDouble()
+          : null,
+      expectedLongitude: map['expected_longitude'] != null
+          ? (map['expected_longitude'] as num).toDouble()
+          : null,
+      distanceFromExpectedMeters: map['distance_from_expected_meters'] != null
+          ? (map['distance_from_expected_meters'] as num).toDouble()
+          : null,
+      allowedRadiusMeters: map['allowed_radius_meters'] != null
+          ? (map['allowed_radius_meters'] as num).toInt()
+          : null,
+      locationMatchStatus:
+          map['location_match_status']?.toString() ?? 'Not Required',
+      photoUrl: map['photo_url']?.toString(),
+      photoStatus: map['photo_status']?.toString() ?? 'Not Required',
+      livenessStatus: map['liveness_status']?.toString() ?? 'Not Required',
+      remarks: map['remarks']?.toString(),
+      reviewStatus: map['review_status']?.toString() ?? 'Pending Review',
+      receiptNo: map['receipt_no']?.toString() ?? '',
+      reviewedBy: map['reviewed_by']?.toString(),
+      reviewedAt: map['reviewed_at']?.toString(),
+    );
+  }
+}

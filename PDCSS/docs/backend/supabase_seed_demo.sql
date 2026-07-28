@@ -3,6 +3,8 @@
 -- Location: docs/backend/supabase_seed_demo.sql
 
 -- Clear existing fictional data (in correct dependency order)
+TRUNCATE public.activity_attendance CASCADE;
+TRUNCATE public.assigned_activities CASCADE;
 TRUNCATE public.activities CASCADE;
 TRUNCATE public.alerts CASCADE;
 TRUNCATE public.contacts CASCADE;
@@ -70,3 +72,22 @@ INSERT INTO public.activities (actor_id, event_type, description, ip_address, us
 VALUES
   ('f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f', 'SUPERVISEE_CHECKIN', 'Digital check-in submitted from mobile portal.', '192.168.1.10', 'Mozilla/5.0 Android', 'sha256:5ef2db3c48ea92a95c960c1d1d0f5e6a', now() - INTERVAL '1 day'),
   ('a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 'OFFICER_REVIEW', 'Reviewed check-in submission for Tariq Mehmood.', '192.168.1.5', 'Mozilla/5.0 Windows', 'sha256:9cf2ab3d48ef92b95c960c1d1d0f5e7b', now() - INTERVAL '12 hours');
+
+-- 10. SEED ASSIGNED ACTIVITIES
+INSERT INTO public.assigned_activities (
+  id, supervisee_id, officer_id, activity_title, activity_category, instructions, frequency, due_time, start_date, end_date, status, expected_location_name, expected_latitude, expected_longitude, allowed_radius_meters, requires_location, requires_photo, requires_liveness, created_at
+) VALUES
+  ('11111111-1111-1111-1111-111111111111', 'f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 'Bi-weekly Probation Office Reporting', 'Reporting', 'Report to Lahore Central Office for bi-weekly progress review.', 'Bi-Weekly', '10:00:00', '2026-06-15', '2026-12-15', 'Active', 'Lahore Central Office', 31.5601, 74.3352, 300, TRUE, TRUE, TRUE, now() - INTERVAL '30 days'),
+  ('22222222-2222-2222-2222-222222222222', 'f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 'TEVTA Vocational Skills Workshop', 'Skills', 'Attend vocational electrician training sessions at TEVTA center.', 'Weekly', '14:00:00', '2026-07-01', '2026-09-30', 'Active', 'TEVTA Vocational Center Lahore', 31.5204, 74.3587, 400, TRUE, TRUE, FALSE, now() - INTERVAL '25 days'),
+  ('33333333-3333-3333-3333-333333333333', 'f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 'Community Welfare Cleanliness Drive', 'Community Service', 'Participate in approved civic community service activity.', 'Weekly', '09:00:00', '2026-07-05', '2026-08-30', 'Active', 'Model Town Community Park', 31.4822, 74.3211, 500, TRUE, FALSE, FALSE, now() - INTERVAL '20 days'),
+  ('44444444-4444-4444-4444-444444444444', 'f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 'Rehabilitation & Wellness Counselling', 'Counselling', 'Participate in guidance and counselling session with designated officer.', 'Monthly', '11:00:00', '2026-06-20', '2026-12-20', 'Active', 'District Probation Guidance Center', 31.5601, 74.3352, 300, TRUE, TRUE, TRUE, now() - INTERVAL '15 days'),
+  ('55555555-5555-5555-5555-555555555555', 'f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 'Spiritual / Personal Discipline Activity', 'Personal Discipline', 'Voluntary personal discipline activity as part of approved rehabilitation plan.', 'Daily', '08:00:00', '2026-07-01', '2026-12-31', 'Active', 'Local Designated Center', NULL, NULL, 500, FALSE, FALSE, FALSE, now() - INTERVAL '10 days');
+
+-- 11. SEED ACTIVITY ATTENDANCE SUBMISSIONS
+INSERT INTO public.activity_attendance (
+  assigned_activity_id, supervisee_id, officer_id, submitted_at, attendance_status, latitude, longitude, accuracy_meters, location_captured_at, location_permission_status, expected_latitude, expected_longitude, distance_from_expected_meters, allowed_radius_meters, location_match_status, photo_url, photo_status, liveness_status, remarks, review_status, receipt_no, reviewed_by, reviewed_at, created_at
+) VALUES
+  ('11111111-1111-1111-1111-111111111111', 'f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', now() - INTERVAL '2 days', 'Submitted', 31.5602, 74.3351, 8.5, now() - INTERVAL '2 days', 'Granted', 31.5601, 74.3352, 18.2, 300, 'Within Radius', 'https://whqmwzoqmopgamfacncg.supabase.co/storage/v1/object/public/attendance-photos/demo_photo_1.jpg', 'Uploaded', 'Prompt Completed', 'Arrived on time at Lahore office.', 'Accepted', 'PPPS-VA-2026-1042', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', now() - INTERVAL '1 day', now() - INTERVAL '2 days'),
+  ('22222222-2222-2222-2222-222222222222', 'f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', now() - INTERVAL '5 hours', 'Submitted', 31.5208, 74.3582, 12.0, now() - INTERVAL '5 hours', 'Granted', 31.5204, 74.3587, 65.4, 400, 'Within Radius', 'https://whqmwzoqmopgamfacncg.supabase.co/storage/v1/object/public/attendance-photos/demo_photo_2.jpg', 'Uploaded', 'Not Required', 'Attended TEVTA practical class.', 'Pending Review', 'PPPS-VA-2026-3891', NULL, NULL, now() - INTERVAL '5 hours'),
+  ('33333333-3333-3333-3333-333333333333', 'f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', now() - INTERVAL '1 day', 'Late', 31.4890, 74.3290, 25.0, now() - INTERVAL '1 day', 'Granted', 31.4822, 74.3211, 1050.8, 500, 'Outside Radius', NULL, 'Not Required', 'Not Required', 'Submitted location while travelling near site.', 'Needs Follow-up', 'PPPS-VA-2026-7723', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', now() - INTERVAL '4 hours', now() - INTERVAL '1 day');
+

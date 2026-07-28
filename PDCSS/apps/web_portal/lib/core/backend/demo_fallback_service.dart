@@ -57,4 +57,14 @@ class DemoFallbackService {
       'activeAlerts': 142,
     };
   }
+
+  Future<PortalVerifiedAttendanceSummary> getVerifiedAttendanceSummary() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return PortalVerifiedAttendanceSummary.fallback();
+  }
+
+  Future<List<PortalActivityAttendanceRow>> getActivityAttendanceRows() async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    return List.generate(5, (i) => PortalActivityAttendanceRow.fallback(i));
+  }
 }

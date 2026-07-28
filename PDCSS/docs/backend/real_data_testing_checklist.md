@@ -29,21 +29,30 @@ This checklist defines the safety regulations, environment restrictions, and aud
 ## 3. Row Level Security & Access Control
 
 - [ ] **Verify active RLS Policies**:
-  - Run database queries to verify that `ROW LEVEL SECURITY` is enabled on all 8 tables.
+  - Run database queries to verify that `ROW LEVEL SECURITY` is enabled on all 10 tables.
   - Verify that **no DELETE policies** exist on any table.
 - [ ] **Disable Anonymous Access**:
-  - Ensure that no database table has a policy permitting read/write operations to the `anon` (anonymous public) role.
+  - Ensure that no database table has a policy permitting read/write operations to the `anon` (anonymous public) role in production.
   - All access must be filtered through `auth.uid()` under the `authenticated` role.
 
 ---
 
-## 4. Hardware & Decision Restrictions
+## 4. Hardware, Attendance & Decision Restrictions
 
-- [ ] **No GPS/Biometric Sensors**:
-  - Do not request location, camera, or biometric authentication permissions inside the Flutter apps. Keep check-ins text-based as per pilot specifications.
+- [ ] **Single-Point GPS Capture**:
+  - Location must be captured ONLY once at the time of attendance submission after explicit user permission.
+  - No continuous background GPS tracking is permitted.
+  - Display clear notice: "Location captured for attendance verification only."
+- [ ] **Camera & Photo Privacy**:
+  - Camera permissions requested only when required for attendance photo.
+  - Photos stored only in private storage bucket `attendance-photos` with authenticated signed URL access.
+- [ ] **Biometric Safety Compliance**:
+  - Do NOT generate or store biometric templates.
+  - Do NOT perform facial recognition or face matching against any database.
+  - Liveness prompts (blink, head movement) serve only as interaction steps for officer visual review.
 - [ ] **No Automated Supervision Decisions**:
-  - Alerts and missed report flags must only serve as notifications.
-  - The system must not make automated legal decisions regarding compliance status or violations without formal officer review.
+  - Location/photo/liveness indicators serve solely as decision support aids for officer review.
+  - The system must not create automated legal violation findings or disciplinary sanctions without formal officer review and hearing.
 
 ---
 
@@ -53,3 +62,4 @@ This checklist defines the safety regulations, environment restrictions, and aud
   - Ensure that the `activities` table RLS policies explicitly disable the `UPDATE` operation.
 - [ ] **Integrity Hash Validation**:
   - Execute audit reviews of system actions by verifying the SHA-256 chain integrity hashes on the `activities` table.
+

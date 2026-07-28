@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supervisee_app/features/checkin/screens/checkin_screen.dart';
+import 'package:supervisee_app/features/activities/screens/assigned_activities_screen.dart';
 import 'package:supervisee_app/core/backend/raahnuma_backend_service.dart';
 import 'package:supervisee_app/core/backend/supabase_config.dart';
 import 'package:supervisee_app/core/backend/models.dart';
@@ -27,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onNavigateToTab: _navigateToTab,
       ),
       const CheckInScreen(),
+      const AssignedActivitiesScreen(),
       const _ScheduleTab(),
       const _ProfileTab(),
       const _HelpTab(),
@@ -47,6 +49,11 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.check_circle_outline),
             selectedIcon: Icon(Icons.check_circle),
             label: 'Check-In / حاضری',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.assignment_outlined),
+            selectedIcon: Icon(Icons.assignment),
+            label: 'Activities / سرگرمیاں',
           ),
           NavigationDestination(
             icon: Icon(Icons.calendar_month_outlined),
@@ -485,21 +492,47 @@ class _DashboardTabState extends State<_DashboardTab> {
           ),
           const SizedBox(height: 10),
 
-          // Primary Large Action Button
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 54),
-              backgroundColor: const Color(0xFF0F5A47),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-            ),
-            icon: const Icon(Icons.check_circle_outline,
-                color: Colors.white, size: 22),
-            label: const Text(
-              'Submit Check-In / حاضری جمع کروائیں',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-            ),
-            onPressed: () => widget.onNavigateToTab(1),
+          // Primary Large Action Buttons
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    backgroundColor: const Color(0xFF0F5A47),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  icon: const Icon(Icons.check_circle_outline,
+                      color: Colors.white, size: 20),
+                  label: const Text(
+                    'Submit Check-In\nحاضری جمع کروائیں',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: () => widget.onNavigateToTab(1),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    backgroundColor: const Color(0xFF157A62),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  icon: const Icon(Icons.assignment_outlined,
+                      color: Colors.white, size: 20),
+                  label: const Text(
+                    'Assigned Activities\nتفویض کردہ سرگرمیاں',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: () => widget.onNavigateToTab(2),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 10),
 
@@ -512,7 +545,7 @@ class _DashboardTabState extends State<_DashboardTab> {
                   title: 'View Schedule',
                   urduTitle: 'شیڈول دیکھیں',
                   color: const Color(0xFF157A62),
-                  onTap: () => widget.onNavigateToTab(2),
+                  onTap: () => widget.onNavigateToTab(3),
                 ),
               ),
               const SizedBox(width: 10),
@@ -522,7 +555,7 @@ class _DashboardTabState extends State<_DashboardTab> {
                   title: 'View Profile',
                   urduTitle: 'پروفائل دیکھیں',
                   color: const Color(0xFF1E293B),
-                  onTap: () => widget.onNavigateToTab(3),
+                  onTap: () => widget.onNavigateToTab(4),
                 ),
               ),
               const SizedBox(width: 10),
@@ -532,11 +565,12 @@ class _DashboardTabState extends State<_DashboardTab> {
                   title: 'Help & Support',
                   urduTitle: 'مدد',
                   color: const Color(0xFFD4AF37),
-                  onTap: () => widget.onNavigateToTab(4),
+                  onTap: () => widget.onNavigateToTab(5),
                 ),
               ),
             ],
           ),
+
           const SizedBox(height: 24),
 
           // ── Recent Activity Section ─────────────────────────────────────

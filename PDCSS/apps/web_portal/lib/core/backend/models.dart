@@ -319,3 +319,180 @@ class PortalActivityRow {
     );
   }
 }
+
+class PortalVerifiedAttendanceSummary {
+  final int activeAssignedActivities;
+  final int attendanceSubmittedToday;
+  final int pendingAttendanceReviews;
+  final int gpsWithinRadius;
+  final int gpsOutsideRadius;
+  final int gpsUnavailable;
+  final int photoVerifiedSubmissions;
+  final int livenessPromptCompleted;
+  final Map<String, int> activitiesByCategory;
+
+  PortalVerifiedAttendanceSummary({
+    required this.activeAssignedActivities,
+    required this.attendanceSubmittedToday,
+    required this.pendingAttendanceReviews,
+    required this.gpsWithinRadius,
+    required this.gpsOutsideRadius,
+    required this.gpsUnavailable,
+    required this.photoVerifiedSubmissions,
+    required this.livenessPromptCompleted,
+    required this.activitiesByCategory,
+  });
+
+  factory PortalVerifiedAttendanceSummary.fallback() {
+    return PortalVerifiedAttendanceSummary(
+      activeAssignedActivities: 148,
+      attendanceSubmittedToday: 42,
+      pendingAttendanceReviews: 9,
+      gpsWithinRadius: 35,
+      gpsOutsideRadius: 4,
+      gpsUnavailable: 3,
+      photoVerifiedSubmissions: 38,
+      livenessPromptCompleted: 29,
+      activitiesByCategory: {
+        'Reporting': 45,
+        'Skills': 32,
+        'Counselling': 26,
+        'Community Service': 20,
+        'Health': 15,
+        'Personal Discipline': 10,
+      },
+    );
+  }
+}
+
+class PortalActivityAttendanceRow {
+  final String id;
+  final String superviseeName;
+  final String caseNumber;
+  final String activityTitle;
+  final String activityCategory;
+  final String submittedAt;
+  final String locationMatchStatus;
+  final double? distanceFromExpectedMeters;
+  final String photoStatus;
+  final String livenessStatus;
+  final String reviewStatus;
+  final String receiptNo;
+
+  PortalActivityAttendanceRow({
+    required this.id,
+    required this.superviseeName,
+    required this.caseNumber,
+    required this.activityTitle,
+    required this.activityCategory,
+    required this.submittedAt,
+    required this.locationMatchStatus,
+    this.distanceFromExpectedMeters,
+    required this.photoStatus,
+    required this.livenessStatus,
+    required this.reviewStatus,
+    required this.receiptNo,
+  });
+
+  factory PortalActivityAttendanceRow.fromMap(Map<String, dynamic> map) {
+    final assigned = map['assigned_activities'] as Map<String, dynamic>? ?? {};
+    final supervisee = map['supervisees'] as Map<String, dynamic>? ?? {};
+    final profile = supervisee['profiles'] as Map<String, dynamic>? ?? {};
+
+    return PortalActivityAttendanceRow(
+      id: map['id']?.toString() ?? '',
+      superviseeName: profile['full_name']?.toString() ?? 'Tariq Mehmood',
+      caseNumber: supervisee['case_number']?.toString() ?? 'LHR-2026-089',
+      activityTitle:
+          assigned['activity_title']?.toString() ?? 'Assigned Activity',
+      activityCategory: assigned['activity_category']?.toString() ?? 'General',
+      submittedAt: map['submitted_at']?.toString() ?? '',
+      locationMatchStatus:
+          map['location_match_status']?.toString() ?? 'Not Required',
+      distanceFromExpectedMeters: map['distance_from_expected_meters'] != null
+          ? (map['distance_from_expected_meters'] as num).toDouble()
+          : null,
+      photoStatus: map['photo_status']?.toString() ?? 'Not Required',
+      livenessStatus: map['liveness_status']?.toString() ?? 'Not Required',
+      reviewStatus: map['review_status']?.toString() ?? 'Pending Review',
+      receiptNo: map['receipt_no']?.toString() ?? '',
+    );
+  }
+
+  factory PortalActivityAttendanceRow.fallback(int index) {
+    final names = [
+      'Tariq Mehmood',
+      'Ahmed Hassan',
+      'Sajid Ali',
+      'Muhammad Usama',
+      'Usman Ahmed'
+    ];
+    final cases = [
+      'LHR-2026-089',
+      'LHR-2026-142',
+      'LHR-2026-112',
+      'LHR-2026-042',
+      'LHR-2026-014'
+    ];
+    final titles = [
+      'Bi-weekly Probation Office Reporting',
+      'TEVTA Vocational Skills Training',
+      'Community Welfare Cleanliness Drive',
+      'Rehabilitation & Wellness Counselling',
+      'Spiritual / Personal Discipline Activity',
+    ];
+    final categories = [
+      'Reporting',
+      'Skills',
+      'Community Service',
+      'Counselling',
+      'Personal Discipline'
+    ];
+    final gpsMatches = [
+      'Within Radius',
+      'Within Radius',
+      'Outside Radius',
+      'GPS Unavailable',
+      'Not Required'
+    ];
+    final photoStatuses = [
+      'Uploaded',
+      'Uploaded',
+      'Camera Unavailable',
+      'Uploaded',
+      'Not Required'
+    ];
+    final livenessStatuses = [
+      'Prompt Completed',
+      'Not Required',
+      'Not Required',
+      'Prompt Completed',
+      'Not Required'
+    ];
+    final reviewStatuses = [
+      'Pending Review',
+      'Accepted',
+      'Needs Follow-up',
+      'Pending Review',
+      'Accepted'
+    ];
+    final distances = [18.2, 65.4, 1050.8, null, null];
+
+    final i = index % titles.length;
+
+    return PortalActivityAttendanceRow(
+      id: 'portal-att-$index',
+      superviseeName: names[i],
+      caseNumber: cases[i],
+      activityTitle: titles[i],
+      activityCategory: categories[i],
+      submittedAt: '2026-07-28 09:${20 + index}:00',
+      locationMatchStatus: gpsMatches[i],
+      distanceFromExpectedMeters: distances[i],
+      photoStatus: photoStatuses[i],
+      livenessStatus: livenessStatuses[i],
+      reviewStatus: reviewStatuses[i],
+      receiptNo: 'PPPS-VA-2026-${7010 + index}',
+    );
+  }
+}

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:web_portal/core/backend/raahnuma_portal_service.dart';
 import 'package:web_portal/core/backend/models.dart';
 import 'package:web_portal/core/backend/supabase_config.dart';
+import 'package:web_portal/features/dashboard/widgets/verified_attendance_monitoring_widget.dart';
 
 // ─── Color Palette ──────────────────────────────────────────────────────────
 const Color kGovGreen = Color(0xFF0F5A47); // Official PP&PS Green
@@ -36,6 +37,7 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
 
   final List<String> _navItems = [
     'Overview',
+    'Verified Attendance',
     'Districts',
     'Divisions',
     'Officers',
@@ -94,22 +96,24 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
       case 0:
         return _buildExecutiveOverview();
       case 1:
-        return _buildDistrictMonitoring();
+        return const VerifiedAttendanceMonitoringWidget();
       case 2:
-        return _buildDivisionalSummary();
+        return _buildDistrictMonitoring();
       case 3:
-        return _buildOfficerWorkload();
+        return _buildDivisionalSummary();
       case 4:
-        return _buildComplianceDashboard();
+        return _buildOfficerWorkload();
       case 5:
-        return _buildAlertsDashboard();
+        return _buildComplianceDashboard();
       case 6:
-        return _buildRehabReferrals();
+        return _buildAlertsDashboard();
       case 7:
-        return _buildReports();
+        return _buildRehabReferrals();
       case 8:
-        return _buildAuditTrail();
+        return _buildReports();
       case 9:
+        return _buildAuditTrail();
+      case 10:
         return _buildSystemSafeguards();
       default:
         return _buildExecutiveOverview();
@@ -374,7 +378,10 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
                 ),
                 Text(
                   'Command View',
-                  style: TextStyle(fontSize: 11, color: kTextMuted, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      fontSize: 11,
+                      color: kTextMuted,
+                      fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -427,7 +434,9 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: kTextDark)),
+        Text(label,
+            style: const TextStyle(
+                fontSize: 12, fontWeight: FontWeight.bold, color: kTextDark)),
         const SizedBox(height: 2),
         Text(valueStr, style: const TextStyle(fontSize: 11, color: kTextMuted)),
         const SizedBox(height: 6),
@@ -449,15 +458,96 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
   // ───────────────────────────────────────────────────────────────────────────
   Widget _buildDistrictMonitoring() {
     final districts = [
-      {'name': 'Lahore', 'cases': 342, 'prob': 238, 'parole': 104, 'checkins': 12, 'alerts': 4, 'rate': '95.2%', 'load': 'Moderate'},
-      {'name': 'Rawalpindi', 'cases': 218, 'prob': 152, 'parole': 66, 'checkins': 8, 'alerts': 3, 'rate': '93.8%', 'load': 'High'},
-      {'name': 'Multan', 'cases': 184, 'prob': 128, 'parole': 56, 'checkins': 6, 'alerts': 2, 'rate': '94.0%', 'load': 'Moderate'},
-      {'name': 'Faisalabad', 'cases': 196, 'prob': 136, 'parole': 60, 'checkins': 7, 'alerts': 3, 'rate': '92.5%', 'load': 'High'},
-      {'name': 'Gujranwala', 'cases': 142, 'prob': 98, 'parole': 44, 'checkins': 4, 'alerts': 2, 'rate': '95.8%', 'load': 'Balanced'},
-      {'name': 'Bahawalpur', 'cases': 112, 'prob': 78, 'parole': 34, 'checkins': 2, 'alerts': 1, 'rate': '96.2%', 'load': 'Balanced'},
-      {'name': 'Sahiwal', 'cases': 98, 'prob': 68, 'parole': 30, 'checkins': 1, 'alerts': 1, 'rate': '94.9%', 'load': 'Balanced'},
-      {'name': 'Sargodha', 'cases': 104, 'prob': 72, 'parole': 32, 'checkins': 1, 'alerts': 1, 'rate': '95.1%', 'load': 'Balanced'},
-      {'name': 'D.G. Khan', 'cases': 86, 'prob': 54, 'parole': 32, 'checkins': 1, 'alerts': 1, 'rate': '93.0%', 'load': 'Balanced'},
+      {
+        'name': 'Lahore',
+        'cases': 342,
+        'prob': 238,
+        'parole': 104,
+        'checkins': 12,
+        'alerts': 4,
+        'rate': '95.2%',
+        'load': 'Moderate'
+      },
+      {
+        'name': 'Rawalpindi',
+        'cases': 218,
+        'prob': 152,
+        'parole': 66,
+        'checkins': 8,
+        'alerts': 3,
+        'rate': '93.8%',
+        'load': 'High'
+      },
+      {
+        'name': 'Multan',
+        'cases': 184,
+        'prob': 128,
+        'parole': 56,
+        'checkins': 6,
+        'alerts': 2,
+        'rate': '94.0%',
+        'load': 'Moderate'
+      },
+      {
+        'name': 'Faisalabad',
+        'cases': 196,
+        'prob': 136,
+        'parole': 60,
+        'checkins': 7,
+        'alerts': 3,
+        'rate': '92.5%',
+        'load': 'High'
+      },
+      {
+        'name': 'Gujranwala',
+        'cases': 142,
+        'prob': 98,
+        'parole': 44,
+        'checkins': 4,
+        'alerts': 2,
+        'rate': '95.8%',
+        'load': 'Balanced'
+      },
+      {
+        'name': 'Bahawalpur',
+        'cases': 112,
+        'prob': 78,
+        'parole': 34,
+        'checkins': 2,
+        'alerts': 1,
+        'rate': '96.2%',
+        'load': 'Balanced'
+      },
+      {
+        'name': 'Sahiwal',
+        'cases': 98,
+        'prob': 68,
+        'parole': 30,
+        'checkins': 1,
+        'alerts': 1,
+        'rate': '94.9%',
+        'load': 'Balanced'
+      },
+      {
+        'name': 'Sargodha',
+        'cases': 104,
+        'prob': 72,
+        'parole': 32,
+        'checkins': 1,
+        'alerts': 1,
+        'rate': '95.1%',
+        'load': 'Balanced'
+      },
+      {
+        'name': 'D.G. Khan',
+        'cases': 86,
+        'prob': 54,
+        'parole': 32,
+        'checkins': 1,
+        'alerts': 1,
+        'rate': '93.0%',
+        'load': 'Balanced'
+      },
     ];
 
     return SingleChildScrollView(
@@ -467,44 +557,74 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
         children: [
           const _SectionHeading(
             title: 'District Supervision Monitoring',
-            subtitle: 'District-level caseload, compliance rate and active workload across Punjab',
+            subtitle:
+                'District-level caseload, compliance rate and active workload across Punjab',
           ),
           const SizedBox(height: 18),
           Card(
             elevation: 2,
             color: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
                   columnSpacing: 22,
-                  headingRowColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
+                  headingRowColor:
+                      WidgetStateProperty.all(const Color(0xFFF1F5F9)),
                   columns: const [
-                    DataColumn(label: Text('District', style: TextStyle(fontWeight: FontWeight.bold))),
-                    DataColumn(label: Text('Total Cases', style: TextStyle(fontWeight: FontWeight.bold))),
-                    DataColumn(label: Text('Probation', style: TextStyle(fontWeight: FontWeight.bold))),
-                    DataColumn(label: Text('Parole', style: TextStyle(fontWeight: FontWeight.bold))),
-                    DataColumn(label: Text('Pending Check-Ins', style: TextStyle(fontWeight: FontWeight.bold))),
-                    DataColumn(label: Text('Open Alerts', style: TextStyle(fontWeight: FontWeight.bold))),
-                    DataColumn(label: Text('Compliance Rate', style: TextStyle(fontWeight: FontWeight.bold))),
-                    DataColumn(label: Text('Workload Status', style: TextStyle(fontWeight: FontWeight.bold))),
+                    DataColumn(
+                        label: Text('District',
+                            style: TextStyle(fontWeight: FontWeight.bold))),
+                    DataColumn(
+                        label: Text('Total Cases',
+                            style: TextStyle(fontWeight: FontWeight.bold))),
+                    DataColumn(
+                        label: Text('Probation',
+                            style: TextStyle(fontWeight: FontWeight.bold))),
+                    DataColumn(
+                        label: Text('Parole',
+                            style: TextStyle(fontWeight: FontWeight.bold))),
+                    DataColumn(
+                        label: Text('Pending Check-Ins',
+                            style: TextStyle(fontWeight: FontWeight.bold))),
+                    DataColumn(
+                        label: Text('Open Alerts',
+                            style: TextStyle(fontWeight: FontWeight.bold))),
+                    DataColumn(
+                        label: Text('Compliance Rate',
+                            style: TextStyle(fontWeight: FontWeight.bold))),
+                    DataColumn(
+                        label: Text('Workload Status',
+                            style: TextStyle(fontWeight: FontWeight.bold))),
                   ],
                   rows: districts.map((d) {
                     return DataRow(cells: [
-                      DataCell(Text(d['name'] as String, style: const TextStyle(fontWeight: FontWeight.bold))),
+                      DataCell(Text(d['name'] as String,
+                          style: const TextStyle(fontWeight: FontWeight.bold))),
                       DataCell(Text('${d['cases']}')),
                       DataCell(Text('${d['prob']}')),
                       DataCell(Text('${d['parole']}')),
                       DataCell(Text('${d['checkins']}')),
-                      DataCell(Text('${d['alerts']}', style: TextStyle(color: (d['alerts'] as int) > 2 ? kStatusOverdue : kTextDark, fontWeight: FontWeight.bold))),
-                      DataCell(Text(d['rate'] as String, style: const TextStyle(color: kGovGreen, fontWeight: FontWeight.bold))),
+                      DataCell(Text('${d['alerts']}',
+                          style: TextStyle(
+                              color: (d['alerts'] as int) > 2
+                                  ? kStatusOverdue
+                                  : kTextDark,
+                              fontWeight: FontWeight.bold))),
+                      DataCell(Text(d['rate'] as String,
+                          style: const TextStyle(
+                              color: kGovGreen, fontWeight: FontWeight.bold))),
                       DataCell(
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: d['load'] == 'High' ? const Color(0xFFFEE2E2) : const Color(0xFFDCFCE7),
+                            color: d['load'] == 'High'
+                                ? const Color(0xFFFEE2E2)
+                                : const Color(0xFFDCFCE7),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -512,7 +632,9 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
                             style: TextStyle(
                               fontSize: 10.5,
                               fontWeight: FontWeight.bold,
-                              color: d['load'] == 'High' ? Colors.red.shade800 : Colors.green.shade800,
+                              color: d['load'] == 'High'
+                                  ? Colors.red.shade800
+                                  : Colors.green.shade800,
                             ),
                           ),
                         ),
@@ -533,11 +655,46 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
   // ───────────────────────────────────────────────────────────────────────────
   Widget _buildDivisionalSummary() {
     final divisions = [
-      {'division': 'Lahore Division', 'districts': 'Lahore, Kasur, Sheikhupura, Nankana', 'cases': 480, 'compliance': '95.2%', 'alerts': 5, 'rehab': 12},
-      {'division': 'Rawalpindi Division', 'districts': 'Rawalpindi, Attock, Jhelum, Chakwal', 'cases': 310, 'compliance': '93.8%', 'alerts': 4, 'rehab': 8},
-      {'division': 'Multan Division', 'districts': 'Multan, Khanewal, Vehari, Lodhran', 'cases': 260, 'compliance': '94.0%', 'alerts': 3, 'rehab': 6},
-      {'division': 'Faisalabad Division', 'districts': 'Faisalabad, Jhang, T.T. Singh, Chiniot', 'cases': 275, 'compliance': '92.5%', 'alerts': 4, 'rehab': 5},
-      {'division': 'Gujranwala Division', 'districts': 'Gujranwala, Gujrat, Sialkot, Narowal', 'cases': 210, 'compliance': '95.8%', 'alerts': 2, 'rehab': 4},
+      {
+        'division': 'Lahore Division',
+        'districts': 'Lahore, Kasur, Sheikhupura, Nankana',
+        'cases': 480,
+        'compliance': '95.2%',
+        'alerts': 5,
+        'rehab': 12
+      },
+      {
+        'division': 'Rawalpindi Division',
+        'districts': 'Rawalpindi, Attock, Jhelum, Chakwal',
+        'cases': 310,
+        'compliance': '93.8%',
+        'alerts': 4,
+        'rehab': 8
+      },
+      {
+        'division': 'Multan Division',
+        'districts': 'Multan, Khanewal, Vehari, Lodhran',
+        'cases': 260,
+        'compliance': '94.0%',
+        'alerts': 3,
+        'rehab': 6
+      },
+      {
+        'division': 'Faisalabad Division',
+        'districts': 'Faisalabad, Jhang, T.T. Singh, Chiniot',
+        'cases': 275,
+        'compliance': '92.5%',
+        'alerts': 4,
+        'rehab': 5
+      },
+      {
+        'division': 'Gujranwala Division',
+        'districts': 'Gujranwala, Gujrat, Sialkot, Narowal',
+        'cases': 210,
+        'compliance': '95.8%',
+        'alerts': 2,
+        'rehab': 4
+      },
     ];
 
     return SingleChildScrollView(
@@ -547,24 +704,37 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
         children: [
           const _SectionHeading(
             title: 'Divisional Supervision Performance',
-            subtitle: 'Division-level operational summary across Punjab administrative divisions',
+            subtitle:
+                'Division-level operational summary across Punjab administrative divisions',
           ),
           const SizedBox(height: 18),
           ...divisions.map((div) {
             return Card(
               elevation: 1.5,
               margin: const EdgeInsets.only(bottom: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               child: ListTile(
                 contentPadding: const EdgeInsets.all(16),
-                title: Text(div['division'] as String, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: kGovGreen)),
-                subtitle: Text('Districts: ${div['districts']} · Active Cases: ${div['cases']}'),
+                title: Text(div['division'] as String,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: kGovGreen)),
+                subtitle: Text(
+                    'Districts: ${div['districts']} · Active Cases: ${div['cases']}'),
                 trailing: Wrap(
                   spacing: 8,
                   children: [
-                    Chip(label: Text('Compliance: ${div['compliance']}'), backgroundColor: const Color(0xFFDCFCE7)),
-                    Chip(label: Text('Alerts: ${div['alerts']}'), backgroundColor: const Color(0xFFFEF3C7)),
-                    Chip(label: Text('Rehab: ${div['rehab']}'), backgroundColor: const Color(0xFFEFF6FF)),
+                    Chip(
+                        label: Text('Compliance: ${div['compliance']}'),
+                        backgroundColor: const Color(0xFFDCFCE7)),
+                    Chip(
+                        label: Text('Alerts: ${div['alerts']}'),
+                        backgroundColor: const Color(0xFFFEF3C7)),
+                    Chip(
+                        label: Text('Rehab: ${div['rehab']}'),
+                        backgroundColor: const Color(0xFFEFF6FF)),
                   ],
                 ),
               ),
@@ -590,40 +760,67 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
             children: [
               const _SectionHeading(
                 title: 'Officer Workload & Deployment Overview',
-                subtitle: 'Supervision load per field officer across district offices',
+                subtitle:
+                    'Supervision load per field officer across district offices',
               ),
               const SizedBox(height: 18),
               if (snapshot.connectionState == ConnectionState.waiting)
-                const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(kGovGreen)))
+                const Center(
+                    child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(kGovGreen)))
               else
                 Card(
                   elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: DataTable(
-                        headingRowColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
+                        headingRowColor:
+                            WidgetStateProperty.all(const Color(0xFFF1F5F9)),
                         columns: const [
-                          DataColumn(label: Text('Officer Name', style: TextStyle(fontWeight: FontWeight.bold))),
-                          DataColumn(label: Text('Designation', style: TextStyle(fontWeight: FontWeight.bold))),
-                          DataColumn(label: Text('District Office', style: TextStyle(fontWeight: FontWeight.bold))),
-                          DataColumn(label: Text('Assigned Cases', style: TextStyle(fontWeight: FontWeight.bold))),
-                          DataColumn(label: Text('Workload Status', style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                              label: Text('Officer Name',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                              label: Text('Designation',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                              label: Text('District Office',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                              label: Text('Assigned Cases',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                              label: Text('Workload Status',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
                         ],
                         rows: list.map((o) {
                           final isHigh = o.caseCount > 40;
                           return DataRow(cells: [
-                            DataCell(Text(o.fullName, style: const TextStyle(fontWeight: FontWeight.bold))),
+                            DataCell(Text(o.fullName,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold))),
                             DataCell(Text(o.designation)),
                             DataCell(Text(o.district)),
-                            DataCell(Text('${o.caseCount}', style: const TextStyle(fontWeight: FontWeight.bold))),
+                            DataCell(Text('${o.caseCount}',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold))),
                             DataCell(
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(
-                                  color: isHigh ? const Color(0xFFFEE2E2) : const Color(0xFFDCFCE7),
+                                  color: isHigh
+                                      ? const Color(0xFFFEE2E2)
+                                      : const Color(0xFFDCFCE7),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
@@ -631,7 +828,9 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
                                   style: TextStyle(
                                     fontSize: 10.5,
                                     fontWeight: FontWeight.bold,
-                                    color: isHigh ? Colors.red.shade800 : Colors.green.shade800,
+                                    color: isHigh
+                                        ? Colors.red.shade800
+                                        : Colors.green.shade800,
                                   ),
                                 ),
                               ),
@@ -664,15 +863,19 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
             children: [
               const _SectionHeading(
                 title: 'Compliance & Digital Check-In Monitoring',
-                subtitle: 'Verification stream of probationer and parolee reporting check-ins',
+                subtitle:
+                    'Verification stream of probationer and parolee reporting check-ins',
               ),
               const SizedBox(height: 18),
               if (snapshot.connectionState == ConnectionState.waiting)
-                const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(kGovGreen)))
+                const Center(
+                    child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(kGovGreen)))
               else
                 Card(
                   elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: ListView.builder(
@@ -683,15 +886,26 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
                         final c = list[i];
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: c.isReviewed ? const Color(0xFFDCFCE7) : const Color(0xFFFEF3C7),
-                            child: Icon(c.isReviewed ? Icons.check : Icons.access_time, color: c.isReviewed ? Colors.green : Colors.amber),
+                            backgroundColor: c.isReviewed
+                                ? const Color(0xFFDCFCE7)
+                                : const Color(0xFFFEF3C7),
+                            child: Icon(
+                                c.isReviewed ? Icons.check : Icons.access_time,
+                                color:
+                                    c.isReviewed ? Colors.green : Colors.amber),
                           ),
-                          title: Text(c.superviseeName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text('Receipt: ${c.receiptNumber} · Date: ${c.scheduledReportingDate}'),
+                          title: Text(c.superviseeName,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text(
+                              'Receipt: ${c.receiptNumber} · Date: ${c.scheduledReportingDate}'),
                           trailing: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: c.isReviewed ? const Color(0xFFDCFCE7) : const Color(0xFFFEF3C7),
+                              color: c.isReviewed
+                                  ? const Color(0xFFDCFCE7)
+                                  : const Color(0xFFFEF3C7),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
@@ -699,7 +913,9 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
-                                color: c.isReviewed ? Colors.green.shade800 : Colors.amber.shade900,
+                                color: c.isReviewed
+                                    ? Colors.green.shade800
+                                    : Colors.amber.shade900,
                               ),
                             ),
                           ),
@@ -730,7 +946,8 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
             children: [
               const _SectionHeading(
                 title: 'Supervision Alerts & Compliance Triggers',
-                subtitle: 'Administrative triggers for officer review and verification',
+                subtitle:
+                    'Administrative triggers for officer review and verification',
               ),
               const SizedBox(height: 12),
               Container(
@@ -742,23 +959,32 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
                 ),
                 child: const Text(
                   'Alerts support officer review and do not constitute automatic violation findings.',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF854D0E)),
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF854D0E)),
                 ),
               ),
               const SizedBox(height: 16),
               if (snapshot.connectionState == ConnectionState.waiting)
-                const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(kGovGreen)))
+                const Center(
+                    child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(kGovGreen)))
               else
                 ...list.map((a) {
                   return Card(
                     elevation: 1.5,
                     margin: const EdgeInsets.only(bottom: 10),
                     child: ListTile(
-                      title: Text('${a.category} — ${a.superviseeName}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                      title: Text('${a.category} — ${a.superviseeName}',
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
                       subtitle: Text(a.description),
                       trailing: Chip(
                         label: Text(a.severity),
-                        backgroundColor: a.severity == 'High' || a.severity == 'Violation' ? const Color(0xFFFEE2E2) : const Color(0xFFEFF6FF),
+                        backgroundColor:
+                            a.severity == 'High' || a.severity == 'Violation'
+                                ? const Color(0xFFFEE2E2)
+                                : const Color(0xFFEFF6FF),
                       ),
                     ),
                   );
@@ -781,35 +1007,51 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
         children: [
           const _SectionHeading(
             title: 'Rehabilitation & Reintegration Referrals',
-            subtitle: 'Vocational training, employment, counselling and welfare support dashboard',
+            subtitle:
+                'Vocational training, employment, counselling and welfare support dashboard',
           ),
           const SizedBox(height: 18),
           Card(
             elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: const [
                   ListTile(
                     leading: Icon(Icons.school, color: kGovGreen, size: 28),
-                    title: Text('TEVTA Vocational Skills Training', style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text('28 Supervisees Enrolled across Lahore & Rawalpindi centres'),
-                    trailing: Text('Active Support', style: TextStyle(color: kGovGreen, fontWeight: FontWeight.bold)),
+                    title: Text('TEVTA Vocational Skills Training',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(
+                        '28 Supervisees Enrolled across Lahore & Rawalpindi centres'),
+                    trailing: Text('Active Support',
+                        style: TextStyle(
+                            color: kGovGreen, fontWeight: FontWeight.bold)),
                   ),
                   Divider(),
                   ListTile(
-                    leading: Icon(Icons.psychology, color: Colors.blue, size: 28),
-                    title: Text('District Addiction & Psychological Counselling', style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text('14 Supervisees undergoing active counselling sessions'),
-                    trailing: Text('In Progress', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+                    leading:
+                        Icon(Icons.psychology, color: Colors.blue, size: 28),
+                    title: Text(
+                        'District Addiction & Psychological Counselling',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(
+                        '14 Supervisees undergoing active counselling sessions'),
+                    trailing: Text('In Progress',
+                        style: TextStyle(
+                            color: Colors.blue, fontWeight: FontWeight.bold)),
                   ),
                   Divider(),
                   ListTile(
-                    leading: Icon(Icons.account_balance_wallet, color: Colors.purple, size: 28),
-                    title: Text('Punjab Bait-ul-Mal Financial Welfare Grants', style: TextStyle(fontWeight: FontWeight.bold)),
+                    leading: Icon(Icons.account_balance_wallet,
+                        color: Colors.purple, size: 28),
+                    title: Text('Punjab Bait-ul-Mal Financial Welfare Grants',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text('9 Family welfare applications approved'),
-                    trailing: Text('Approved', style: TextStyle(color: Colors.purple, fontWeight: FontWeight.bold)),
+                    trailing: Text('Approved',
+                        style: TextStyle(
+                            color: Colors.purple, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -847,12 +1089,16 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
               margin: const EdgeInsets.only(bottom: 12),
               child: ListTile(
                 leading: const Icon(Icons.picture_as_pdf, color: kGovGreen),
-                title: Text(r, style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: const Text('Format: Executive PDF · Generated: 26 July 2026'),
+                title: Text(r,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: const Text(
+                    'Format: Executive PDF · Generated: 26 July 2026'),
                 trailing: ElevatedButton.icon(
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Exporting report: "$r"'), backgroundColor: kGovGreen),
+                      SnackBar(
+                          content: Text('Exporting report: "$r"'),
+                          backgroundColor: kGovGreen),
                     );
                   },
                   icon: const Icon(Icons.download, size: 16),
@@ -881,15 +1127,19 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
             children: [
               const _SectionHeading(
                 title: 'System Activity & Audit Trail',
-                subtitle: 'Immutable record of system events and officer actions',
+                subtitle:
+                    'Immutable record of system events and officer actions',
               ),
               const SizedBox(height: 18),
               if (snapshot.connectionState == ConnectionState.waiting)
-                const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(kGovGreen)))
+                const Center(
+                    child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(kGovGreen)))
               else
                 Card(
                   elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: ListView.builder(
@@ -900,9 +1150,13 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
                         final act = list[i];
                         return ListTile(
                           leading: const Icon(Icons.history, color: kGovGreen),
-                          title: Text(act.eventType, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                          title: Text(act.eventType,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 13)),
                           subtitle: Text(act.description),
-                          trailing: Text(act.createdAt, style: const TextStyle(fontSize: 11, color: kTextMuted)),
+                          trailing: Text(act.createdAt,
+                              style: const TextStyle(
+                                  fontSize: 11, color: kTextMuted)),
                         );
                       },
                     ),
@@ -926,28 +1180,48 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
         children: [
           const _SectionHeading(
             title: 'System Architecture & Data Safeguards',
-            subtitle: 'Security, privacy and legal compliance protocol overview',
+            subtitle:
+                'Security, privacy and legal compliance protocol overview',
           ),
           const SizedBox(height: 18),
           Card(
             elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text('1. Fictional Data Protocol', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: kGovGreen)),
+                  Text('1. Fictional Data Protocol',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: kGovGreen)),
                   SizedBox(height: 4),
-                  Text('This public presentation environment operates exclusively on synthetic demo records for system review and demonstration purposes.', style: TextStyle(fontSize: 12, color: kTextDark)),
+                  Text(
+                      'This public presentation environment operates exclusively on synthetic demo records for system review and demonstration purposes.',
+                      style: TextStyle(fontSize: 12, color: kTextDark)),
                   Divider(height: 24),
-                  Text('2. Data Privacy & Isolation', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: kGovGreen)),
+                  Text('2. Data Privacy & Isolation',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: kGovGreen)),
                   SizedBox(height: 4),
-                  Text('No live integration exists with NADRA, Courts, Police, or Prison databases in this presentation version. All CNIC numbers are masked.', style: TextStyle(fontSize: 12, color: kTextDark)),
+                  Text(
+                      'No live integration exists with NADRA, Courts, Police, or Prison databases in this presentation version. All CNIC numbers are masked.',
+                      style: TextStyle(fontSize: 12, color: kTextDark)),
                   Divider(height: 24),
-                  Text('3. Legal Oversight & Decision Making', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: kGovGreen)),
+                  Text('3. Legal Oversight & Decision Making',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: kGovGreen)),
                   SizedBox(height: 4),
-                  Text('System alerts act purely as administrative review triggers for probation officers and do not constitute automatic violation findings.', style: TextStyle(fontSize: 12, color: kTextDark)),
+                  Text(
+                      'System alerts act purely as administrative review triggers for probation officers and do not constitute automatic violation findings.',
+                      style: TextStyle(fontSize: 12, color: kTextDark)),
                 ],
               ),
             ),
@@ -964,7 +1238,9 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: const TextStyle(fontSize: 12.5, color: kTextDark)),
-          Text(value, style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold, color: color)),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 13.5, fontWeight: FontWeight.bold, color: color)),
         ],
       ),
     );
@@ -978,7 +1254,10 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
         children: [
           Icon(Icons.brightness_1, size: 7, color: color),
           const SizedBox(width: 8),
-          Expanded(child: Text(text, style: const TextStyle(fontSize: 12, color: kTextDark, height: 1.3))),
+          Expanded(
+              child: Text(text,
+                  style: const TextStyle(
+                      fontSize: 12, color: kTextDark, height: 1.3))),
         ],
       ),
     );
@@ -1052,14 +1331,20 @@ class _TopHeader extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: hasBackend ? const Color(0xFF065F46) : const Color(0xFF92400E),
+                        color: hasBackend
+                            ? const Color(0xFF065F46)
+                            : const Color(0xFF92400E),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
                         hasBackend ? 'Connected' : 'Local Demo',
-                        style: const TextStyle(color: Colors.white, fontSize: 8.5, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 8.5,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -1077,7 +1362,10 @@ class _TopHeader extends StatelessWidget {
                 const SizedBox(height: 1),
                 const Text(
                   'Punjab Probation and Parole Service · Home Department, Government of the Punjab',
-                  style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: kTextMuted),
+                  style: TextStyle(
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.bold,
+                      color: kTextMuted),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -1094,7 +1382,10 @@ class _TopHeader extends StatelessWidget {
                   children: const [
                     Text(
                       'Directorate General Command Office',
-                      style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: kTextDark),
+                      style: TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.bold,
+                          color: kTextDark),
                     ),
                     Text(
                       'Provincial Oversight Level',
@@ -1152,7 +1443,8 @@ class _Sidebar extends StatelessWidget {
                       navItems[index],
                       style: TextStyle(
                         fontSize: 12.5,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.w500,
                         color: isSelected ? Colors.white : Colors.white70,
                       ),
                     ),
@@ -1227,7 +1519,9 @@ class _SectionHeading extends StatelessWidget {
               child: Text(
                 title,
                 style: const TextStyle(
-                    fontSize: 17, fontWeight: FontWeight.bold, color: kTextDark),
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: kTextDark),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),

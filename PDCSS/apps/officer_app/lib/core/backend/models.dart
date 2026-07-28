@@ -196,3 +196,172 @@ class AlertRecord {
     );
   }
 }
+
+class ActivityAttendanceReviewRecord {
+  final String id;
+  final String assignedActivityId;
+  final String activityTitle;
+  final String activityCategory;
+  final String superviseeId;
+  final String superviseeName;
+  final String caseNumber;
+  final String submittedAt;
+  final String attendanceStatus;
+  final double? latitude;
+  final double? longitude;
+  final double? accuracyMeters;
+  final String locationPermissionStatus;
+  final String locationMatchStatus;
+  final double? distanceFromExpectedMeters;
+  final int? allowedRadiusMeters;
+  final String? photoUrl;
+  final String photoStatus;
+  final String livenessStatus;
+  final String? remarks;
+  final String reviewStatus;
+  final String receiptNo;
+
+  ActivityAttendanceReviewRecord({
+    required this.id,
+    required this.assignedActivityId,
+    required this.activityTitle,
+    required this.activityCategory,
+    required this.superviseeId,
+    required this.superviseeName,
+    required this.caseNumber,
+    required this.submittedAt,
+    required this.attendanceStatus,
+    this.latitude,
+    this.longitude,
+    this.accuracyMeters,
+    required this.locationPermissionStatus,
+    required this.locationMatchStatus,
+    this.distanceFromExpectedMeters,
+    this.allowedRadiusMeters,
+    this.photoUrl,
+    required this.photoStatus,
+    required this.livenessStatus,
+    this.remarks,
+    required this.reviewStatus,
+    required this.receiptNo,
+  });
+
+  factory ActivityAttendanceReviewRecord.fromMap(Map<String, dynamic> map) {
+    final assigned = map['assigned_activities'] as Map<String, dynamic>? ?? {};
+    final supervisee = map['supervisees'] as Map<String, dynamic>? ?? {};
+    final profile = supervisee['profiles'] as Map<String, dynamic>? ?? {};
+
+    return ActivityAttendanceReviewRecord(
+      id: map['id']?.toString() ?? '',
+      assignedActivityId: map['assigned_activity_id']?.toString() ?? '',
+      activityTitle:
+          assigned['activity_title']?.toString() ?? 'Assigned Activity',
+      activityCategory: assigned['activity_category']?.toString() ?? 'General',
+      superviseeId: map['supervisee_id']?.toString() ?? '',
+      superviseeName: profile['full_name']?.toString() ?? 'Tariq Mehmood',
+      caseNumber: supervisee['case_number']?.toString() ?? 'LHR-2026-089',
+      submittedAt: map['submitted_at']?.toString() ?? '',
+      attendanceStatus: map['attendance_status']?.toString() ?? 'Submitted',
+      latitude:
+          map['latitude'] != null ? (map['latitude'] as num).toDouble() : null,
+      longitude: map['longitude'] != null
+          ? (map['longitude'] as num).toDouble()
+          : null,
+      accuracyMeters: map['accuracy_meters'] != null
+          ? (map['accuracy_meters'] as num).toDouble()
+          : null,
+      locationPermissionStatus:
+          map['location_permission_status']?.toString() ?? 'Not Required',
+      locationMatchStatus:
+          map['location_match_status']?.toString() ?? 'Not Required',
+      distanceFromExpectedMeters: map['distance_from_expected_meters'] != null
+          ? (map['distance_from_expected_meters'] as num).toDouble()
+          : null,
+      allowedRadiusMeters: map['allowed_radius_meters'] != null
+          ? (map['allowed_radius_meters'] as num).toInt()
+          : null,
+      photoUrl: map['photo_url']?.toString(),
+      photoStatus: map['photo_status']?.toString() ?? 'Not Required',
+      livenessStatus: map['liveness_status']?.toString() ?? 'Not Required',
+      remarks: map['remarks']?.toString(),
+      reviewStatus: map['review_status']?.toString() ?? 'Pending Review',
+      receiptNo: map['receipt_no']?.toString() ?? '',
+    );
+  }
+
+  factory ActivityAttendanceReviewRecord.fallback(int index) {
+    final titles = [
+      'Bi-weekly Probation Office Reporting',
+      'TEVTA Vocational Skills Training',
+      'Community Welfare Cleanliness Drive',
+      'Rehabilitation & Wellness Counselling',
+      'Spiritual / Personal Discipline Activity',
+    ];
+    final categories = [
+      'Reporting',
+      'Skills',
+      'Community Service',
+      'Counselling',
+      'Personal Discipline'
+    ];
+    final gpsMatches = [
+      'Within Radius',
+      'Within Radius',
+      'Outside Radius',
+      'GPS Unavailable',
+      'Not Required'
+    ];
+    final photoStatuses = [
+      'Uploaded',
+      'Uploaded',
+      'Camera Unavailable',
+      'Uploaded',
+      'Not Required'
+    ];
+    final livenessStatuses = [
+      'Prompt Completed',
+      'Not Required',
+      'Not Required',
+      'Prompt Completed',
+      'Not Required'
+    ];
+    final reviewStatuses = [
+      'Pending Review',
+      'Accepted',
+      'Needs Follow-up',
+      'Pending Review',
+      'Accepted'
+    ];
+    final distances = [18.2, 65.4, 1050.8, null, null];
+
+    final i = index % titles.length;
+
+    return ActivityAttendanceReviewRecord(
+      id: 'att-rev-$index',
+      assignedActivityId: 'act-10$i',
+      activityTitle: titles[i],
+      activityCategory: categories[i],
+      superviseeId: 'f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f',
+      superviseeName: 'Tariq Mehmood',
+      caseNumber: 'LHR-2026-089',
+      submittedAt: '2026-07-28 09:30:00',
+      attendanceStatus: 'Submitted',
+      latitude: 31.5602,
+      longitude: 74.3351,
+      accuracyMeters: 10.0,
+      locationPermissionStatus:
+          gpsMatches[i] == 'GPS Unavailable' ? 'Denied' : 'Granted',
+      locationMatchStatus: gpsMatches[i],
+      distanceFromExpectedMeters: distances[i],
+      allowedRadiusMeters: 300,
+      photoUrl: photoStatuses[i] == 'Uploaded'
+          ? 'https://whqmwzoqmopgamfacncg.supabase.co/storage/v1/object/public/attendance-photos/demo_photo_${i + 1}.jpg'
+          : null,
+      photoStatus: photoStatuses[i],
+      livenessStatus: livenessStatuses[i],
+      remarks: 'Supervisee submitted attendance report via mobile app.',
+      reviewStatus: reviewStatuses[i],
+      receiptNo: 'PPPS-VA-2026-${5020 + index}',
+    );
+  }
+}

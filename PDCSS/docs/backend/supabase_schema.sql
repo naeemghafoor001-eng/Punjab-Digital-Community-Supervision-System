@@ -118,6 +118,60 @@ CREATE TABLE public.activities (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 9. ASSIGNED_ACTIVITIES TABLE
+-- Lawful rehabilitation, personal development, and supervision activities assigned to supervisees
+CREATE TABLE public.assigned_activities (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    supervisee_id UUID NOT NULL REFERENCES public.supervisees(id) ON DELETE CASCADE,
+    officer_id UUID NOT NULL REFERENCES public.officers(id) ON DELETE CASCADE,
+    activity_title TEXT NOT NULL,
+    activity_category TEXT NOT NULL,
+    instructions TEXT,
+    frequency TEXT NOT NULL,
+    due_time TIME,
+    start_date DATE,
+    end_date DATE,
+    status TEXT NOT NULL DEFAULT 'Active' CONSTRAINT check_assigned_activity_status CHECK (status IN ('Active', 'Paused', 'Completed', 'Cancelled')),
+    expected_location_name TEXT,
+    expected_latitude DOUBLE PRECISION,
+    expected_longitude DOUBLE PRECISION,
+    allowed_radius_meters INTEGER DEFAULT 300,
+    requires_location BOOLEAN DEFAULT FALSE,
+    requires_photo BOOLEAN DEFAULT FALSE,
+    requires_liveness BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 10. ACTIVITY_ATTENDANCE TABLE
+-- Verified attendance submissions recorded by supervisees for assigned activities
+CREATE TABLE public.activity_attendance (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    assigned_activity_id UUID NOT NULL REFERENCES public.assigned_activities(id) ON DELETE CASCADE,
+    supervisee_id UUID NOT NULL REFERENCES public.supervisees(id) ON DELETE CASCADE,
+    officer_id UUID REFERENCES public.officers(id) ON DELETE SET NULL,
+    submitted_at TIMESTAMPTZ DEFAULT NOW(),
+    attendance_status TEXT NOT NULL CONSTRAINT check_attendance_status CHECK (attendance_status IN ('Submitted', 'Late', 'Missed')),
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
+    accuracy_meters DOUBLE PRECISION,
+    location_captured_at TIMESTAMPTZ,
+    location_permission_status TEXT NOT NULL CONSTRAINT check_location_perm_status CHECK (location_permission_status IN ('Granted', 'Denied', 'Unavailable', 'Not Required')),
+    expected_latitude DOUBLE PRECISION,
+    expected_longitude DOUBLE PRECISION,
+    distance_from_expected_meters DOUBLE PRECISION,
+    allowed_radius_meters INTEGER,
+    location_match_status TEXT NOT NULL CONSTRAINT check_location_match_status CHECK (location_match_status IN ('Within Radius', 'Outside Radius', 'GPS Unavailable', 'Not Required')),
+    photo_url TEXT,
+    photo_status TEXT NOT NULL CONSTRAINT check_photo_status CHECK (photo_status IN ('Uploaded', 'Camera Unavailable', 'Not Required')),
+    liveness_status TEXT NOT NULL CONSTRAINT check_liveness_status CHECK (liveness_status IN ('Not Required', 'Prompt Completed', 'Camera Unavailable', 'Failed')),
+    remarks TEXT,
+    review_status TEXT NOT NULL DEFAULT 'Pending Review' CONSTRAINT check_review_status CHECK (review_status IN ('Pending Review', 'Accepted', 'Needs Follow-up', 'Rejected')),
+    receipt_no TEXT UNIQUE NOT NULL,
+    reviewed_by UUID REFERENCES public.officers(id) ON DELETE SET NULL,
+    reviewed_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Indexes for performance queries
 CREATE INDEX idx_profiles_role ON public.profiles(role);
 CREATE INDEX idx_supervisees_assigned_officer ON public.supervisees(assigned_officer_id);
@@ -126,3 +180,11 @@ CREATE INDEX idx_checkins_supervisee ON public.checkins(supervisee_id);
 CREATE INDEX idx_contacts_supervisee ON public.contacts(supervisee_id);
 CREATE INDEX idx_alerts_supervisee ON public.alerts(supervisee_id);
 CREATE INDEX idx_activities_actor ON public.activities(actor_id);
+CREATE INDEX idx_assigned_activities_supervisee ON public.assigned_activities(supervisee_id);
+CREATE INDEX idx_assigned_activities_officer ON public.assigned_activities(officer_id);
+CREATE INDEX idx_activity_attendance_assigned_activity ON public.activity_attendance(assigned_activity_id);
+CREATE INDEX idx_activity_attendance_supervisee ON public.activity_attendance(supervisee_id);
+CREATE INDEX idx_activity_attendance_officer ON public.activity_attendance(officer_id);
+CREATE INDEX idx_activity_attendance_review_status ON public.activity_attendance(review_status);
+CREATE INDEX idx_activity_attendance_created_at ON public.activity_attendance(created_at);
+

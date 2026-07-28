@@ -158,4 +158,63 @@ class RaahnumaBackendService {
       await DemoFallbackService.instance.updateAlertStatus(alertId, status);
     }
   }
+
+  Future<List<ActivityAttendanceReviewRecord>>
+      getSubmittedActivityAttendance() async {
+    if (!SupabaseConfig.hasBackend) {
+      return DemoFallbackService.instance.getSubmittedActivityAttendance();
+    }
+
+    try {
+      final response = await _supabase
+          .from('activity_attendance')
+          .select('*, assigned_activities(*), supervisees(*, profiles(*))')
+          .order('submitted_at', ascending: false);
+
+      if ((response as List).isEmpty) {
+        return DemoFallbackService.instance.getSubmittedActivityAttendance();
+      }
+
+      return (response as List)
+          .map((map) => ActivityAttendanceReviewRecord.fromMap(map))
+          .toList();
+    } catch (e) {
+      return DemoFallbackService.instance.getSubmittedActivityAttendance();
+    }
+  }
+
+  Future<void> reviewActivityAttendance(
+      String attendanceId, String reviewStatus, String? remarks) async {
+    if (!SupabaseConfig.hasBackend) {
+      await DemoFallbackService.instance
+          .reviewActivityAttendance(attendanceId, reviewStatus, remarks);
+      return;
+    }
+
+    try {
+      // 1. Update review_status in activity_attendance
+      await _supabase.from('activity_attendance').update({
+        'review_status': reviewStatus,
+        'remarks': remarks,
+        'reviewed_by': _mockOfficerId,
+        'reviewed_at': DateTime.now().toIso8601String(),
+      }).eq('id', attendanceId);
+
+      // 2. Insert audit activity timeline entry
+      try {
+        await _supabase.from('activities').insert({
+          'actor_id': _mockOfficerId,
+          'event_type': 'OFFICER_ATTENDANCE_REVIEW',
+          'description':
+              'Officer Tahir Mahmood marked activity attendance (ID: $attendanceId) as $reviewStatus. Remarks: ${remarks ?? "None"}.',
+          'user_agent': 'Flutter Mobile App (Officer)',
+        });
+      } catch (_) {
+        // Suppress audit insert fail
+      }
+    } catch (e) {
+      await DemoFallbackService.instance
+          .reviewActivityAttendance(attendanceId, reviewStatus, remarks);
+    }
+  }
 }

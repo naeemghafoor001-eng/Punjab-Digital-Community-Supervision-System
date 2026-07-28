@@ -15,7 +15,7 @@ This guide documents the procedures for configuring the PostgreSQL database sche
 3. Navigate to the **SQL Editor** tab from the left sidebar.
 4. Click **New Query** to create a fresh editor page.
 5. Open [supabase_schema.sql](file:///d:/Antigravity/PDCSS/docs/backend/supabase_schema.sql), copy the entire file content, paste it into the editor, and click **Run**.
-6. Verify that all 8 tables are created in the `public` schema:
+6. Verify that all 10 tables are created in the `public` schema:
    - `profiles`
    - `officers`
    - `supervisees`
@@ -24,6 +24,8 @@ This guide documents the procedures for configuring the PostgreSQL database sche
    - `contacts`
    - `alerts`
    - `activities`
+   - `assigned_activities`
+   - `activity_attendance`
 
 ---
 
@@ -33,14 +35,15 @@ By default, RLS is disabled. We must explicitly enable it to restrict data acces
 
 1. Open a new query tab in the Supabase SQL Editor.
 2. Copy the content of [supabase_rls_policies.sql](file:///d:/Antigravity/PDCSS/docs/backend/supabase_rls_policies.sql), paste it into the editor, and click **Run**.
-3. Go to the **Database** tab -> **Policies** to confirm that RLS is active on all 8 tables and the rules are correctly assigned to the `authenticated` role.
-4. Note that anonymous public access is disabled. There are **no DELETE policies** created.
+3. Go to the **Database** tab -> **Policies** to confirm that RLS is active on all 10 tables.
+4. For fictional public testing (GitHub Pages demo), anonymous public SELECT/INSERT policies are configured.
+5. **For future real pilot deployments**: All anonymous public policies must be removed and replaced exclusively with authenticated role-based RLS policies. Note that there are **no DELETE policies** created.
 
 ---
 
 ## Step 3: Populate Fictional Seed Data
 
-To populate the system with fictional presentation and development profiles (e.g., Tariq Mehmood, Officer Tahir Mahmood):
+To populate the system with fictional presentation and development profiles (e.g., Tariq Mehmood, Officer Tahir Mahmood) and assigned activities:
 
 1. Open a new query tab in the SQL Editor.
 2. Copy the content of [supabase_seed_demo.sql](file:///d:/Antigravity/PDCSS/docs/backend/supabase_seed_demo.sql), paste it, and click **Run**.
@@ -48,7 +51,21 @@ To populate the system with fictional presentation and development profiles (e.g
 
 ---
 
-## Step 4: Environment Variables
+## Step 4: Storage Bucket Configuration (`attendance-photos`)
+
+Supervisee attendance verification supports optional camera photos stored in Supabase Storage.
+
+- **Bucket Name**: `attendance-photos`
+- **Current Prototype Mode**: Bucket is used for fictional/test photos only. Do **not** upload real offender photos.
+- **Future Real Pilot Production**:
+  - Bucket must be set to **Private** (`public = false`).
+  - Access restricted to authenticated users via signed URLs (`supabase.storage.from('attendance-photos').createSignedUrl(path, 3600)`).
+  - Implement an automated retention policy (e.g. 90-day retention or as dictated by judicial probation order duration).
+  - Establish standard operating deletion procedures for expired case attachments.
+
+---
+
+## Step 5: Environment Variables
 
 When connecting Flutter applications or external backend components, **never** hardcode Supabase keys in the source code or commit them to git repository folders.
 

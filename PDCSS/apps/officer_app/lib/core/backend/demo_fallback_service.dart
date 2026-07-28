@@ -48,6 +48,49 @@ class DemoFallbackService {
     }
   }
 
+  final List<ActivityAttendanceReviewRecord> _attendanceSubmissions =
+      List.generate(5, (i) => ActivityAttendanceReviewRecord.fallback(i));
+
+  Future<List<ActivityAttendanceReviewRecord>>
+      getSubmittedActivityAttendance() async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    return _attendanceSubmissions;
+  }
+
+  Future<void> reviewActivityAttendance(
+      String attendanceId, String reviewStatus, String? remarks) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final index =
+        _attendanceSubmissions.indexWhere((a) => a.id == attendanceId);
+    if (index != -1) {
+      final old = _attendanceSubmissions[index];
+      _attendanceSubmissions[index] = ActivityAttendanceReviewRecord(
+        id: old.id,
+        assignedActivityId: old.assignedActivityId,
+        activityTitle: old.activityTitle,
+        activityCategory: old.activityCategory,
+        superviseeId: old.superviseeId,
+        superviseeName: old.superviseeName,
+        caseNumber: old.caseNumber,
+        submittedAt: old.submittedAt,
+        attendanceStatus: old.attendanceStatus,
+        latitude: old.latitude,
+        longitude: old.longitude,
+        accuracyMeters: old.accuracyMeters,
+        locationPermissionStatus: old.locationPermissionStatus,
+        locationMatchStatus: old.locationMatchStatus,
+        distanceFromExpectedMeters: old.distanceFromExpectedMeters,
+        allowedRadiusMeters: old.allowedRadiusMeters,
+        photoUrl: old.photoUrl,
+        photoStatus: old.photoStatus,
+        livenessStatus: old.livenessStatus,
+        remarks: remarks ?? old.remarks,
+        reviewStatus: reviewStatus,
+        receiptNo: old.receiptNo,
+      );
+    }
+  }
+
   Future<void> updateAlertStatus(String alertId, String status) async {
     await Future.delayed(const Duration(milliseconds: 300));
     final index = _alerts.indexWhere((a) => a.id == alertId);
