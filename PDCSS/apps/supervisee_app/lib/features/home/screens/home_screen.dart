@@ -129,18 +129,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   _showProfileModal(context);
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.logout, color: Colors.red),
-                title: const Text('Logout / لاگ آؤٹ',
-                    style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13.5)),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  if (widget.onLogout != null) widget.onLogout!();
-                },
-              ),
+              if (AuthService.enableSuperviseeLogin &&
+                  widget.onLogout != null) ...[
+                ListTile(
+                  leading: const Icon(Icons.logout, color: Colors.red),
+                  title: const Text('Logout / لاگ آؤٹ',
+                      style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13.5)),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    widget.onLogout!();
+                  },
+                ),
+              ],
               const SizedBox(height: 12),
             ],
           ),

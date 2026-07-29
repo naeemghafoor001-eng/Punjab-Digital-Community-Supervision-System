@@ -38,9 +38,11 @@ class _PDCSSSuperviseeAppState extends State<PDCSSSuperviseeApp> {
       ],
       home: AuthService.instance.isLoggedIn
           ? HomeScreen(
-              onLogout: () {
-                setState(() {});
-              },
+              onLogout: AuthService.enableSuperviseeLogin
+                  ? () {
+                      setState(() {});
+                    }
+                  : null,
             )
           : LoginScreen(
               onLoginSuccess: () {

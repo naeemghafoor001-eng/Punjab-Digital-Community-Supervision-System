@@ -1,37 +1,26 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supervisee_app/main.dart';
 import 'package:supervisee_app/core/backend/auth_service.dart';
 
 void main() {
   setUp(() async {
-    await AuthService.instance.signOut();
+    await AuthService.instance.initialize();
   });
 
-  testWidgets('PDCSSSuperviseeApp initial login screen test',
+  testWidgets(
+      'PDCSSSuperviseeApp initial direct home screen test (login bypassed)',
       (WidgetTester tester) async {
     await tester.pumpWidget(const PDCSSSuperviseeApp());
+    await tester.pump(const Duration(seconds: 1));
     await tester.pumpAndSettle();
 
+    // Verify app opens directly to Home Dashboard
     expect(find.textContaining('Punjab Probation and Parole Service'),
         findsWidgets);
-    expect(find.textContaining('Raahnuma Supervisee App'), findsWidgets);
-    expect(find.textContaining('Access Helper'), findsWidgets);
-    expect(find.textContaining('Login / لاگ ان'), findsOneWidget);
-  });
+    expect(find.textContaining('Home / ہوم'), findsWidgets);
 
-  testWidgets('PDCSSSuperviseeApp login flow test',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(const PDCSSSuperviseeApp());
-    await tester.pumpAndSettle();
-
-    // Tap Login button with default filled demo credentials
-    final loginBtn = find.widgetWithText(ElevatedButton, 'Login / لاگ ان');
-    expect(loginBtn, findsOneWidget);
-    await tester.tap(loginBtn);
-    await tester.pumpAndSettle(const Duration(milliseconds: 800));
-
-    // After login, dashboard should be visible
-    expect(find.textContaining('Raahnuma Dashboard'), findsWidgets);
+    // Verify Login and Logout buttons are not present in visible UI
+    expect(find.text('Login / لاگ ان'), findsNothing);
+    expect(find.text('Logout / لاگ آؤٹ'), findsNothing);
   });
 }

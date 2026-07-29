@@ -19,18 +19,30 @@ class AuthService {
   static final AuthService instance = AuthService._();
   AuthService._();
 
+  static const bool enableSuperviseeLogin =
+      bool.fromEnvironment('ENABLE_SUPERVISEE_LOGIN', defaultValue: false);
+
   bool _isLoggedIn = false;
   SuperviseeProfile? _currentProfile;
   String? _profileNoticeMessage;
 
-  bool get isLoggedIn => _isLoggedIn;
-  SuperviseeProfile? get currentProfile => _currentProfile;
-  String? get profileNoticeMessage => _profileNoticeMessage;
+  bool get isLoggedIn => !enableSuperviseeLogin || _isLoggedIn;
+  SuperviseeProfile? get currentProfile =>
+      _currentProfile ?? SuperviseeProfile.fallback();
+  String? get profileNoticeMessage =>
+      enableSuperviseeLogin ? _profileNoticeMessage : null;
 
   static const String demoEmail = 'demo.supervisee@raahnuma.ppnps.gov.pk';
   static const String demoPassword = 'demo12345';
 
   Future<void> initialize() async {
+    if (!enableSuperviseeLogin) {
+      _isLoggedIn = true;
+      _currentProfile = await DemoFallbackService.instance.getProfile();
+      _profileNoticeMessage = null;
+      return;
+    }
+
     if (!SupabaseConfig.hasBackend) {
       _isLoggedIn = false;
       _currentProfile = null;
