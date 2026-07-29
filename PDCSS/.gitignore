@@ -11,4 +11,5 @@ Secret.txt
 .env
 .env.local
 *.key
+node_modules/
 
