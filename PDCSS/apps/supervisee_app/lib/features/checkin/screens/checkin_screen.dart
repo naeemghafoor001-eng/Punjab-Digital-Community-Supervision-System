@@ -27,6 +27,10 @@ class _CheckInScreenState extends State<CheckInScreen> {
   String? _errorMessage;
   late String _submissionTimestamp;
 
+  final String _lastCheckInDate = "28 July 2026 at 10:00 AM";
+  final String _nextExpectedCheckIn = "11 August 2026";
+  final String _officerReviewStatus = "Pending Officer Review";
+
   @override
   void initState() {
     super.initState();
@@ -75,14 +79,22 @@ class _CheckInScreenState extends State<CheckInScreen> {
     return Scaffold(
       appBar: const _CheckInHeader(),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Legal Privacy & Lawful Notice Banner
+            _buildFormalLawfulNoticeBanner(),
+            const SizedBox(height: 14),
+
+            // Top Status Summary Cards (Reporting Status, Review Status, Last & Next Check-In)
+            _buildStatusSummaryCards(),
+            const SizedBox(height: 16),
+
             // Visual Step Progress Indicator (only if not on receipt step)
             if (_currentStep < 3) ...[
               _buildProgressIndicator(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 18),
             ],
 
             // Step Content Switcher
@@ -152,6 +164,107 @@ class _CheckInScreenState extends State<CheckInScreen> {
     );
   }
 
+  Widget _buildFormalLawfulNoticeBanner() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEFF6FF),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF93C5FD)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          Icon(Icons.gavel, color: Color(0xFF1D4ED8), size: 20),
+          SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '“Digital check-in supports officer review and does not replace lawful reporting unless approved by the officer.”',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1E40AF),
+                    height: 1.35,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  '“ڈیجیٹل حاضری پروبیشن افسر کے جائزے میں معاونت کرتی ہے اور افسر کی منظوری کے بغیر قانون کے مطابق شخصی حاضری کا نعم البدل نہیں ہے۔”',
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    color: Color(0xFF1E3A8A),
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusSummaryCards() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _StatusMiniCard(
+                title: 'Current Reporting Status',
+                urduTitle: 'حاضری حیثیت',
+                value: 'Compliant / تعمیل کنندہ',
+                color: Colors.green.shade800,
+                backgroundColor: const Color(0xFFDCFCE7),
+                icon: Icons.check_circle,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _StatusMiniCard(
+                title: 'Officer Review Status',
+                urduTitle: 'افسر جائزہ صورتحال',
+                value: _officerReviewStatus,
+                color: Colors.amber.shade900,
+                backgroundColor: const Color(0xFFFEF3C7),
+                icon: Icons.rate_review_outlined,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: _StatusMiniCard(
+                title: 'Last Check-In Date',
+                urduTitle: 'آخری حاضری تاریخ',
+                value: _lastCheckInDate,
+                color: const Color(0xFF0F5A47),
+                backgroundColor: const Color(0xFFF0F7F4),
+                icon: Icons.history,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _StatusMiniCard(
+                title: 'Next Expected Check-In',
+                urduTitle: 'اگلی متوقع حاضری',
+                value: _nextExpectedCheckIn,
+                color: const Color(0xFF0F5A47),
+                backgroundColor: const Color(0xFFF0F7F4),
+                icon: Icons.event,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   bool _isNextDisabled() {
     if (_currentStep == 0) {
       return !_identityConfirmed;
@@ -194,10 +307,6 @@ class _CheckInScreenState extends State<CheckInScreen> {
     }
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // STEP BUILDERS
-  // ─────────────────────────────────────────────────────────────────────────────
-
   Widget _buildProgressIndicator() {
     return Row(
       children: [
@@ -230,7 +339,7 @@ class _CheckInScreenState extends State<CheckInScreen> {
                             fontSize: 12, color: Colors.black54),
                       ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
             label,
             textAlign: TextAlign.center,
@@ -263,16 +372,16 @@ class _CheckInScreenState extends State<CheckInScreen> {
         const Text(
           'Step 1: Confirm Details / مرحلہ 1: تفصیلات کی تصدیق',
           style: TextStyle(
-              fontSize: 15,
+              fontSize: 14.5,
               fontWeight: FontWeight.bold,
               color: Color(0xFF0F5A47)),
         ),
         const SizedBox(height: 2),
         const Text(
           'Please confirm your supervisee profile information below before proceeding:',
-          style: TextStyle(fontSize: 12, color: Colors.black54),
+          style: TextStyle(fontSize: 11.5, color: Colors.black54),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         Card(
           elevation: 2,
           color: Colors.white,
@@ -281,7 +390,7 @@ class _CheckInScreenState extends State<CheckInScreen> {
             side: BorderSide(color: Colors.grey.shade200),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(16),
             child: Column(
               children: [
                 _buildDetailRow(
@@ -304,7 +413,7 @@ class _CheckInScreenState extends State<CheckInScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         Card(
           color: const Color(0xFFF0FDF4),
           shape: RoundedRectangleBorder(
@@ -320,13 +429,13 @@ class _CheckInScreenState extends State<CheckInScreen> {
             title: const Text(
               'I confirm that this is my profile and case info.',
               style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 12.5,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF0F5A47)),
             ),
             subtitle: const Text(
               'میں تصدیق کرتا ہوں کہ یہ میری پروفائل اور کیس کی معلومات ہے۔',
-              style: TextStyle(fontSize: 11.5, color: Colors.black87),
+              style: TextStyle(fontSize: 11, color: Colors.black87),
             ),
             controlAffinity: ListTileControlAffinity.leading,
           ),
@@ -343,16 +452,16 @@ class _CheckInScreenState extends State<CheckInScreen> {
         const Text(
           'Step 2: Supervision Questions / مرحلہ 2: سپرویژن سوالات',
           style: TextStyle(
-              fontSize: 15,
+              fontSize: 14.5,
               fontWeight: FontWeight.bold,
               color: Color(0xFF0F5A47)),
         ),
         const SizedBox(height: 2),
         const Text(
           'Answer the 4 simple reporting questions regarding your supervision status:',
-          style: TextStyle(fontSize: 12, color: Colors.black54),
+          style: TextStyle(fontSize: 11.5, color: Colors.black54),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         _buildQuestionCard(
           '1. Are you residing at your approved address?',
           'کیا آپ اپنے منظور شدہ پتہ پر مقیم ہیں؟',
@@ -389,16 +498,16 @@ class _CheckInScreenState extends State<CheckInScreen> {
         const Text(
           'Step 3: Review & Confirmation / مرحلہ 3: خلاصہ اور تصدیق',
           style: TextStyle(
-              fontSize: 15,
+              fontSize: 14.5,
               fontWeight: FontWeight.bold,
               color: Color(0xFF0F5A47)),
         ),
         const SizedBox(height: 2),
         const Text(
           'Review your answers carefully before submitting your check-in report:',
-          style: TextStyle(fontSize: 12, color: Colors.black54),
+          style: TextStyle(fontSize: 11.5, color: Colors.black54),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         Card(
           elevation: 2,
           color: Colors.white,
@@ -407,19 +516,19 @@ class _CheckInScreenState extends State<CheckInScreen> {
             side: BorderSide(color: Colors.grey.shade200),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
                   'Check-In Summary / خلاصہ جوابات',
                   style: TextStyle(
-                    fontSize: 14.5,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF0F5A47),
                   ),
                 ),
-                const Divider(height: 20),
+                const Divider(height: 18),
                 _buildReviewRow(
                   'Approved Address? / منظور شدہ پتہ پر ہیں؟',
                   _residingAtAddress ? 'Yes / جی ہاں' : 'No / جی نہیں',
@@ -447,7 +556,7 @@ class _CheckInScreenState extends State<CheckInScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         Card(
           color: const Color(0xFFEFF6FF),
           shape: RoundedRectangleBorder(
@@ -459,7 +568,7 @@ class _CheckInScreenState extends State<CheckInScreen> {
             child: Text(
               'Submitting records your digital check-in directly with your assigned officer. In live mode, this generates an audit log.',
               style: TextStyle(
-                  fontSize: 11.5, color: Color(0xFF1E3A8A), height: 1.4),
+                  fontSize: 11, color: Color(0xFF1E3A8A), height: 1.4),
             ),
           ),
         ),
@@ -469,6 +578,10 @@ class _CheckInScreenState extends State<CheckInScreen> {
 
   // STEP 4: RECEIPT SCREEN
   Widget _buildReceiptStep() {
+    final activeReceipt = _dynamicReceiptNumber.isNotEmpty
+        ? _dynamicReceiptNumber
+        : _receiptNumber;
+
     return Card(
       elevation: 3,
       color: Colors.white,
@@ -477,16 +590,16 @@ class _CheckInScreenState extends State<CheckInScreen> {
         side: const BorderSide(color: Colors.green, width: 2),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(22),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            const Icon(Icons.check_circle, color: Colors.green, size: 60),
-            const SizedBox(height: 10),
+            const Icon(Icons.check_circle, color: Colors.green, size: 56),
+            const SizedBox(height: 8),
             const Text(
               'Digital Check-In Completed\nحاضری رپورٹ مکمل کر لی گئی ہے',
               textAlign: TextAlign.center,
               style: TextStyle(
-                  fontSize: 17,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF1E293B)),
             ),
@@ -506,23 +619,23 @@ class _CheckInScreenState extends State<CheckInScreen> {
                     fontWeight: FontWeight.bold),
               ),
             ),
-            const Divider(height: 28),
-            _buildReceiptRow(
-                'Receipt Number / رسپٹ نمبر',
-                _dynamicReceiptNumber.isNotEmpty
-                    ? _dynamicReceiptNumber
-                    : _receiptNumber),
+            const Divider(height: 24),
+            _buildReceiptRow('Receipt Number / رسید نمبر', activeReceipt,
+                isBold: true),
             _buildReceiptRow('Supervisee Name / نام', 'Tariq Mehmood'),
             _buildReceiptRow('Case Reference / کیس نمبر', 'LHR-2026-089'),
             _buildReceiptRow(
                 'Date & Time / وقت اور تاریخ', _submissionTimestamp),
             _buildReceiptRow(
-                'Assigned Officer / پروبیشن افسر', 'Officer Tahir Mahmood'),
+                'Officer Review Status / افسر جائزہ', _officerReviewStatus,
+                highlight: true),
+            _buildReceiptRow(
+                'Last Check-In Date / گزشتہ حاضری', _lastCheckInDate),
+            _buildReceiptRow('Next Expected Check-In / اگلی متوقع حاضری',
+                _nextExpectedCheckIn),
             _buildReceiptRow(
                 'District Office / ڈسٹرکٹ دفتر', 'Lahore Central Office'),
-            _buildReceiptRow(
-                'Supervision Status / حالت', 'Compliant / تعمیل کنندہ'),
-            const Divider(height: 28),
+            const Divider(height: 24),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -534,19 +647,19 @@ class _CheckInScreenState extends State<CheckInScreen> {
                 'Public prototype using fictional records for review and presentation purposes.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 10.5,
                   color: Color(0xFF854D0E),
                   fontWeight: FontWeight.w600,
                   height: 1.4,
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 18),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 52),
+                  minimumSize: const Size(double.infinity, 48),
                 ),
                 icon: const Icon(Icons.refresh, color: Colors.white),
                 label:
@@ -570,13 +683,13 @@ class _CheckInScreenState extends State<CheckInScreen> {
           Expanded(
             flex: 2,
             child: Text(label,
-                style: const TextStyle(fontSize: 11.5, color: Colors.black54)),
+                style: const TextStyle(fontSize: 11, color: Colors.black54)),
           ),
           Expanded(
             flex: 3,
             child: Text(value,
                 style: const TextStyle(
-                    fontSize: 12.5,
+                    fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF1E293B))),
           ),
@@ -590,34 +703,34 @@ class _CheckInScreenState extends State<CheckInScreen> {
     return Card(
       elevation: 1,
       color: Colors.white,
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(color: Colors.grey.shade200),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               questionEn,
               style: const TextStyle(
-                  fontSize: 12.5,
+                  fontSize: 12,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF1E293B)),
             ),
             const SizedBox(height: 2),
             Text(
               questionUr,
-              style: const TextStyle(fontSize: 11.5, color: Colors.black54),
+              style: const TextStyle(fontSize: 11, color: Colors.black54),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
                   child: SizedBox(
-                    height: 50,
+                    height: 44,
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
                         backgroundColor: currentValue == true
@@ -636,6 +749,7 @@ class _CheckInScreenState extends State<CheckInScreen> {
                       child: Text(
                         'Yes / جی ہاں',
                         style: TextStyle(
+                          fontSize: 12,
                           color: currentValue == true
                               ? const Color(0xFF0F5A47)
                               : Colors.black87,
@@ -645,10 +759,10 @@ class _CheckInScreenState extends State<CheckInScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: SizedBox(
-                    height: 50,
+                    height: 44,
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
                         backgroundColor: currentValue == false
@@ -667,6 +781,7 @@ class _CheckInScreenState extends State<CheckInScreen> {
                       child: Text(
                         'No / جی نہیں',
                         style: TextStyle(
+                          fontSize: 12,
                           color: currentValue == false
                               ? Colors.red.shade800
                               : Colors.black87,
@@ -686,18 +801,18 @@ class _CheckInScreenState extends State<CheckInScreen> {
 
   Widget _buildReviewRow(String label, String value, bool isPositive) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Text(label,
-                style: const TextStyle(fontSize: 11.5, color: Colors.black87)),
+                style: const TextStyle(fontSize: 11, color: Colors.black87)),
           ),
           Text(
             value,
             style: TextStyle(
-              fontSize: 12.5,
+              fontSize: 12,
               fontWeight: FontWeight.bold,
               color: isPositive ? const Color(0xFF0F5A47) : Colors.red.shade800,
             ),
@@ -707,22 +822,25 @@ class _CheckInScreenState extends State<CheckInScreen> {
     );
   }
 
-  Widget _buildReceiptRow(String label, String value) {
+  Widget _buildReceiptRow(String label, String value,
+      {bool isBold = false, bool highlight = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Text(label,
-                style: const TextStyle(fontSize: 11.5, color: Colors.black54)),
+                style: const TextStyle(fontSize: 11, color: Colors.black54)),
           ),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 12.5,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF0F5A47),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight:
+                  isBold || highlight ? FontWeight.bold : FontWeight.w600,
+              color:
+                  highlight ? Colors.amber.shade900 : const Color(0xFF0F5A47),
             ),
           ),
         ],
@@ -731,9 +849,105 @@ class _CheckInScreenState extends State<CheckInScreen> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CUSTOM HEADER FOR CHECK-IN SCREEN
-// ─────────────────────────────────────────────────────────────────────────────
+class _StatusMiniCard extends StatelessWidget {
+  final String title;
+  final String urduTitle;
+  final String value;
+  final Color color;
+  final Color backgroundColor;
+  final IconData icon;
+
+  const _StatusMiniCard({
+    required this.title,
+    required this.urduTitle,
+    required this.value,
+    required this.color,
+    required this.backgroundColor,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withAlpha(76)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 14, color: color),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  title,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontSize: 9.5, color: color, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          Text(
+            urduTitle,
+            style: const TextStyle(fontSize: 8.5, color: Colors.black45),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FooterDisclaimer extends StatelessWidget {
+  const _FooterDisclaimer({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+      child: Column(
+        children: const [
+          Divider(),
+          SizedBox(height: 6),
+          Text(
+            'Public prototype using fictional records for review and presentation purposes.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 10.5,
+              color: Colors.black54,
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: 2),
+          Text(
+            'یہ ریویو اور پریزنٹیشن کے مقاصد کے لیے فرضی ریکارڈز کے ساتھ ایک نمونہ انٹرفیس ہے۔',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 9.5,
+              color: Colors.black54,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _CheckInHeader extends StatelessWidget implements PreferredSizeWidget {
   const _CheckInHeader({Key? key}) : super(key: key);
 
@@ -748,17 +962,10 @@ class _CheckInHeader extends StatelessWidget implements PreferredSizeWidget {
           bottomLeft: Radius.circular(16),
           bottomRight: Radius.circular(16),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 3),
-          ),
-        ],
       ),
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 8,
-        bottom: 14,
+        bottom: 12,
         left: 16,
         right: 16,
       ),
@@ -769,19 +976,11 @@ class _CheckInHeader extends StatelessWidget implements PreferredSizeWidget {
           Row(
             children: [
               Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
+                width: 42,
+                height: 42,
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white,
-                  border:
-                      Border.all(color: const Color(0xFFD4AF37), width: 1.5),
-                  boxShadow: const [
-                    BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 4,
-                        offset: Offset(0, 2)),
-                  ],
                 ),
                 padding: const EdgeInsets.all(2),
                 child: ClipOval(
@@ -791,12 +990,12 @@ class _CheckInHeader extends StatelessWidget implements PreferredSizeWidget {
                     errorBuilder: (_, __, ___) => const Icon(
                       Icons.account_balance,
                       color: Color(0xFF0F5A47),
-                      size: 26,
+                      size: 24,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -804,90 +1003,54 @@ class _CheckInHeader extends StatelessWidget implements PreferredSizeWidget {
                     Text(
                       'Punjab Probation and Parole Service',
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 12.5,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
-                        letterSpacing: 0.1,
                       ),
                     ),
-                    SizedBox(height: 1),
                     Text(
                       'Home Department, Government of the Punjab',
                       style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white70,
-                      ),
-                    ),
-                    SizedBox(height: 1),
-                    Text(
-                      'Raahnuma | Punjab Community Supervision System',
-                      style: TextStyle(
                         fontSize: 9.5,
-                        color: Color(0xFFFEE180),
-                        fontWeight: FontWeight.w700,
+                        color: Colors.white70,
                       ),
                     ),
                   ],
                 ),
               ),
-              // Connection Status Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                 decoration: BoxDecoration(
                   color: hasBackend
                       ? const Color(0xFF065F46)
                       : const Color(0xFF92400E),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: hasBackend
-                        ? const Color(0xFF34D399)
-                        : const Color(0xFFFBBF24),
-                    width: 0.8,
-                  ),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: hasBackend
-                            ? const Color(0xFF34D399)
-                            : const Color(0xFFFBBF24),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      hasBackend ? 'Connected' : 'Local Demo',
-                      style: const TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  hasBackend ? 'Online' : 'Demo Mode',
+                  style: const TextStyle(
+                      fontSize: 8.5,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
               ),
             ],
           ),
-          const Divider(color: Colors.white24, height: 14),
+          const Divider(color: Colors.white24, height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
               Text(
                 'Digital Check-In',
                 style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13.5,
                     fontWeight: FontWeight.bold,
                     color: Colors.white),
               ),
               Text(
-                'ڈیجیٹل حاضری رپورٹ',
+                'ڈیجیٹل حاضری',
                 style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.bold,
                     color: Colors.white),
               ),
@@ -899,45 +1062,5 @@ class _CheckInHeader extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(132);
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// REUSABLE FOOTER DISCLAIMER
-// ─────────────────────────────────────────────────────────────────────────────
-class _FooterDisclaimer extends StatelessWidget {
-  const _FooterDisclaimer({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
-      child: Column(
-        children: const [
-          Divider(),
-          SizedBox(height: 8),
-          Text(
-            'Public prototype using fictional records for review and presentation purposes.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.black54,
-              fontStyle: FontStyle.italic,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          SizedBox(height: 3),
-          Text(
-            'یہ ریویو اور پریزنٹیشن کے مقاصد کے لیے فرضی ریکارڈز کے ساتھ ایک نمونہ انٹرفیس ہے۔',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 10,
-              color: Colors.black54,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Size get preferredSize => const Size.fromHeight(128);
 }

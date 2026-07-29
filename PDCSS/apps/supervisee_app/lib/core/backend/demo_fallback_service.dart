@@ -52,6 +52,7 @@ class DemoFallbackService {
         requiresPhoto: true,
         requiresLiveness: true,
         reviewStatus: 'Pending Review',
+        lastSubmittedDate: '28 July 2026',
       ),
       AssignedActivityModel(
         id: 'act-102',
@@ -74,6 +75,7 @@ class DemoFallbackService {
         requiresPhoto: true,
         requiresLiveness: false,
         reviewStatus: 'Accepted',
+        lastSubmittedDate: '26 July 2026',
       ),
       AssignedActivityModel(
         id: 'act-103',
@@ -96,6 +98,7 @@ class DemoFallbackService {
         requiresPhoto: true,
         requiresLiveness: true,
         reviewStatus: 'Not Submitted',
+        lastSubmittedDate: 'Not Yet Submitted',
       ),
       AssignedActivityModel(
         id: 'act-104',
@@ -118,6 +121,7 @@ class DemoFallbackService {
         requiresPhoto: false,
         requiresLiveness: false,
         reviewStatus: 'Needs Follow-up',
+        lastSubmittedDate: '22 July 2026',
       ),
       AssignedActivityModel(
         id: 'act-105',
@@ -141,6 +145,7 @@ class DemoFallbackService {
         requiresPhoto: false,
         requiresLiveness: false,
         reviewStatus: 'Not Submitted',
+        lastSubmittedDate: 'Not Yet Submitted',
       ),
     ];
   }

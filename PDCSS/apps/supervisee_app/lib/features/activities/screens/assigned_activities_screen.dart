@@ -15,7 +15,7 @@ class AssignedActivitiesScreen extends StatefulWidget {
 class _AssignedActivitiesScreenState extends State<AssignedActivitiesScreen> {
   late Future<List<AssignedActivityModel>> _activitiesFuture;
   late Future<SuperviseeProfile> _profileFuture;
-  String _superviseeId = 'f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f';
+  final String _superviseeId = 'f1e2d3c4-b5a6-9c8d-7e6f-5a4b3c2d1e0f';
 
   @override
   void initState() {
@@ -68,8 +68,8 @@ class _AssignedActivitiesScreenState extends State<AssignedActivitiesScreen> {
         final profile = profileSnapshot.data ?? SuperviseeProfile.fallback();
 
         return Scaffold(
-          appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(132),
+          appBar: const PreferredSize(
+            preferredSize: Size.fromHeight(128),
             child: _ActivitiesHeader(
               title: 'Assigned Activities',
               urduTitle: 'تفویض کردہ سرگرمیاں',
@@ -91,24 +91,126 @@ class _AssignedActivitiesScreenState extends State<AssignedActivitiesScreen> {
 
                 final activities = snapshot.data ?? [];
 
+                // Calculate 7 required summary metrics
+                final dueTodayCount = activities
+                    .where((a) => a.dueTime != null || a.frequency == 'Daily')
+                    .length;
+                final pendingReviewCount = activities
+                    .where((a) => a.reviewStatus == 'Pending Review')
+                    .length;
+                final acceptedCount = activities
+                    .where((a) => a.reviewStatus == 'Accepted')
+                    .length;
+                final needsFollowUpCount = activities
+                    .where((a) => a.reviewStatus == 'Needs Follow-up')
+                    .length;
+                final gpsRequiredCount =
+                    activities.where((a) => a.requiresLocation).length;
+                final photoRequiredCount =
+                    activities.where((a) => a.requiresPhoto).length;
+                final livenessRequiredCount =
+                    activities.where((a) => a.requiresLiveness).length;
+
                 return SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Overview Banner
+                      // Supervisee Banner
                       _buildOverviewBanner(profile),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
 
-                      // Section Title
+                      // Top Summary Cards Section (7 Metrics)
+                      const Text(
+                        'Activity Status Summary / خلاصہ سرگرمیاں',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF0F172A),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _SummaryMetricBadge(
+                              label: 'Due Today',
+                              urduLabel: 'آج کی سرگرمی',
+                              count: dueTodayCount,
+                              color: Colors.amber.shade900,
+                              backgroundColor: const Color(0xFFFEF3C7),
+                              icon: Icons.today,
+                            ),
+                            const SizedBox(width: 8),
+                            _SummaryMetricBadge(
+                              label: 'Pending Review',
+                              urduLabel: 'زیرِ جائزہ',
+                              count: pendingReviewCount,
+                              color: Colors.blue.shade900,
+                              backgroundColor: const Color(0xFFEFF6FF),
+                              icon: Icons.pending_actions,
+                            ),
+                            const SizedBox(width: 8),
+                            _SummaryMetricBadge(
+                              label: 'Accepted',
+                              urduLabel: 'منظور شدہ',
+                              count: acceptedCount,
+                              color: Colors.green.shade800,
+                              backgroundColor: const Color(0xFFDCFCE7),
+                              icon: Icons.check_circle_outline,
+                            ),
+                            const SizedBox(width: 8),
+                            _SummaryMetricBadge(
+                              label: 'Needs Follow-up',
+                              urduLabel: 'پیروی درکار',
+                              count: needsFollowUpCount,
+                              color: Colors.purple.shade800,
+                              backgroundColor: const Color(0xFFF3E8FF),
+                              icon: Icons.contact_support_outlined,
+                            ),
+                            const SizedBox(width: 8),
+                            _SummaryMetricBadge(
+                              label: 'GPS Required',
+                              urduLabel: 'جی پی ایس درکار',
+                              count: gpsRequiredCount,
+                              color: const Color(0xFF0F5A47),
+                              backgroundColor: const Color(0xFFF0F7F4),
+                              icon: Icons.gps_fixed,
+                            ),
+                            const SizedBox(width: 8),
+                            _SummaryMetricBadge(
+                              label: 'Photo Required',
+                              urduLabel: 'تصویر درکار',
+                              count: photoRequiredCount,
+                              color: const Color(0xFF157A62),
+                              backgroundColor: const Color(0xFFE6F4F1),
+                              icon: Icons.camera_alt_outlined,
+                            ),
+                            const SizedBox(width: 8),
+                            _SummaryMetricBadge(
+                              label: 'Liveness Required',
+                              urduLabel: 'لائیو نیس درکار',
+                              count: livenessRequiredCount,
+                              color: const Color(0xFF334155),
+                              backgroundColor: const Color(0xFFF1F5F9),
+                              icon: Icons.face_outlined,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+
+                      // List Title
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
                             'Lawful Assigned Activities',
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 14.5,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF0F172A),
                             ),
@@ -117,7 +219,7 @@ class _AssignedActivitiesScreenState extends State<AssignedActivitiesScreen> {
                             label: Text(
                               '${activities.length} Assigned',
                               style: const TextStyle(
-                                  fontSize: 10.5, fontWeight: FontWeight.bold),
+                                  fontSize: 10, fontWeight: FontWeight.bold),
                             ),
                             backgroundColor: const Color(0xFFEFF6FF),
                           ),
@@ -147,7 +249,6 @@ class _AssignedActivitiesScreenState extends State<AssignedActivitiesScreen> {
                         ),
 
                       const SizedBox(height: 16),
-                      // Future Biometric Placeholder Note
                       _buildBiometricPlaceholderCard(),
                       const SizedBox(height: 16),
                       const _ActivitiesFooter(),
@@ -175,10 +276,10 @@ class _AssignedActivitiesScreenState extends State<AssignedActivitiesScreen> {
         child: Row(
           children: [
             CircleAvatar(
-              radius: 22,
-              backgroundColor: const Color(0xFF0F5A47).withAlpha(25),
+              radius: 20,
+              backgroundColor: const Color(0xFF0F5A47).withAlpha(30),
               child: const Icon(Icons.assignment,
-                  color: Color(0xFF0F5A47), size: 24),
+                  color: Color(0xFF0F5A47), size: 22),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -222,16 +323,16 @@ class _AssignedActivitiesScreenState extends State<AssignedActivitiesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top Row: Category & Status Badge
+            // Top Row: Category & Review Status Badge
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                   decoration: BoxDecoration(
                     color: const Color(0xFFDCFCE7),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     activity.activityCategory,
@@ -244,11 +345,11 @@ class _AssignedActivitiesScreenState extends State<AssignedActivitiesScreen> {
                 ),
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                   decoration: BoxDecoration(
                     color: reviewColor.withAlpha(30),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: reviewColor),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: reviewColor, width: 0.8),
                   ),
                   child: Text(
                     'Review: ${activity.reviewStatus}',
@@ -261,24 +362,24 @@ class _AssignedActivitiesScreenState extends State<AssignedActivitiesScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
 
             // Activity Title
             Text(
               activity.activityTitle,
               style: const TextStyle(
-                fontSize: 15,
+                fontSize: 14.5,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF0F172A),
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
 
             // Instructions
             if (activity.instructions.isNotEmpty) ...[
               Text(
                 activity.instructions,
-                style: const TextStyle(fontSize: 12.5, color: Colors.black87),
+                style: const TextStyle(fontSize: 12, color: Colors.black87),
               ),
               const SizedBox(height: 8),
             ],
@@ -304,14 +405,14 @@ class _AssignedActivitiesScreenState extends State<AssignedActivitiesScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Row(
               children: [
                 Expanded(
                   child: _buildDetailItem(
-                    Icons.date_range,
-                    'Start Date / تاریخ آغاز',
-                    activity.startDate,
+                    Icons.history_toggle_off,
+                    'Last Submitted / گزشتہ ترسیل',
+                    activity.lastSubmittedDate ?? 'Not Yet Submitted',
                   ),
                 ),
                 Expanded(
@@ -325,17 +426,17 @@ class _AssignedActivitiesScreenState extends State<AssignedActivitiesScreen> {
             ),
 
             if (activity.expectedLocationName != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Row(
                 children: [
                   const Icon(Icons.location_on,
-                      size: 16, color: Color(0xFF0F5A47)),
-                  const SizedBox(width: 6),
+                      size: 15, color: Color(0xFF0F5A47)),
+                  const SizedBox(width: 4),
                   Expanded(
                     child: Text(
                       'Expected Location: ${activity.expectedLocationName}',
                       style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 11.5,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF334155)),
                     ),
@@ -344,14 +445,14 @@ class _AssignedActivitiesScreenState extends State<AssignedActivitiesScreen> {
               ),
             ],
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             // Verification indicators bar
             Row(
               children: [
                 const Text(
                   'Requirements: ',
                   style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 10.5,
                       fontWeight: FontWeight.bold,
                       color: Colors.black54),
                 ),
@@ -366,11 +467,11 @@ class _AssignedActivitiesScreenState extends State<AssignedActivitiesScreen> {
                     !activity.requiresLiveness)
                   const Text(
                     'Standard Check',
-                    style: TextStyle(fontSize: 11, color: Colors.black54),
+                    style: TextStyle(fontSize: 10.5, color: Colors.black54),
                   ),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
 
             // Submit Button
             ElevatedButton.icon(
@@ -386,7 +487,7 @@ class _AssignedActivitiesScreenState extends State<AssignedActivitiesScreen> {
               label: const Text(
                 'Submit Verified Attendance / تصدیق شدہ حاضری جمع کروائیں',
                 style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.bold,
                     color: Colors.white),
               ),
@@ -402,22 +503,22 @@ class _AssignedActivitiesScreenState extends State<AssignedActivitiesScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 15, color: const Color(0xFF64748B)),
-        const SizedBox(width: 6),
+        Icon(icon, size: 14, color: const Color(0xFF64748B)),
+        const SizedBox(width: 5),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: const TextStyle(fontSize: 10, color: Colors.black54),
+                style: const TextStyle(fontSize: 9.5, color: Colors.black54),
               ),
               Text(
                 value,
                 style: const TextStyle(
-                  fontSize: 11.5,
+                  fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
+                  color: Color(0xFF0F172A),
                 ),
               ),
             ],
@@ -439,14 +540,14 @@ class _AssignedActivitiesScreenState extends State<AssignedActivitiesScreen> {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: const [
-            Icon(Icons.fingerprint, color: Color(0xFF475569), size: 24),
+            Icon(Icons.fingerprint, color: Color(0xFF475569), size: 22),
             SizedBox(width: 10),
             Expanded(
               child: Text(
                 '“Biometric verification may be considered in a restricted pilot after legal, administrative and cybersecurity approval.”\n'
                 'قانونی، انتظامی اور سائبر سیکیورٹی منظوری کے بعد پائلٹ میں بائیو میٹرک تصدیق پر غور کیا جا سکتا ہے۔',
                 style: TextStyle(
-                  fontSize: 10.5,
+                  fontSize: 10,
                   color: Color(0xFF475569),
                   fontStyle: FontStyle.italic,
                   height: 1.3,
@@ -464,14 +565,68 @@ class _AssignedActivitiesScreenState extends State<AssignedActivitiesScreen> {
       case 'Accepted':
         return Colors.green.shade800;
       case 'Pending Review':
-        return Colors.orange.shade800;
+        return Colors.amber.shade900;
       case 'Needs Follow-up':
-        return Colors.blue.shade800;
+        return Colors.purple.shade800;
       case 'Rejected':
         return Colors.red.shade800;
       default:
         return Colors.grey.shade700;
     }
+  }
+}
+
+class _SummaryMetricBadge extends StatelessWidget {
+  final String label;
+  final String urduLabel;
+  final int count;
+  final Color color;
+  final Color backgroundColor;
+  final IconData icon;
+
+  const _SummaryMetricBadge({
+    required this.label,
+    required this.urduLabel,
+    required this.count,
+    required this.color,
+    required this.backgroundColor,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withAlpha(76)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 6),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$label: $count',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+              Text(
+                urduLabel,
+                style: const TextStyle(fontSize: 8.5, color: Colors.black54),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -493,12 +648,12 @@ class _SmallReqChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 11, color: const Color(0xFF1D4ED8)),
+          Icon(icon, size: 10, color: const Color(0xFF1D4ED8)),
           const SizedBox(width: 3),
           Text(
             label,
             style: const TextStyle(
-              fontSize: 9.5,
+              fontSize: 9,
               fontWeight: FontWeight.bold,
               color: Color(0xFF1E40AF),
             ),
@@ -533,7 +688,7 @@ class _ActivitiesHeader extends StatelessWidget {
       ),
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 8,
-        bottom: 14,
+        bottom: 12,
         left: 16,
         right: 16,
       ),
@@ -544,8 +699,8 @@ class _ActivitiesHeader extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: 42,
+                height: 42,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white,
@@ -587,7 +742,7 @@ class _ActivitiesHeader extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                 decoration: BoxDecoration(
                   color: hasBackend
                       ? const Color(0xFF065F46)
@@ -595,7 +750,7 @@ class _ActivitiesHeader extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  hasBackend ? 'Connected' : 'Local Demo',
+                  hasBackend ? 'Online' : 'Demo Mode',
                   style: const TextStyle(
                       fontSize: 8.5,
                       fontWeight: FontWeight.bold,
@@ -611,14 +766,14 @@ class _ActivitiesHeader extends StatelessWidget {
               Text(
                 title,
                 style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 13.5,
                     fontWeight: FontWeight.bold,
                     color: Colors.white),
               ),
               Text(
                 urduTitle,
                 style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.bold,
                     color: Colors.white),
               ),
@@ -646,6 +801,7 @@ class _ActivitiesFooter extends StatelessWidget {
             fontSize: 10.5,
             color: Colors.black54,
             fontStyle: FontStyle.italic,
+            fontWeight: FontWeight.w600,
           ),
         ),
         Text(

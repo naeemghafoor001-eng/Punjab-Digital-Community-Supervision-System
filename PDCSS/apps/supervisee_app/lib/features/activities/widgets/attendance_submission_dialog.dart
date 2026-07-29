@@ -21,13 +21,13 @@ class AttendanceSubmissionDialog extends StatefulWidget {
 
 class _AttendanceSubmissionDialogState
     extends State<AttendanceSubmissionDialog> {
-  int _currentStep = 1;
+  int _currentStep = 1; // 1 to 7 steps
   bool _isSubmitting = false;
 
-  // Consent state
+  // Step 2 Consent
   bool _consentGiven = false;
 
-  // GPS state
+  // Step 3 GPS state
   bool _isCapturingLocation = false;
   double? _latitude;
   double? _longitude;
@@ -37,17 +37,17 @@ class _AttendanceSubmissionDialogState
   double? _distanceFromExpectedMeters;
   String? _locationError;
 
-  // Photo state
+  // Step 4 Photo state
   bool _isCapturingPhoto = false;
   String? _photoUrl;
   String _photoStatus = 'Not Required';
 
-  // Liveness state
+  // Step 5 Liveness state
   int _livenessPromptIndex = 0;
   bool _livenessCompleted = false;
   String _livenessStatus = 'Not Required';
 
-  // Receipt state
+  // Step 7 Receipt state
   String? _receiptNo;
   String? _submissionTimeFormatted;
 
@@ -108,7 +108,7 @@ class _AttendanceSubmissionDialogState
           _locationMatchStatus = 'GPS Unavailable';
           _isCapturingLocation = false;
           _locationError =
-              'Location permission denied. Attendance will require manual officer review.';
+              'Location permission denied. Attendance will require officer review.';
         });
         return;
       }
@@ -135,7 +135,6 @@ class _AttendanceSubmissionDialogState
       _accuracyMeters = position.accuracy;
       _permissionStatus = 'Granted';
 
-      // Check distance if expected location exists
       if (widget.activity.expectedLatitude != null &&
           widget.activity.expectedLongitude != null) {
         double dist = _calculateHaversine(
@@ -158,7 +157,7 @@ class _AttendanceSubmissionDialogState
         _isCapturingLocation = false;
       });
     } catch (e) {
-      // Fallback position for web browser / missing sensor in demo
+      // Fallback for browser / demo
       setState(() {
         _latitude = widget.activity.expectedLatitude ?? 31.5601;
         _longitude = widget.activity.expectedLongitude ?? 74.3352;
@@ -171,13 +170,13 @@ class _AttendanceSubmissionDialogState
     }
   }
 
-  // ── Step 5: Capture Photo ───────────────────────────────────────────────────
+  // ── Step 4: Capture Photo ───────────────────────────────────────────────────
   Future<void> _capturePhoto() async {
     setState(() {
       _isCapturingPhoto = true;
     });
 
-    await Future.delayed(const Duration(milliseconds: 800));
+    await Future.delayed(const Duration(milliseconds: 700));
 
     setState(() {
       _isCapturingPhoto = false;
@@ -194,7 +193,7 @@ class _AttendanceSubmissionDialogState
     });
   }
 
-  // ── Step 6: Process Liveness Prompts ───────────────────────────────────────
+  // ── Step 5: Liveness Prompt ─────────────────────────────────────────────────
   void _nextLivenessPrompt() {
     if (_livenessPromptIndex < _livenessPrompts.length - 1) {
       setState(() {
@@ -208,7 +207,7 @@ class _AttendanceSubmissionDialogState
     }
   }
 
-  // ── Step 7: Final Submit ────────────────────────────────────────────────────
+  // ── Step 6: Submit Attendance ───────────────────────────────────────────────
   Future<void> _submitAttendance() async {
     setState(() {
       _isSubmitting = true;
@@ -245,7 +244,7 @@ class _AttendanceSubmissionDialogState
         _receiptNo = receipt;
         _submissionTimeFormatted = formattedTime;
         _isSubmitting = false;
-        _currentStep = 9; // Receipt Step
+        _currentStep = 7; // Step 7: Receipt
       });
     }
   }
@@ -263,7 +262,7 @@ class _AttendanceSubmissionDialogState
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
+              // Dialog Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -274,14 +273,15 @@ class _AttendanceSubmissionDialogState
                         Text(
                           'Verified Attendance Submission',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 15.5,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF0F5A47),
                           ),
                         ),
                         Text(
                           'تصدیق شدہ حاضری کی ترسیل',
-                          style: TextStyle(fontSize: 12, color: Colors.black54),
+                          style:
+                              TextStyle(fontSize: 11.5, color: Colors.black54),
                         ),
                       ],
                     ),
@@ -292,20 +292,85 @@ class _AttendanceSubmissionDialogState
                   ),
                 ],
               ),
-              const Divider(height: 20),
+              const Divider(height: 18),
 
-              // Step Wizard View
+              // Step Wizard Counter (Step X of 7)
+              if (_currentStep < 7) _buildStepProgressBar(),
+              const SizedBox(height: 14),
+
+              // 7 Steps Switcher
               if (_currentStep == 1) _buildStep1ActivityDetails(),
               if (_currentStep == 2) _buildStep2ConsentNotice(),
               if (_currentStep == 3) _buildStep3GpsCapture(),
               if (_currentStep == 4) _buildStep4PhotoCapture(),
               if (_currentStep == 5) _buildStep5LivenessPrompts(),
-              if (_currentStep == 9) _buildStep9Receipt(),
+              if (_currentStep == 6) _buildStep6ReviewSubmit(),
+              if (_currentStep == 7) _buildStep7Receipt(),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildStepProgressBar() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Step $_currentStep of 7: ${_getStepTitle(_currentStep)}',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0F5A47),
+              ),
+            ),
+            Text(
+              '${((_currentStep / 7) * 100).toInt()}%',
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0F5A47),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: _currentStep / 7,
+            backgroundColor: Colors.grey.shade200,
+            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF0F5A47)),
+            minHeight: 6,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _getStepTitle(int step) {
+    switch (step) {
+      case 1:
+        return 'Activity Details / تفصیلات';
+      case 2:
+        return 'Consent & Privacy Notice / رضامندی';
+      case 3:
+        return 'GPS Location / مقام تصدیق';
+      case 4:
+        return 'Camera Photo / تصویری جائزہ';
+      case 5:
+        return 'Liveness Prompt / لائیو نیس';
+      case 6:
+        return 'Review & Submit / خلاصہ';
+      case 7:
+        return 'Attendance Receipt / رسید';
+      default:
+        return '';
+    }
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -333,7 +398,7 @@ class _AttendanceSubmissionDialogState
                     label: Text(
                       act.activityCategory,
                       style: const TextStyle(
-                        fontSize: 11,
+                        fontSize: 10.5,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF0F5A47),
                       ),
@@ -343,7 +408,7 @@ class _AttendanceSubmissionDialogState
                   Text(
                     'Due: ${act.dueTime ?? "Anytime"}',
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 11.5,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF1E293B),
                     ),
@@ -354,7 +419,7 @@ class _AttendanceSubmissionDialogState
               Text(
                 act.activityTitle,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF0F172A),
                 ),
@@ -363,7 +428,7 @@ class _AttendanceSubmissionDialogState
               Text(
                 'Instructions / ہدایات:',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11.5,
                   fontWeight: FontWeight.bold,
                   color: Colors.grey.shade800,
                 ),
@@ -372,20 +437,20 @@ class _AttendanceSubmissionDialogState
                 act.instructions.isNotEmpty
                     ? act.instructions
                     : 'Follow assigned supervision schedule.',
-                style: const TextStyle(fontSize: 12.5, color: Colors.black87),
+                style: const TextStyle(fontSize: 12, color: Colors.black87),
               ),
               if (act.expectedLocationName != null) ...[
                 const SizedBox(height: 8),
                 Row(
                   children: [
                     const Icon(Icons.location_on,
-                        size: 16, color: Color(0xFF0F5A47)),
+                        size: 15, color: Color(0xFF0F5A47)),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         'Location: ${act.expectedLocationName}',
                         style: const TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.w600),
+                            fontSize: 11.5, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
@@ -394,17 +459,17 @@ class _AttendanceSubmissionDialogState
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
 
-        // Required Verification Indicators
+        // Verification Indicators
         const Text(
           'Verification Requirements for this Activity:',
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: 6,
+          runSpacing: 6,
           children: [
             _buildRequirementBadge(
               icon: Icons.gps_fixed,
@@ -423,7 +488,7 @@ class _AttendanceSubmissionDialogState
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 18),
 
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -432,14 +497,15 @@ class _AttendanceSubmissionDialogState
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0F5A47),
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
               ),
               onPressed: () {
                 setState(() {
-                  _currentStep = 2; // Move to privacy consent
+                  _currentStep = 2; // Move to Step 2
                 });
               },
-              icon: const Icon(Icons.arrow_forward, color: Colors.white),
+              icon: const Icon(Icons.arrow_forward,
+                  color: Colors.white, size: 16),
               label: const Text(
                 'Proceed / آگے بڑھیں',
                 style:
@@ -455,7 +521,7 @@ class _AttendanceSubmissionDialogState
   Widget _buildRequirementBadge(
       {required IconData icon, required String label, required bool required}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
         color: required ? const Color(0xFFEFF6FF) : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(8),
@@ -467,13 +533,13 @@ class _AttendanceSubmissionDialogState
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon,
-              size: 14,
+              size: 13,
               color: required ? const Color(0xFF1D4ED8) : Colors.grey),
-          const SizedBox(width: 6),
+          const SizedBox(width: 4),
           Text(
             '$label: ${required ? "Required" : "Optional"}',
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 10.5,
               fontWeight: required ? FontWeight.bold : FontWeight.normal,
               color: required ? const Color(0xFF1E40AF) : Colors.grey.shade600,
             ),
@@ -484,14 +550,14 @@ class _AttendanceSubmissionDialogState
   }
 
   // ───────────────────────────────────────────────────────────────────────────
-  // STEP 2: PRIVACY & CONSENT NOTICE
+  // STEP 2: CONSENT & PRIVACY NOTICE (4 MANDATORY NOTICES)
   // ───────────────────────────────────────────────────────────────────────────
   Widget _buildStep2ConsentNotice() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: const Color(0xFFFFFBEB),
             borderRadius: BorderRadius.circular(10),
@@ -503,70 +569,59 @@ class _AttendanceSubmissionDialogState
               Row(
                 children: [
                   Icon(Icons.privacy_tip_outlined,
-                      color: Color(0xFFD97706), size: 22),
+                      color: Color(0xFFD97706), size: 20),
                   SizedBox(width: 8),
                   Text(
-                    'Privacy & Verified Attendance Consent',
+                    'Privacy & Lawful Safeguard Notices',
                     style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF92400E)),
                   ),
                 ],
               ),
-              SizedBox(height: 10),
-              Text(
-                '“This attendance may record submission time, approximate location and, where required, a fresh photo for officer review.”',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF78350F),
-                  height: 1.4,
-                ),
+              Divider(height: 14),
+
+              // 4 Required Bilingual Notices
+              _BilingualNoticeItem(
+                enText:
+                    '1. “Location is captured only once at the time of attendance submission.”',
+                urText:
+                    'مقام صرف حاضری جمع کروانے کے وقت ایک بار ریکارڈ کیا جاتا ہے۔',
               ),
               SizedBox(height: 6),
-              Text(
-                '“یہ حاضری افسر کے جائزے کے لیے جمع کرانے کا وقت، متوقع مقام اور، جہاں ضروری ہو، تازہ تصویر ریکارڈ کر سکتی ہے۔”',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF92400E),
-                  height: 1.4,
-                ),
+              _BilingualNoticeItem(
+                enText: '2. “This is not continuous tracking.”',
+                urText: 'یہ مسلسل ٹریکنگ نہیں ہے۔',
               ),
-              Divider(height: 16),
-              Text(
-                'Privacy Safeguards:',
-                style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF78350F)),
+              SizedBox(height: 6),
+              _BilingualNoticeItem(
+                enText: '3. “This is not biometric matching.”',
+                urText: 'یہ بائیو میٹرک تصدیق نہیں ہے۔',
               ),
-              SizedBox(height: 4),
-              Text(
-                '• GPS is captured ONLY once at this submission time. No background tracking.\n'
-                '• Photos are used ONLY for officer review. No facial recognition or biometric template is created.\n'
-                '• All indicators serve strictly for officer review and do not create automatic legal violation findings.',
-                style: TextStyle(
-                    fontSize: 11, color: Color(0xFF78350F), height: 1.4),
+              SizedBox(height: 6),
+              _BilingualNoticeItem(
+                enText: '4. “Attendance is subject to officer review.”',
+                urText: 'حاضری افسر کے جائزے کے مشروط ہے۔',
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         CheckboxListTile(
           value: _consentGiven,
           activeColor: const Color(0xFF0F5A47),
           title: const Text(
             'I understand and consent to submit verified attendance for this activity.',
-            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
           subtitle: const Text(
             'میں اس سرگرمی کے لیے تصدیق شدہ حاضری جمع کروانے پر رضامندی ظاہر کرتا/کرتی ہوں۔',
-            style: TextStyle(fontSize: 11, color: Colors.black54),
+            style: TextStyle(fontSize: 10.5, color: Colors.black54),
           ),
           onChanged: (val) => setState(() => _consentGiven = val ?? false),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -583,12 +638,8 @@ class _AttendanceSubmissionDialogState
                       if (widget.activity.requiresLocation) {
                         setState(() => _currentStep = 3);
                         _captureLocation();
-                      } else if (widget.activity.requiresPhoto) {
-                        setState(() => _currentStep = 4);
-                      } else if (widget.activity.requiresLiveness) {
-                        setState(() => _currentStep = 5);
                       } else {
-                        _submitAttendance();
+                        setState(() => _currentStep = 3);
                       }
                     }
                   : null,
@@ -618,22 +669,22 @@ class _AttendanceSubmissionDialogState
               fontWeight: FontWeight.bold,
               color: Color(0xFF0F5A47)),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: const Color(0xFFF1F5F9),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
             children: const [
-              Icon(Icons.info_outline, color: Color(0xFF475569), size: 18),
-              SizedBox(width: 8),
+              Icon(Icons.info_outline, color: Color(0xFF475569), size: 16),
+              SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  'Location captured for attendance verification only.',
+                  'Location is captured ONLY ONCE at the time of submission.',
                   style: TextStyle(
-                      fontSize: 11.5,
+                      fontSize: 11,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF334155)),
                 ),
@@ -641,21 +692,22 @@ class _AttendanceSubmissionDialogState
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         if (_isCapturingLocation)
           Center(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(18),
               child: Column(
                 children: const [
                   CircularProgressIndicator(
                     valueColor:
                         AlwaysStoppedAnimation<Color>(Color(0xFF0F5A47)),
                   ),
-                  SizedBox(height: 12),
+                  SizedBox(height: 10),
                   Text(
                     'Capturing current GPS coordinates...',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    style:
+                        TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -667,7 +719,7 @@ class _AttendanceSubmissionDialogState
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             child: Padding(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -675,15 +727,15 @@ class _AttendanceSubmissionDialogState
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'GPS Status / مقام کی صورتحال:',
+                        'GPS Status / مقام صورتحال:',
                         style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold),
+                            fontSize: 11.5, fontWeight: FontWeight.bold),
                       ),
                       Chip(
                         label: Text(
                           _locationMatchStatus,
                           style: const TextStyle(
-                            fontSize: 11,
+                            fontSize: 10.5,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
@@ -697,23 +749,23 @@ class _AttendanceSubmissionDialogState
                     ],
                   ),
                   if (_latitude != null && _longitude != null) ...[
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Text(
                       'Latitude: ${_latitude!.toStringAsFixed(5)}, Longitude: ${_longitude!.toStringAsFixed(5)}',
                       style: const TextStyle(
-                          fontSize: 12, fontFamily: 'monospace'),
+                          fontSize: 11, fontFamily: 'monospace'),
                     ),
                     Text(
                       'Accuracy: ${_accuracyMeters?.toStringAsFixed(1) ?? "10"} meters',
-                      style:
-                          const TextStyle(fontSize: 11, color: Colors.black54),
+                      style: const TextStyle(
+                          fontSize: 10.5, color: Colors.black54),
                     ),
                     if (_distanceFromExpectedMeters != null) ...[
                       const SizedBox(height: 4),
                       Text(
                         'Distance from target: ${_distanceFromExpectedMeters!.toStringAsFixed(0)}m (Allowed: ${widget.activity.allowedRadiusMeters}m)',
                         style: TextStyle(
-                          fontSize: 11.5,
+                          fontSize: 11,
                           fontWeight: FontWeight.bold,
                           color: _distanceFromExpectedMeters! <=
                                   widget.activity.allowedRadiusMeters
@@ -724,11 +776,11 @@ class _AttendanceSubmissionDialogState
                     ],
                   ],
                   if (_locationError != null) ...[
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Text(
                       _locationError!,
                       style: const TextStyle(
-                          fontSize: 11.5,
+                          fontSize: 11,
                           color: Colors.red,
                           fontWeight: FontWeight.w600),
                     ),
@@ -737,18 +789,19 @@ class _AttendanceSubmissionDialogState
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Row(
             children: [
               OutlinedButton.icon(
                 onPressed: _captureLocation,
-                icon: const Icon(Icons.refresh, size: 16),
-                label: const Text('Re-capture GPS'),
+                icon: const Icon(Icons.refresh, size: 14),
+                label: const Text('Re-capture GPS',
+                    style: TextStyle(fontSize: 11)),
               ),
             ],
           ),
         ],
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -762,13 +815,7 @@ class _AttendanceSubmissionDialogState
               ),
               onPressed: !_isCapturingLocation
                   ? () {
-                      if (widget.activity.requiresPhoto) {
-                        setState(() => _currentStep = 4);
-                      } else if (widget.activity.requiresLiveness) {
-                        setState(() => _currentStep = 5);
-                      } else {
-                        _submitAttendance();
-                      }
+                      setState(() => _currentStep = 4); // Step 4: Photo
                     }
                   : null,
               child: const Text(
@@ -787,33 +834,37 @@ class _AttendanceSubmissionDialogState
   // STEP 4: CAMERA PHOTO CAPTURE
   // ───────────────────────────────────────────────────────────────────────────
   Widget _buildStep4PhotoCapture() {
+    final bool isPhotoRequired = widget.activity.requiresPhoto;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Step 4: Camera Verification / تصویری تصدیق',
-          style: TextStyle(
+        Text(
+          'Step 4: Camera Verification / تصویری تصدیق ${isPhotoRequired ? "(Required)" : "(Optional)"}',
+          style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
               color: Color(0xFF0F5A47)),
         ),
-        const SizedBox(height: 4),
-        const Text(
-          'Please present a clear face photo for officer review.',
-          style: TextStyle(fontSize: 12, color: Colors.black54),
+        const SizedBox(height: 2),
+        Text(
+          isPhotoRequired
+              ? 'Please take a clear face photo for officer review.'
+              : 'Photo is optional for this activity. You may proceed.',
+          style: const TextStyle(fontSize: 11.5, color: Colors.black54),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         Center(
           child: Container(
-            width: 220,
-            height: 180,
+            width: 200,
+            height: 160,
             decoration: BoxDecoration(
-              color: Colors.grey.shade200,
+              color: Colors.grey.shade100,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: _photoStatus == 'Uploaded'
                     ? const Color(0xFF0F5A47)
-                    : Colors.grey.shade400,
+                    : Colors.grey.shade300,
                 width: 2,
               ),
             ),
@@ -829,12 +880,12 @@ class _AttendanceSubmissionDialogState
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
                           Icon(Icons.check_circle,
-                              size: 48, color: Color(0xFF0F5A47)),
-                          SizedBox(height: 8),
+                              size: 44, color: Color(0xFF0F5A47)),
+                          SizedBox(height: 6),
                           Text(
                             'Photo Captured & Stored',
                             style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 11.5,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF0F5A47)),
                           ),
@@ -850,12 +901,12 @@ class _AttendanceSubmissionDialogState
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: const [
                               Icon(Icons.no_photography,
-                                  size: 44, color: Colors.orange),
-                              SizedBox(height: 6),
+                                  size: 40, color: Colors.orange),
+                              SizedBox(height: 4),
                               Text(
                                 'Camera Unavailable',
                                 style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 11.5,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.orange),
                               ),
@@ -863,7 +914,7 @@ class _AttendanceSubmissionDialogState
                                 'Submission will require officer review.',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                    fontSize: 10, color: Colors.black54),
+                                    fontSize: 9.5, color: Colors.black54),
                               ),
                             ],
                           )
@@ -871,18 +922,18 @@ class _AttendanceSubmissionDialogState
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: const [
                               Icon(Icons.camera_alt_outlined,
-                                  size: 48, color: Colors.grey),
-                              SizedBox(height: 8),
+                                  size: 44, color: Colors.grey),
+                              SizedBox(height: 6),
                               Text(
                                 'Tap below to capture photo',
                                 style: TextStyle(
-                                    fontSize: 11, color: Colors.black54),
+                                    fontSize: 10.5, color: Colors.black54),
                               ),
                             ],
                           ),
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -891,48 +942,38 @@ class _AttendanceSubmissionDialogState
                 backgroundColor: const Color(0xFF0F5A47),
               ),
               onPressed: _capturePhoto,
-              icon: const Icon(Icons.camera_alt, color: Colors.white),
+              icon: const Icon(Icons.camera_alt, color: Colors.white, size: 16),
               label: const Text(
                 'Take Photo / تصویر لیں',
                 style:
                     TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
             TextButton(
               onPressed: _simulateCameraUnavailable,
               child: const Text(
                 'Camera Unavailable',
-                style: TextStyle(fontSize: 11, color: Colors.black54),
+                style: TextStyle(fontSize: 10.5, color: Colors.black54),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             OutlinedButton(
-              onPressed: () {
-                if (widget.activity.requiresLocation) {
-                  setState(() => _currentStep = 3);
-                } else {
-                  setState(() => _currentStep = 2);
-                }
-              },
+              onPressed: () => setState(() => _currentStep = 3),
               child: const Text('Back / واپس'),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0F5A47),
               ),
-              onPressed: _photoStatus != 'Pending'
+              onPressed: (!isPhotoRequired || _photoStatus != 'Pending')
                   ? () {
-                      if (widget.activity.requiresLiveness) {
-                        setState(() => _currentStep = 5);
-                      } else {
-                        _submitAttendance();
-                      }
+                      setState(() => _currentStep = 5); // Step 5: Liveness
                     }
                   : null,
               child: const Text(
@@ -951,12 +992,14 @@ class _AttendanceSubmissionDialogState
   // STEP 5: LIVENESS PROMPT VERIFICATION
   // ───────────────────────────────────────────────────────────────────────────
   Widget _buildStep5LivenessPrompts() {
+    final bool isLivenessRequired = widget.activity.requiresLiveness;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Step 5: Simple Liveness Prompt Verification',
-          style: TextStyle(
+        Text(
+          'Step 5: Liveness Prompt ${isLivenessRequired ? "(Required)" : "(Optional)"}',
+          style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
               color: Color(0xFF0F5A47)),
@@ -964,145 +1007,203 @@ class _AttendanceSubmissionDialogState
         const SizedBox(height: 2),
         const Text(
           'سادہ انٹرایکٹو لائیو نیس کی رہنمائی',
-          style: TextStyle(fontSize: 11, color: Colors.black54),
+          style: TextStyle(fontSize: 10.5, color: Colors.black54),
         ),
-        const SizedBox(height: 12),
-
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.grey.shade300),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Prompt ${_livenessPromptIndex + 1} of ${_livenessPrompts.length}',
-                    style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF0F5A47)),
-                  ),
-                  Text(
-                    _livenessCompleted ? 'Completed' : 'In Progress',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: _livenessCompleted ? Colors.green : Colors.orange,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFF0F5A47)),
-                ),
-                child: Column(
+        const SizedBox(height: 10),
+        if (isLivenessRequired) ...[
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(
-                      _livenessCompleted
-                          ? Icons.check_circle_outline
-                          : Icons.visibility,
-                      size: 36,
-                      color: const Color(0xFF0F5A47),
-                    ),
-                    const SizedBox(height: 8),
                     Text(
-                      _livenessCompleted
-                          ? 'All Liveness Prompts Completed!'
-                          : _livenessPrompts[_livenessPromptIndex],
-                      textAlign: TextAlign.center,
+                      'Prompt ${_livenessPromptIndex + 1} of ${_livenessPrompts.length}',
                       style: const TextStyle(
-                        fontSize: 13,
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF0F5A47)),
+                    ),
+                    Text(
+                      _livenessCompleted ? 'Completed' : 'In Progress',
+                      style: TextStyle(
+                        fontSize: 10.5,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF0F172A),
+                        color:
+                            _livenessCompleted ? Colors.green : Colors.orange,
                       ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 10),
-              if (!_livenessCompleted)
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 42),
-                    backgroundColor: const Color(0xFF157A62),
+                const SizedBox(height: 6),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFF0F5A47)),
                   ),
-                  onPressed: _nextLivenessPrompt,
-                  child: const Text(
-                    'Complete Prompt Action / اقدام مکمل کریں',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.white),
+                  child: Column(
+                    children: [
+                      Icon(
+                        _livenessCompleted
+                            ? Icons.check_circle_outline
+                            : Icons.visibility,
+                        size: 32,
+                        color: const Color(0xFF0F5A47),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        _livenessCompleted
+                            ? 'All Liveness Prompts Completed!'
+                            : _livenessPrompts[_livenessPromptIndex],
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF0F172A),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-            ],
+                const SizedBox(height: 8),
+                if (!_livenessCompleted)
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 38),
+                      backgroundColor: const Color(0xFF157A62),
+                    ),
+                    onPressed: _nextLivenessPrompt,
+                    child: const Text(
+                      'Complete Prompt Action / اقدام مکمل کریں',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                  ),
+              ],
+            ),
           ),
-        ),
-
-        const SizedBox(height: 10),
-        // Strict Biometric & Privacy Safeguard Note
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(8),
+        ] else ...[
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF0F7F4),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Text(
+              'Liveness prompt is not required for this activity category.',
+              style: TextStyle(fontSize: 11.5, color: Color(0xFF0F5A47)),
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                'Legal & Privacy Safeguard:',
-                style: TextStyle(
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF334155)),
-              ),
-              SizedBox(height: 2),
-              Text(
-                '• No facial recognition is performed.\n'
-                '• No biometric template is generated or stored.\n'
-                '• Face photos are not compared against any external database.\n'
-                '• “Biometric verification may be considered in a restricted pilot after legal, administrative and cybersecurity approval.”',
-                style: TextStyle(
-                    fontSize: 10, color: Color(0xFF475569), height: 1.3),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-
+        ],
+        const SizedBox(height: 14),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             OutlinedButton(
-              onPressed: () {
-                if (widget.activity.requiresPhoto) {
-                  setState(() => _currentStep = 4);
-                } else if (widget.activity.requiresLocation) {
-                  setState(() => _currentStep = 3);
-                } else {
-                  setState(() => _currentStep = 2);
-                }
-              },
+              onPressed: () => setState(() => _currentStep = 4),
               child: const Text('Back / واپس'),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0F5A47),
               ),
-              onPressed: (_livenessCompleted || !_isSubmitting)
-                  ? () => _submitAttendance()
+              onPressed: (!isLivenessRequired || _livenessCompleted)
+                  ? () {
+                      setState(
+                          () => _currentStep = 6); // Step 6: Review & Submit
+                    }
                   : null,
+              child: const Text(
+                'Next Step / اگلا مرحلہ',
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // STEP 6: REVIEW AND SUBMIT
+  // ───────────────────────────────────────────────────────────────────────────
+  Widget _buildStep6ReviewSubmit() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Step 6: Review & Submit Attendance',
+          style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF0F5A47)),
+        ),
+        const SizedBox(height: 2),
+        const Text(
+          'ح حاضری جمع کروانے سے پہلے خلاصہ چیک کریں',
+          style: TextStyle(fontSize: 10.5, color: Colors.black54),
+        ),
+        const SizedBox(height: 10),
+        Card(
+          elevation: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: [
+                _buildSummaryRow(
+                    'Activity Title / سرگرمی:', widget.activity.activityTitle),
+                const Divider(),
+                _buildSummaryRow(
+                    'GPS Status / مقام صورتحال:', _locationMatchStatus),
+                const Divider(),
+                _buildSummaryRow(
+                    'Photo Status / تصویری صورتحال:', _photoStatus),
+                const Divider(),
+                _buildSummaryRow(
+                    'Liveness Status / لائیو نیس:', _livenessStatus),
+                const Divider(),
+                _buildSummaryRow(
+                    'Review Officer / پروبیشن افسر:', 'Officer Tahir Mahmood'),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEFF6FF),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Text(
+            'Submitting registers your attendance record into the system for officer review. You will receive a receipt number upon submission.',
+            style: TextStyle(fontSize: 10.5, color: Color(0xFF1E3A8A)),
+          ),
+        ),
+        const SizedBox(height: 14),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            OutlinedButton(
+              onPressed: () => setState(() => _currentStep = 5),
+              child: const Text('Back / واپس'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0F5A47),
+              ),
+              onPressed: !_isSubmitting ? _submitAttendance : null,
               child: _isSubmitting
                   ? const SizedBox(
                       width: 18,
@@ -1123,9 +1224,9 @@ class _AttendanceSubmissionDialogState
   }
 
   // ───────────────────────────────────────────────────────────────────────────
-  // STEP 9: ATTENDANCE RECEIPT
+  // STEP 7: RECEIPT
   // ───────────────────────────────────────────────────────────────────────────
-  Widget _buildStep9Receipt() {
+  Widget _buildStep7Receipt() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1133,30 +1234,30 @@ class _AttendanceSubmissionDialogState
           child: Column(
             children: const [
               Icon(Icons.check_circle_rounded,
-                  size: 56, color: Color(0xFF0F5A47)),
+                  size: 52, color: Color(0xFF0F5A47)),
               SizedBox(height: 6),
               Text(
                 'Verified Attendance Submitted!',
                 style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 15.5,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF0F5A47)),
               ),
               Text(
-                'تصدیق شدہ حاضری کی وصولی',
-                style: TextStyle(fontSize: 12, color: Colors.black54),
+                'تصدیق شدہ حاضری کی رسید',
+                style: TextStyle(fontSize: 11.5, color: Colors.black54),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         Card(
           elevation: 2,
           color: const Color(0xFFF0F7F4),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14),
             child: Column(
               children: [
                 _buildReceiptRow('Receipt Number / رسید نمبر:',
@@ -1168,11 +1269,11 @@ class _AttendanceSubmissionDialogState
                 _buildReceiptRow('Submitted Time / تاریخ و وقت:',
                     _submissionTimeFormatted ?? 'Today'),
                 _buildReceiptRow(
-                    'GPS Status / مقام کی صورتحال:', _locationMatchStatus),
+                    'GPS Status / مقام صورتحال:', _locationMatchStatus),
                 _buildReceiptRow(
                     'Photo Status / تصویری صورتحال:', _photoStatus),
                 _buildReceiptRow(
-                    'Liveness Prompt / لائیو نیس:', _livenessStatus),
+                    'Liveness Status / لائیو نیس:', _livenessStatus),
                 const Divider(),
                 _buildReceiptRow(
                   'Review Status / جائزہ صورتحال:',
@@ -1183,7 +1284,7 @@ class _AttendanceSubmissionDialogState
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
@@ -1192,13 +1293,13 @@ class _AttendanceSubmissionDialogState
           ),
           child: Row(
             children: const [
-              Icon(Icons.shield_outlined, color: Color(0xFF1D4ED8), size: 18),
-              SizedBox(width: 8),
+              Icon(Icons.shield_outlined, color: Color(0xFF1D4ED8), size: 16),
+              SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  'Your submission is queued for review by your designated Probation/Parole Officer. Keep this receipt number for your records.',
+                  'Your submission is recorded and queued for officer review. Keep this receipt number for your records.',
                   style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 10.5,
                       color: Color(0xFF1E40AF),
                       fontWeight: FontWeight.w500),
                 ),
@@ -1206,11 +1307,11 @@ class _AttendanceSubmissionDialogState
             ],
           ),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 16),
         Center(
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              minimumSize: const Size(200, 44),
+              minimumSize: const Size(180, 42),
               backgroundColor: const Color(0xFF0F5A47),
             ),
             onPressed: () => Navigator.pop(context, true),
@@ -1225,6 +1326,28 @@ class _AttendanceSubmissionDialogState
     );
   }
 
+  Widget _buildSummaryRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(label,
+                style: const TextStyle(fontSize: 11, color: Colors.black54)),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0F172A)),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildReceiptRow(String label, String value,
       {bool isBold = false, bool highlight = false}) {
     return Padding(
@@ -1235,21 +1358,48 @@ class _AttendanceSubmissionDialogState
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(fontSize: 11.5, color: Color(0xB3000000)),
+              style: const TextStyle(fontSize: 11, color: Colors.black54),
             ),
           ),
           Text(
             value,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11.5,
               fontWeight:
                   isBold || highlight ? FontWeight.bold : FontWeight.w600,
               color:
-                  highlight ? const Color(0xFFD97706) : const Color(0xFF0F172A),
+                  highlight ? Colors.amber.shade900 : const Color(0xFF0F172A),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _BilingualNoticeItem extends StatelessWidget {
+  final String enText;
+  final String urText;
+
+  const _BilingualNoticeItem({required this.enText, required this.urText});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          enText,
+          style: const TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF78350F)),
+        ),
+        Text(
+          urText,
+          style: const TextStyle(fontSize: 10.5, color: Color(0xFF92400E)),
+        ),
+      ],
     );
   }
 }

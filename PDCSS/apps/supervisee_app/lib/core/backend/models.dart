@@ -132,6 +132,7 @@ class AssignedActivityModel {
   final bool requiresPhoto;
   final bool requiresLiveness;
   final String reviewStatus;
+  final String? lastSubmittedDate;
 
   AssignedActivityModel({
     required this.id,
@@ -153,10 +154,11 @@ class AssignedActivityModel {
     this.requiresPhoto = false,
     this.requiresLiveness = false,
     this.reviewStatus = 'Not Submitted',
+    this.lastSubmittedDate,
   });
 
   factory AssignedActivityModel.fromMap(Map<String, dynamic> map,
-      {String? reviewStatus}) {
+      {String? reviewStatus, String? lastSubmittedDate}) {
     return AssignedActivityModel(
       id: map['id']?.toString() ?? '',
       superviseeId: map['supervisee_id']?.toString() ?? '',
@@ -183,6 +185,8 @@ class AssignedActivityModel {
       requiresPhoto: map['requires_photo'] == true,
       requiresLiveness: map['requires_liveness'] == true,
       reviewStatus: reviewStatus ?? 'Not Submitted',
+      lastSubmittedDate:
+          lastSubmittedDate ?? map['last_submitted_date']?.toString(),
     );
   }
 }
