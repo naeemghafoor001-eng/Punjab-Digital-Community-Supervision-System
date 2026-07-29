@@ -5,6 +5,7 @@ import 'package:officer_app/features/alerts/screens/alerts_screen.dart';
 import 'package:officer_app/features/field_visit/screens/field_visit_screen.dart';
 import 'package:officer_app/features/activities/screens/verified_attendance_review_screen.dart';
 import 'package:officer_app/features/prna/screens/prna_dashboard_screen.dart';
+import 'package:officer_app/features/auth/screens/officer_login_screen.dart';
 import 'package:officer_app/core/backend/raahnuma_backend_service.dart';
 import 'package:officer_app/core/backend/models.dart';
 
@@ -16,7 +17,11 @@ class OfficerHomeScreen extends StatefulWidget {
 }
 
 class _OfficerHomeScreenState extends State<OfficerHomeScreen> {
+  static const bool _isRestrictedMode =
+      bool.fromEnvironment('RESTRICTED_MODE', defaultValue: false);
+
   int _currentIndex = 0;
+  bool _showLogin = _isRestrictedMode;
 
   void _navigateToTab(int index) {
     setState(() {
@@ -26,6 +31,16 @@ class _OfficerHomeScreenState extends State<OfficerHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_showLogin) {
+      return OfficerLoginScreen(
+        onLoginSuccess: () {
+          setState(() {
+            _showLogin = false;
+          });
+        },
+      );
+    }
+
     final List<Widget> pages = [
       _OfficerDashboardTab(onNavigateToTab: _navigateToTab),
       const CaseloadScreen(),
@@ -34,7 +49,13 @@ class _OfficerHomeScreenState extends State<OfficerHomeScreen> {
       const VerifiedAttendanceReviewScreen(),
       const AlertsScreen(),
       const FieldVisitPlannerScreen(),
-      const _OfficerProfileTab(),
+      _OfficerProfileTab(
+        onLogout: () {
+          setState(() {
+            _showLogin = true;
+          });
+        },
+      ),
     ];
 
     return Scaffold(
@@ -995,7 +1016,9 @@ class _CheckInReviewScreenState extends State<_CheckInReviewScreen> {
 // TAB 6: OFFICER PROFILE & SETTINGS
 // ─────────────────────────────────────────────────────────────────────────────
 class _OfficerProfileTab extends StatelessWidget {
-  const _OfficerProfileTab();
+  final VoidCallback? onLogout;
+
+  const _OfficerProfileTab({Key? key, this.onLogout}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -1063,7 +1086,7 @@ class _OfficerProfileTab extends StatelessWidget {
                         _ProfileInfoRow(
                             icon: Icons.security_outlined,
                             label: 'Access Authorization',
-                            value: 'Level 3 — Field Officer Access'),
+                            value: 'Probation Officer (probation_officer)'),
                         Divider(),
                         _ProfileInfoRow(
                             icon: Icons.language_outlined,
@@ -1071,6 +1094,21 @@ class _OfficerProfileTab extends StatelessWidget {
                             value: 'English (Official Administrative)'),
                       ],
                     ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  height: 46,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: kGovGreen,
+                      side: const BorderSide(color: kGovGreen),
+                    ),
+                    icon: const Icon(Icons.logout, size: 18),
+                    label: const Text('Sign Out / Switch Officer Account',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    onPressed: onLogout,
                   ),
                 ),
                 const SizedBox(height: 18),

@@ -33,41 +33,89 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth < 650) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Audit & Security Ledger',
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF0F172A))),
+                    const SizedBox(height: 4),
+                    const Text(
+                        'Tamper-evident system activity and verification history',
+                        style: TextStyle(fontSize: 12, color: Colors.black54)),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0F766E),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                        ),
+                        icon: _verifying
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2))
+                            : const Icon(Icons.verified_user,
+                                color: Colors.white),
+                        label: const Text("Run Hash Chain Integrity Check",
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 13)),
+                        onPressed: _verifying ? null : _runIntegrityCheck,
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Audit & Security Ledger',
-                      style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0F172A))),
-                  SizedBox(height: 4),
-                  Text(
-                      'Tamper-evident system activity and verification history',
-                      style: TextStyle(fontSize: 13, color: Colors.black54)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text('Audit & Security Ledger',
+                            style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF0F172A))),
+                        SizedBox(height: 4),
+                        Text(
+                            'Tamper-evident system activity and verification history',
+                            style:
+                                TextStyle(fontSize: 13, color: Colors.black54),
+                            overflow: TextOverflow.ellipsis),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0F766E),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 14),
+                    ),
+                    icon: _verifying
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 2))
+                        : const Icon(Icons.verified_user, color: Colors.white),
+                    label: const Text("Run Hash Chain Integrity Check",
+                        style: TextStyle(color: Colors.white, fontSize: 14)),
+                    onPressed: _verifying ? null : _runIntegrityCheck,
+                  ),
                 ],
-              ),
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F766E),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                ),
-                icon: _verifying
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                            color: Colors.white, strokeWidth: 2))
-                    : const Icon(Icons.verified_user, color: Colors.white),
-                label: const Text("Run Hash Chain Integrity Check",
-                    style: TextStyle(color: Colors.white, fontSize: 14)),
-                onPressed: _verifying ? null : _runIntegrityCheck,
-              ),
-            ],
+              );
+            },
           ),
           const SizedBox(height: 20),
           Card(
@@ -97,8 +145,8 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
           const SizedBox(height: 12),
           Card(
             elevation: 2,
-            child: SizedBox(
-              width: double.infinity,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
               child: DataTable(
                 columns: const [
                   DataColumn(label: Text("Timestamp")),

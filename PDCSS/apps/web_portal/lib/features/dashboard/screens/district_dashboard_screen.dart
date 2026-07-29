@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:web_portal/core/backend/raahnuma_portal_service.dart';
 import 'package:web_portal/core/backend/models.dart';
 import 'package:web_portal/core/backend/supabase_config.dart';
+import 'package:web_portal/core/backend/auth_service.dart';
 import 'package:web_portal/features/dashboard/widgets/verified_attendance_monitoring_widget.dart';
 import 'package:web_portal/features/dashboard/widgets/prna_monitoring_widget.dart';
+import 'package:web_portal/features/admin/widgets/user_management_admin_widget.dart';
+import 'package:web_portal/features/auth/screens/secure_access_login_screen.dart';
 
 // ─── Color Palette ──────────────────────────────────────────────────────────
 const Color kGovGreen = Color(0xFF0F5A47); // Official PP&PS Green
@@ -34,10 +37,15 @@ class DistrictDashboardScreen extends StatefulWidget {
 }
 
 class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
+  static const bool _isRestrictedMode =
+      bool.fromEnvironment('RESTRICTED_MODE', defaultValue: false);
+
   int _selectedNavIndex = 0;
+  bool _showLoginScreen = _isRestrictedMode;
 
   final List<String> _navItems = [
     'Overview',
+    'User & Access Management',
     'PRNA & Case Planning',
     'Verified Attendance',
     'Districts',
@@ -53,12 +61,28 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_showLoginScreen && !AuthService.instance.isLoggedIn) {
+      return SecureAccessLoginScreen(
+        onLoginSuccess: () {
+          setState(() {
+            _showLoginScreen = false;
+          });
+        },
+      );
+    }
+
     return Scaffold(
       backgroundColor: kBgGrey,
       body: Column(
         children: [
           // ── Fixed Top Header ──────────────────────────────────────────────
-          const _TopHeader(),
+          _TopHeader(
+            onLaunchLogin: () {
+              setState(() {
+                _showLoginScreen = true;
+              });
+            },
+          ),
 
           // ── Main Content Layout ───────────────────────────────────────────
           Expanded(
@@ -98,26 +122,28 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
       case 0:
         return _buildExecutiveOverview();
       case 1:
-        return const PRNAMonitoringWidget();
+        return const UserManagementAdminWidget();
       case 2:
-        return const VerifiedAttendanceMonitoringWidget();
+        return const PRNAMonitoringWidget();
       case 3:
-        return _buildDistrictMonitoring();
+        return const VerifiedAttendanceMonitoringWidget();
       case 4:
-        return _buildDivisionalSummary();
+        return _buildDistrictMonitoring();
       case 5:
-        return _buildOfficerWorkload();
+        return _buildDivisionalSummary();
       case 6:
-        return _buildComplianceDashboard();
+        return _buildOfficerWorkload();
       case 7:
-        return _buildAlertsDashboard();
+        return _buildComplianceDashboard();
       case 8:
-        return _buildRehabReferrals();
+        return _buildAlertsDashboard();
       case 9:
-        return _buildReports();
+        return _buildRehabReferrals();
       case 10:
-        return _buildAuditTrail();
+        return _buildReports();
       case 11:
+        return _buildAuditTrail();
+      case 12:
         return _buildSystemSafeguards();
       default:
         return _buildExecutiveOverview();
@@ -1272,12 +1298,16 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
 // HEADER COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
 class _TopHeader extends StatelessWidget {
-  const _TopHeader({Key? key}) : super(key: key);
+  final VoidCallback? onLaunchLogin;
+
+  const _TopHeader({Key? key, this.onLaunchLogin}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final hasBackend = SupabaseConfig.hasBackend;
     final isNarrow = MediaQuery.of(context).size.width < 900;
+    final isLoggedIn = AuthService.instance.isLoggedIn;
+    final user = AuthService.instance.currentUserProfile;
 
     return Container(
       height: 96,
@@ -1377,28 +1407,55 @@ class _TopHeader extends StatelessWidget {
             ),
           ),
 
-          if (!isNarrow)
+          if (!isNarrow) ...[
             Row(
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
+                  children: [
                     Text(
-                      'Directorate General Command Office',
-                      style: TextStyle(
+                      user != null
+                          ? user.fullName
+                          : 'Directorate General Command Office',
+                      style: const TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.bold,
                           color: kTextDark),
                     ),
                     Text(
-                      'Provincial Oversight Level',
-                      style: TextStyle(fontSize: 9.5, color: kTextMuted),
+                      user != null
+                          ? '${user.designation} (${user.assignedRoleCode})'
+                          : 'Provincial Oversight Level',
+                      style: const TextStyle(fontSize: 9.5, color: kTextMuted),
                     ),
                   ],
                 ),
+                const SizedBox(width: 12),
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: kGovGreen,
+                    side: const BorderSide(color: kGovGreen),
+                  ),
+                  icon: Icon(isLoggedIn ? Icons.logout : Icons.lock_outline,
+                      size: 16),
+                  label: Text(
+                    isLoggedIn ? 'Sign Out' : 'Secure Login Portal',
+                    style: const TextStyle(
+                        fontSize: 11, fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: () async {
+                    if (isLoggedIn) {
+                      await AuthService.instance.signOut();
+                    }
+                    if (onLaunchLogin != null) {
+                      onLaunchLogin!();
+                    }
+                  },
+                ),
               ],
             ),
+          ],
         ],
       ),
     );
