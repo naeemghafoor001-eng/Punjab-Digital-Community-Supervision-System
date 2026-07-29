@@ -52,10 +52,11 @@ class SuperviseeBrief {
     ];
     final cats = [
       'Probation Order',
-      'Parole Release',
+      'Probation Order',
       'Probation Order',
       'Probation Order'
     ];
+    final dates = ['2026-07-28', '2026-07-25', '2026-07-22', '2026-07-30'];
 
     return SuperviseeBrief(
       id: 'supervisee-$index',
@@ -64,7 +65,7 @@ class SuperviseeBrief {
       caseNumber: cases[index % cases.length],
       complianceStatus: statuses[index % statuses.length],
       supervisionCategory: cats[index % cats.length],
-      nextReportingDate: '2026-07-${20 + index}',
+      nextReportingDate: dates[index % dates.length],
     );
   }
 }

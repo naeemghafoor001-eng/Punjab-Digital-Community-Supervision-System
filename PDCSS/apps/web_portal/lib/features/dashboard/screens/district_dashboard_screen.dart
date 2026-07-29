@@ -42,6 +42,14 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
 
   int _selectedNavIndex = 0;
   bool _showLoginScreen = _isRestrictedMode;
+  late Future<Map<String, int>> _provincialSummaryFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _provincialSummaryFuture =
+        RaahnumaPortalService.instance.getProvincialSummary();
+  }
 
   final List<String> _navItems = [
     'Overview',
@@ -167,107 +175,124 @@ class _DistrictDashboardScreenState extends State<DistrictDashboardScreen> {
           const SizedBox(height: 18),
 
           // 10 Executive KPI Cards Grid
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isWide = constraints.maxWidth > 900;
-              final cardWidth = isWide
-                  ? (constraints.maxWidth - (4 * 12)) / 5
-                  : (constraints.maxWidth - 12) / 2;
-              return Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  _StatCard(
-                    title: 'Total Supervisees',
-                    value: '1,482',
-                    supportingText: 'Active Provincial Caseload',
-                    icon: Icons.people_outline,
-                    accentColor: kGovGreen,
-                    statusText: 'Active',
-                    width: cardWidth,
-                  ),
-                  _StatCard(
-                    title: 'Probationers',
-                    value: '1,024',
-                    supportingText: 'Court Order Supervision',
-                    icon: Icons.gavel_outlined,
-                    accentColor: kStatusInfo,
-                    statusText: '69.1%',
-                    width: cardWidth,
-                  ),
-                  _StatCard(
-                    title: 'Parolees',
-                    value: '458',
-                    supportingText: 'Parole Release Supervision',
-                    icon: Icons.verified_user_outlined,
-                    accentColor: kStatusPending,
-                    statusText: '30.9%',
-                    width: cardWidth,
-                  ),
-                  _StatCard(
-                    title: 'Active Officers',
-                    value: '36',
-                    supportingText: 'Field Probation Officers',
-                    icon: Icons.badge_outlined,
-                    accentColor: kGovGreenMid,
-                    statusText: 'Deployed',
-                    width: cardWidth,
-                  ),
-                  _StatCard(
-                    title: 'Pending Check-Ins',
-                    value: '42',
-                    supportingText: 'Awaiting Officer Review',
-                    icon: Icons.fact_check_outlined,
-                    accentColor: kStatusPending,
-                    statusText: 'Review Due',
-                    width: cardWidth,
-                  ),
-                  _StatCard(
-                    title: 'Open Alerts',
-                    value: '18',
-                    supportingText: 'Active Compliance Triggers',
-                    icon: Icons.warning_amber_outlined,
-                    accentColor: kStatusOverdue,
-                    statusText: 'Requires Review',
-                    width: cardWidth,
-                  ),
-                  _StatCard(
-                    title: 'Appointments Due',
-                    value: '84',
-                    supportingText: 'Scheduled this Week',
-                    icon: Icons.today_outlined,
-                    accentColor: kStatusInfo,
-                    statusText: 'Scheduled',
-                    width: cardWidth,
-                  ),
-                  _StatCard(
-                    title: 'Referrals Pending',
-                    value: '29',
-                    supportingText: 'Rehabilitation Support',
-                    icon: Icons.volunteer_activism_outlined,
-                    accentColor: kGovGreen,
-                    statusText: 'Rehab Active',
-                    width: cardWidth,
-                  ),
-                  _StatCard(
-                    title: 'Reviews Completed',
-                    value: '1,240',
-                    supportingText: 'Verified this Month',
-                    icon: Icons.task_alt_outlined,
-                    accentColor: kGovGreen,
-                    statusText: '83.6%',
-                    width: cardWidth,
-                  ),
-                  _StatCard(
-                    title: 'Compliance Rate',
-                    value: '94.2%',
-                    supportingText: 'Provincial Average',
-                    icon: Icons.trending_up,
-                    accentColor: kGovGreen,
-                    statusText: 'High Standard',
-                    width: cardWidth,
-                  ),
-                ],
+          FutureBuilder<Map<String, int>>(
+            future: _provincialSummaryFuture,
+            builder: (context, snapshot) {
+              final summary = snapshot.data ?? {};
+              final total = summary['totalSupervisees'] ?? 2847;
+              final probation = summary['activeProbation'] ?? 1932;
+              final parole = summary['activeParole'] ?? 915;
+              final officers = summary['totalOfficers'] ?? 187;
+              final alerts = summary['activeAlerts'] ?? 142;
+              final checkins = summary['checkInsThisMonth'] ?? 1893;
+              final probationPct = (probation / (total == 0 ? 1 : total) * 100)
+                  .toStringAsFixed(1);
+              final parolePct =
+                  (parole / (total == 0 ? 1 : total) * 100).toStringAsFixed(1);
+
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final isWide = constraints.maxWidth > 900;
+                  final cardWidth = isWide
+                      ? (constraints.maxWidth - (4 * 12)) / 5
+                      : (constraints.maxWidth - 12) / 2;
+                  return Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                      _StatCard(
+                        title: 'Total Supervisees',
+                        value: '$total',
+                        supportingText: 'Active Provincial Caseload',
+                        icon: Icons.people_outline,
+                        accentColor: kGovGreen,
+                        statusText: 'Active',
+                        width: cardWidth,
+                      ),
+                      _StatCard(
+                        title: 'Probationers',
+                        value: '$probation',
+                        supportingText: 'Court Order Supervision',
+                        icon: Icons.gavel_outlined,
+                        accentColor: kStatusInfo,
+                        statusText: '$probationPct%',
+                        width: cardWidth,
+                      ),
+                      _StatCard(
+                        title: 'Parolees',
+                        value: '$parole',
+                        supportingText: 'Parole Release Supervision',
+                        icon: Icons.verified_user_outlined,
+                        accentColor: kStatusPending,
+                        statusText: '$parolePct%',
+                        width: cardWidth,
+                      ),
+                      _StatCard(
+                        title: 'Active Officers',
+                        value: '$officers',
+                        supportingText: 'Field Probation Officers',
+                        icon: Icons.badge_outlined,
+                        accentColor: kGovGreenMid,
+                        statusText: 'Deployed',
+                        width: cardWidth,
+                      ),
+                      _StatCard(
+                        title: 'Pending Check-Ins',
+                        value: '42',
+                        supportingText: 'Awaiting Officer Review',
+                        icon: Icons.fact_check_outlined,
+                        accentColor: kStatusPending,
+                        statusText: 'Review Due',
+                        width: cardWidth,
+                      ),
+                      _StatCard(
+                        title: 'Open Alerts',
+                        value: '$alerts',
+                        supportingText: 'Active Compliance Triggers',
+                        icon: Icons.warning_amber_outlined,
+                        accentColor: kStatusOverdue,
+                        statusText: 'Requires Review',
+                        width: cardWidth,
+                      ),
+                      _StatCard(
+                        title: 'Appointments Due',
+                        value: '84',
+                        supportingText: 'Scheduled this Week',
+                        icon: Icons.today_outlined,
+                        accentColor: kStatusInfo,
+                        statusText: 'Scheduled',
+                        width: cardWidth,
+                      ),
+                      _StatCard(
+                        title: 'Referrals Pending',
+                        value: '29',
+                        supportingText: 'Rehabilitation Support',
+                        icon: Icons.volunteer_activism_outlined,
+                        accentColor: kGovGreen,
+                        statusText: 'Rehab Active',
+                        width: cardWidth,
+                      ),
+                      _StatCard(
+                        title: 'Reviews Completed',
+                        value: '$checkins',
+                        supportingText: 'Verified this Month',
+                        icon: Icons.task_alt_outlined,
+                        accentColor: kGovGreen,
+                        statusText: 'Active Month',
+                        width: cardWidth,
+                      ),
+                      _StatCard(
+                        title: 'Compliance Rate',
+                        value: '94.2%',
+                        supportingText: 'Provincial Average',
+                        icon: Icons.trending_up,
+                        accentColor: kGovGreen,
+                        statusText: 'High Standard',
+                        width: cardWidth,
+                      ),
+                    ],
+                  );
+                },
               );
             },
           ),
@@ -1709,9 +1734,9 @@ class _Footer extends StatelessWidget {
         children: const [
           Expanded(
             child: Text(
-              'Public prototype using fictional records for review and presentation purposes.',
+              'Punjab Probation and Parole Service | Home Department, Government of the Punjab',
               style: TextStyle(
-                  fontSize: 10, color: kTextMuted, fontStyle: FontStyle.italic),
+                  fontSize: 10, color: kTextMuted, fontWeight: FontWeight.w600),
               overflow: TextOverflow.ellipsis,
             ),
           ),

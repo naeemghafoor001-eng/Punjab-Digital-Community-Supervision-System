@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supervisee_app/core/backend/supabase_config.dart';
 import 'package:supervisee_app/core/backend/demo_fallback_service.dart';
 import 'package:supervisee_app/core/backend/models.dart';
+import 'package:supervisee_app/core/backend/auth_service.dart';
 
 class RaahnumaBackendService {
   static final RaahnumaBackendService instance = RaahnumaBackendService._();
@@ -11,6 +12,10 @@ class RaahnumaBackendService {
   SupabaseClient get _supabase => Supabase.instance.client;
 
   Future<SuperviseeProfile> getProfile() async {
+    if (AuthService.instance.currentProfile != null) {
+      return AuthService.instance.currentProfile!;
+    }
+
     if (!SupabaseConfig.hasBackend) {
       return DemoFallbackService.instance.getProfile();
     }

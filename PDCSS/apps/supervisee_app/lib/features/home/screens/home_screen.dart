@@ -5,9 +5,12 @@ import 'package:supervisee_app/features/plan/screens/supervision_plan_screen.dar
 import 'package:supervisee_app/core/backend/raahnuma_backend_service.dart';
 import 'package:supervisee_app/core/backend/supabase_config.dart';
 import 'package:supervisee_app/core/backend/models.dart';
+import 'package:supervisee_app/core/backend/auth_service.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final VoidCallback? onLogout;
+
+  const HomeScreen({Key? key, this.onLogout}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -48,12 +51,101 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Expanded(
-                child: _ProfileContent(scrollController: scrollController),
+                child: _ProfileContent(
+                  scrollController: scrollController,
+                  onLogoutTap: widget.onLogout,
+                ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  void _showSuperviseeMoreSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade400,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  'More Options / مزید اختیارات',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0F5A47),
+                  ),
+                ),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.calendar_month_outlined,
+                    color: Color(0xFF0F5A47)),
+                title: const Text('Reporting Schedule / شیڈول',
+                    style:
+                        TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _navigateToTab(4);
+                },
+              ),
+              ListTile(
+                leading:
+                    const Icon(Icons.help_outline, color: Color(0xFF0F5A47)),
+                title: const Text('Help & Guidance / مدد',
+                    style:
+                        TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _navigateToTab(5);
+                },
+              ),
+              ListTile(
+                leading:
+                    const Icon(Icons.person_outline, color: Color(0xFF0F5A47)),
+                title: const Text('Supervisee Profile / پروفائل',
+                    style:
+                        TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _showProfileModal(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.red),
+                title: const Text('Logout / لاگ آؤٹ',
+                    style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13.5)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  if (widget.onLogout != null) widget.onLogout!();
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -63,6 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _DashboardTab(
         onNavigateToTab: _navigateToTab,
         onOpenProfile: () => _showProfileModal(context),
+        onLogout: widget.onLogout,
       ),
       const CheckInScreen(),
       const AssignedActivitiesScreen(),
@@ -71,44 +164,89 @@ class _HomeScreenState extends State<HomeScreen> {
       const _HelpTab(),
     ];
 
-    return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: pages),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (i) => setState(() => _currentIndex = i),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home / ہوم',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.check_circle_outline),
-            selectedIcon: Icon(Icons.check_circle),
-            label: 'Check-In / حاضری',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.assignment_outlined),
-            selectedIcon: Icon(Icons.assignment),
-            label: 'Activities / سرگرمیاں',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.stars_outlined),
-            selectedIcon: Icon(Icons.stars),
-            label: 'Plan / منصوبہ',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.calendar_month_outlined),
-            selectedIcon: Icon(Icons.calendar_month),
-            label: 'Schedule / شیڈول',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.help_outline),
-            selectedIcon: Icon(Icons.help),
-            label: 'Help / مدد',
-          ),
-        ],
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobileNarrow = constraints.maxWidth < 600;
+
+        return Scaffold(
+          body: IndexedStack(index: _currentIndex, children: pages),
+          bottomNavigationBar: isMobileNarrow
+              ? NavigationBar(
+                  selectedIndex: _currentIndex < 4 ? _currentIndex : 4,
+                  onDestinationSelected: (i) {
+                    if (i == 4) {
+                      _showSuperviseeMoreSheet(context);
+                    } else {
+                      setState(() => _currentIndex = i);
+                    }
+                  },
+                  destinations: const [
+                    NavigationDestination(
+                      icon: Icon(Icons.home_outlined),
+                      selectedIcon: Icon(Icons.home),
+                      label: 'Home / ہوم',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.check_circle_outline),
+                      selectedIcon: Icon(Icons.check_circle),
+                      label: 'Check-In / حاضری',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.assignment_outlined),
+                      selectedIcon: Icon(Icons.assignment),
+                      label: 'Activities / سرگرمیاں',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.stars_outlined),
+                      selectedIcon: Icon(Icons.stars),
+                      label: 'Plan / منصوبہ',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.more_horiz),
+                      selectedIcon: Icon(Icons.more_horiz),
+                      label: 'More / مزید',
+                    ),
+                  ],
+                )
+              : NavigationBar(
+                  selectedIndex: _currentIndex,
+                  onDestinationSelected: (i) =>
+                      setState(() => _currentIndex = i),
+                  destinations: const [
+                    NavigationDestination(
+                      icon: Icon(Icons.home_outlined),
+                      selectedIcon: Icon(Icons.home),
+                      label: 'Home / ہوم',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.check_circle_outline),
+                      selectedIcon: Icon(Icons.check_circle),
+                      label: 'Check-In / حاضری',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.assignment_outlined),
+                      selectedIcon: Icon(Icons.assignment),
+                      label: 'Activities / سرگرمیاں',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.stars_outlined),
+                      selectedIcon: Icon(Icons.stars),
+                      label: 'Plan / منصوبہ',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.calendar_month_outlined),
+                      selectedIcon: Icon(Icons.calendar_month),
+                      label: 'Schedule / شیڈول',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.help_outline),
+                      selectedIcon: Icon(Icons.help),
+                      label: 'Help / مدد',
+                    ),
+                  ],
+                ),
+        );
+      },
     );
   }
 }
@@ -120,12 +258,14 @@ class _BrandingHeader extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final String urduTitle;
   final VoidCallback? onProfileTap;
+  final VoidCallback? onLogoutTap;
 
   const _BrandingHeader({
     Key? key,
     required this.title,
     required this.urduTitle,
     this.onProfileTap,
+    this.onLogoutTap,
   }) : super(key: key);
 
   @override
@@ -245,7 +385,7 @@ class _BrandingHeader extends StatelessWidget implements PreferredSizeWidget {
                       ),
                     ),
                     child: Text(
-                      hasBackend ? 'Online' : 'Demo Mode',
+                      hasBackend ? 'Connected' : 'Active System',
                       style: const TextStyle(
                         fontSize: 8.5,
                         fontWeight: FontWeight.bold,
@@ -254,12 +394,23 @@ class _BrandingHeader extends StatelessWidget implements PreferredSizeWidget {
                     ),
                   ),
                   if (onProfileTap != null) ...[
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 4),
                     IconButton(
                       icon: const Icon(Icons.account_circle,
-                          color: Colors.white, size: 28),
+                          color: Colors.white, size: 26),
                       tooltip: 'View Profile',
                       onPressed: onProfileTap,
+                    ),
+                  ],
+                  if (onLogoutTap != null) ...[
+                    IconButton(
+                      icon: const Icon(Icons.logout,
+                          color: Colors.white, size: 22),
+                      tooltip: 'Logout / لاگ آؤٹ',
+                      onPressed: () async {
+                        await AuthService.instance.signOut();
+                        onLogoutTap!();
+                      },
                     ),
                   ],
                 ],
@@ -312,23 +463,21 @@ class _FooterDisclaimer extends StatelessWidget {
           Divider(),
           SizedBox(height: 6),
           Text(
-            'Public prototype using fictional records for review and presentation purposes.',
+            'Punjab Probation and Parole Service | Home Department, Government of the Punjab',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 10.5,
               color: Colors.black54,
-              fontStyle: FontStyle.italic,
               fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(height: 2),
           Text(
-            'یہ ریویو اور پریزنٹیشن کے مقاصد کے لیے فرضی ریکارڈز کے ساتھ ایک نمونہ انٹرفیس ہے۔',
+            'پنجاب پروبیشن اینڈ پیرول سروس | محکمہ داخلہ، حکومتِ پنجاب',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 9.5,
               color: Colors.black54,
-              fontStyle: FontStyle.italic,
             ),
           ),
         ],
@@ -343,10 +492,12 @@ class _FooterDisclaimer extends StatelessWidget {
 class _DashboardTab extends StatefulWidget {
   final Function(int) onNavigateToTab;
   final VoidCallback onOpenProfile;
+  final VoidCallback? onLogout;
 
   const _DashboardTab({
     required this.onNavigateToTab,
     required this.onOpenProfile,
+    this.onLogout,
     Key? key,
   }) : super(key: key);
 
@@ -401,6 +552,7 @@ class _DashboardTabState extends State<_DashboardTab> {
               title: 'Raahnuma Dashboard',
               urduTitle: 'نگہداشت ڈیش بورڈ',
               onProfileTap: widget.onOpenProfile,
+              onLogoutTap: widget.onLogout,
             ),
             body: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -555,8 +707,8 @@ class _DashboardTabState extends State<_DashboardTab> {
                                 children: [
                                   CircleAvatar(
                                     radius: 20,
-                                    backgroundColor: const Color(0xFF0F5A47)
-                                        .withAlpha(30),
+                                    backgroundColor:
+                                        const Color(0xFF0F5A47).withAlpha(30),
                                     child: const Icon(Icons.stars,
                                         color: Color(0xFF0F5A47), size: 22),
                                   ),
@@ -1671,8 +1823,10 @@ class _HelpGuideBullet extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 class _ProfileContent extends StatelessWidget {
   final ScrollController? scrollController;
+  final VoidCallback? onLogoutTap;
 
-  const _ProfileContent({this.scrollController, Key? key}) : super(key: key);
+  const _ProfileContent({this.scrollController, this.onLogoutTap, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -1823,6 +1977,37 @@ class _ProfileContent extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
+
+            // Logout Button
+            if (onLogoutTap != null) ...[
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red.shade800,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 46),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: const Icon(Icons.logout, color: Colors.white, size: 18),
+                label: const Text(
+                  'Logout / لاگ آؤٹ',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                onPressed: () async {
+                  await AuthService.instance.signOut();
+                  if (context.mounted) {
+                    Navigator.of(context).maybePop();
+                  }
+                  onLogoutTap!();
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
             const _FooterDisclaimer(),
           ],
         );

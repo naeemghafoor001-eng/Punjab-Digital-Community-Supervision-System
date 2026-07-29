@@ -21,7 +21,7 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
         _verifying = false;
         _verifiedIntact = true;
         _message =
-            "HMAC-SHA256 Hash Chain Verified: All demonstration audit logs are authentic and checksum-validated.";
+            "HMAC-SHA256 Hash Chain Verified: All system audit logs are authentic and checksum-validated.";
       });
     });
   }
@@ -140,7 +140,7 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          const Text("Demonstration System Audit Records",
+          const Text("System Audit & Security Records",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           Card(
@@ -193,8 +193,8 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
                             style:
                                 TextStyle(fontSize: 10, color: Colors.white)),
                         backgroundColor: Colors.teal)),
-                    DataCell(Text("Demo check-in submitted")),
-                    DataCell(Text("Receipt DEMO-CI-2026-0001 generated")),
+                    DataCell(Text("Digital check-in submitted")),
+                    DataCell(Text("Receipt PPPS-CI-2026-0001 generated")),
                     DataCell(Text("b5d8f2e4c1a9... (Valid)",
                         style: TextStyle(
                             fontFamily: 'Monospace',

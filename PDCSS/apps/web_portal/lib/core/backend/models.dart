@@ -41,51 +41,59 @@ class PortalSuperviseeRow {
   factory PortalSuperviseeRow.fallback(int index) {
     final names = [
       'Tariq Mehmood',
-      'Ahmed Hassan',
-      'Umar Farooq',
-      'Zubair Khan',
       'Sajid Ali',
       'Muhammad Yasir',
+      'Zainab Bibi',
+      'Ahmed Hassan',
+      'Umar Farooq',
     ];
     final cases = [
       'LHR-2026-089',
+      'LHR-2026-112',
+      'LHR-2026-215',
+      'LHR-2026-443',
       'LHR-2026-142',
-      'LHR-2026-031',
-      'LHR-2026-217',
-      'RWP-2026-112',
-      'FSD-2026-215',
+      'RWP-2026-031',
     ];
     final statuses = [
       'Compliant',
+      'Compliant',
+      'Non-Compliant',
+      'Under Review',
       'Non-Compliant',
       'Compliant',
-      'Violation',
-      'Compliant',
-      'Under Review',
     ];
     final cats = [
       'Probation Order',
+      'Probation Order',
+      'Probation Order',
+      'Probation Order',
       'Parole Release',
-      'Probation Order',
-      'Probation Order',
       'Parole Release',
-      'Probation Order',
     ];
     final officers = [
       'Tahir Mahmood',
-      'Asad Iqbal',
+      'Tahir Mahmood',
+      'Tahir Mahmood',
       'Tahir Mahmood',
       'Asad Iqbal',
       'Kashif Raza',
-      'Tahir Mahmood',
     ];
     final districts = [
       'Lahore',
       'Lahore',
       'Lahore',
       'Lahore',
+      'Lahore',
       'Rawalpindi',
-      'Faisalabad',
+    ];
+    final dates = [
+      '2026-07-28',
+      '2026-07-25',
+      '2026-07-22',
+      '2026-07-30',
+      '2026-07-24',
+      '2026-07-26',
     ];
 
     return PortalSuperviseeRow(
@@ -94,7 +102,7 @@ class PortalSuperviseeRow {
       caseNumber: cases[index % cases.length],
       complianceStatus: statuses[index % statuses.length],
       supervisionCategory: cats[index % cats.length],
-      nextReportingDate: '2026-07-${20 + index}',
+      nextReportingDate: dates[index % dates.length],
       assignedOfficer: officers[index % officers.length],
       district: districts[index % districts.length],
     );

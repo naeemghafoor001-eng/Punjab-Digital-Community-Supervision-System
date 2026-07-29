@@ -29,6 +29,103 @@ class _OfficerHomeScreenState extends State<OfficerHomeScreen> {
     });
   }
 
+  void _showOfficerMoreSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade400,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  'Officer Portal Operations',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: kGovGreen,
+                  ),
+                ),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading:
+                    const Icon(Icons.assignment_outlined, color: kGovGreen),
+                title: const Text('PRNA Risk Assessment',
+                    style:
+                        TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _navigateToTab(2);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.verified_outlined, color: kGovGreen),
+                title: const Text('Verified Attendance',
+                    style:
+                        TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _navigateToTab(4);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.directions_walk_outlined,
+                    color: kGovGreen),
+                title: const Text('Field Visits Planner',
+                    style:
+                        TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _navigateToTab(6);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.badge_outlined, color: kGovGreen),
+                title: const Text('Officer Profile',
+                    style:
+                        TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _navigateToTab(7);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.red),
+                title: const Text('Logout Session',
+                    style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13.5)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  setState(() {
+                    _showLogin = true;
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_showLogin) {
@@ -58,58 +155,127 @@ class _OfficerHomeScreenState extends State<OfficerHomeScreen> {
       ),
     ];
 
-    return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: pages),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (i) => setState(() => _currentIndex = i),
-        backgroundColor: kGovWhite,
-        indicatorColor: kGovGreenSurface,
-        height: 64,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard, color: kGovGreen),
-            label: 'Dashboard',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.folder_shared_outlined),
-            selectedIcon: Icon(Icons.folder_shared, color: kGovGreen),
-            label: 'Caseload',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.assignment_outlined),
-            selectedIcon: Icon(Icons.assignment, color: kGovGreen),
-            label: 'PRNA',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.fact_check_outlined),
-            selectedIcon: Icon(Icons.fact_check, color: kGovGreen),
-            label: 'Check-Ins',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.verified_outlined),
-            selectedIcon: Icon(Icons.verified, color: kGovGreen),
-            label: 'Attendance',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.notifications_outlined),
-            selectedIcon: Icon(Icons.notifications_active, color: kGovGreen),
-            label: 'Alerts',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.directions_walk_outlined),
-            selectedIcon: Icon(Icons.directions_walk, color: kGovGreen),
-            label: 'Visits',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.badge_outlined),
-            selectedIcon: Icon(Icons.badge, color: kGovGreen),
-            label: 'Profile',
-          ),
-        ],
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobile = constraints.maxWidth < 700;
+
+        int mobileSelectedIndex;
+        if (_currentIndex == 0) {
+          mobileSelectedIndex = 0;
+        } else if (_currentIndex == 1) {
+          mobileSelectedIndex = 1;
+        } else if (_currentIndex == 3) {
+          mobileSelectedIndex = 2;
+        } else if (_currentIndex == 5) {
+          mobileSelectedIndex = 3;
+        } else {
+          mobileSelectedIndex = 4;
+        }
+
+        return Scaffold(
+          body: IndexedStack(index: _currentIndex, children: pages),
+          bottomNavigationBar: isMobile
+              ? NavigationBar(
+                  selectedIndex: mobileSelectedIndex,
+                  onDestinationSelected: (i) {
+                    if (i == 0)
+                      _navigateToTab(0);
+                    else if (i == 1)
+                      _navigateToTab(1);
+                    else if (i == 2)
+                      _navigateToTab(3);
+                    else if (i == 3)
+                      _navigateToTab(5);
+                    else if (i == 4) _showOfficerMoreSheet(context);
+                  },
+                  backgroundColor: kGovWhite,
+                  indicatorColor: kGovGreenSurface,
+                  height: 64,
+                  labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+                  destinations: const [
+                    NavigationDestination(
+                      icon: Icon(Icons.dashboard_outlined),
+                      selectedIcon: Icon(Icons.dashboard, color: kGovGreen),
+                      label: 'Dashboard',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.folder_shared_outlined),
+                      selectedIcon: Icon(Icons.folder_shared, color: kGovGreen),
+                      label: 'Caseload',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.fact_check_outlined),
+                      selectedIcon: Icon(Icons.fact_check, color: kGovGreen),
+                      label: 'Tasks',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.notifications_outlined),
+                      selectedIcon:
+                          Icon(Icons.notifications_active, color: kGovGreen),
+                      label: 'Alerts',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.more_horiz),
+                      selectedIcon: Icon(Icons.more_horiz, color: kGovGreen),
+                      label: 'More',
+                    ),
+                  ],
+                )
+              : NavigationBar(
+                  selectedIndex: _currentIndex,
+                  onDestinationSelected: (i) =>
+                      setState(() => _currentIndex = i),
+                  backgroundColor: kGovWhite,
+                  indicatorColor: kGovGreenSurface,
+                  height: 64,
+                  labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+                  destinations: const [
+                    NavigationDestination(
+                      icon: Icon(Icons.dashboard_outlined),
+                      selectedIcon: Icon(Icons.dashboard, color: kGovGreen),
+                      label: 'Dashboard',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.folder_shared_outlined),
+                      selectedIcon: Icon(Icons.folder_shared, color: kGovGreen),
+                      label: 'Caseload',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.assignment_outlined),
+                      selectedIcon: Icon(Icons.assignment, color: kGovGreen),
+                      label: 'PRNA',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.fact_check_outlined),
+                      selectedIcon: Icon(Icons.fact_check, color: kGovGreen),
+                      label: 'Check-Ins',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.verified_outlined),
+                      selectedIcon: Icon(Icons.verified, color: kGovGreen),
+                      label: 'Attendance',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.notifications_outlined),
+                      selectedIcon:
+                          Icon(Icons.notifications_active, color: kGovGreen),
+                      label: 'Alerts',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.directions_walk_outlined),
+                      selectedIcon:
+                          Icon(Icons.directions_walk, color: kGovGreen),
+                      label: 'Visits',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.badge_outlined),
+                      selectedIcon: Icon(Icons.badge, color: kGovGreen),
+                      label: 'Profile',
+                    ),
+                  ],
+                ),
+        );
+      },
     );
   }
 }

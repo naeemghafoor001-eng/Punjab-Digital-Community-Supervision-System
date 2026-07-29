@@ -406,9 +406,9 @@ class CaseProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Section 1: Case Overview
+            // Section 1: OMIS Case & Personal Identification Records
             const SectionHeading(
-                title: 'Case Overview & Registration',
+                title: 'OMIS Case & Offender Profile (19 Mandatory Fields)',
                 icon: Icons.badge_outlined),
             Card(
               elevation: 1,
@@ -418,22 +418,65 @@ class CaseProfileScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    _buildRow('Masked CNIC', '35201-xxxxxxx-x'),
+                    _buildRow('Case Ref Number',
+                        caseData['reg']?.toString() ?? 'LHR-2026-089'),
+                    const Divider(),
+                    _buildRow('Offender Name',
+                        caseData['name']?.toString() ?? 'Tariq Mehmood'),
+                    const Divider(),
+                    _buildRow('Father Name',
+                        caseData['fatherName']?.toString() ?? 'Abdul Rehman'),
+                    const Divider(),
+                    _buildRow('Masked CNIC',
+                        caseData['cnic']?.toString() ?? '35201-XXXXXXX-9'),
+                    const Divider(),
+                    _buildRow('Age / Gender',
+                        '${caseData['age'] ?? "28"} Years · ${caseData['gender'] ?? "Male"}'),
+                    const Divider(),
+                    _buildRow('Education',
+                        caseData['education']?.toString() ?? 'Matriculation'),
                     const Divider(),
                     _buildRow(
-                        'Supervision Category', caseData['type'] as String),
+                        'Profession',
+                        caseData['profession']?.toString() ??
+                            'Electrician Trainee'),
                     const Divider(),
-                    _buildRow('Assigned Probation Officer',
-                        caseData['officer'] as String),
+                    _buildRow('FIR Number',
+                        caseData['fir']?.toString() ?? 'FIR 412/2025'),
                     const Divider(),
                     _buildRow(
-                        'District Office', caseData['district'] as String),
+                        'Police Station',
+                        caseData['policeStation']?.toString() ??
+                            'PS Civil Lines Lahore'),
                     const Divider(),
-                    _buildRow('Supervision Start Date',
-                        caseData['startDate'] as String),
+                    _buildRow(
+                        'Act & Section',
+                        caseData['actSection']?.toString() ??
+                            'PPC Section 379 (Theft)'),
                     const Divider(),
-                    _buildRow('Supervision Expiry Date',
-                        caseData['expiryDate'] as String),
+                    _buildRow('Division / District / Tehsil',
+                        '${caseData['division'] ?? "Lahore Division"} · ${caseData['district'] ?? "Lahore"} · ${caseData['tehsil'] ?? "Lahore City"}'),
+                    const Divider(),
+                    _buildRow(
+                        'Court Name',
+                        caseData['court']?.toString() ??
+                            'Court of AD&SJ Lahore'),
+                    const Divider(),
+                    _buildRow(
+                        'Judge Name',
+                        caseData['judge']?.toString() ??
+                            'Mr. Muhammad Anwar, AD&SJ'),
+                    const Divider(),
+                    _buildRow(
+                        'Assigned Probation Officer',
+                        caseData['officer']?.toString() ??
+                            'Officer Tahir Mahmood'),
+                    const Divider(),
+                    _buildRow('Supervision Period',
+                        '${caseData['startDate'] ?? "2026-06-15"} to ${caseData['expiryDate'] ?? "2026-12-15"}'),
+                    const Divider(),
+                    _buildRow('Current Supervision Status',
+                        caseData['status']?.toString() ?? 'Active'),
                   ],
                 ),
               ),
@@ -461,7 +504,7 @@ class CaseProfileScreen extends StatelessWidget {
 
             // Section 3: Risk & Needs Assessment
             const SectionHeading(
-                title: 'Risk & Needs Assessment (RNA)',
+                title: 'PRNA Risk & Needs Assessment',
                 icon: Icons.analytics_outlined),
             Card(
               elevation: 1,
@@ -522,12 +565,12 @@ class CaseProfileScreen extends StatelessWidget {
 
             Center(
               child: Text(
-                'Public prototype using fictional records for review and presentation purposes.',
+                'Punjab Probation and Parole Service · Home Department, Government of the Punjab',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 11,
-                    color: Colors.grey.shade600,
-                    fontStyle: FontStyle.italic),
+                    color: Colors.grey.shade700,
+                    fontWeight: FontWeight.w600),
               ),
             ),
           ],

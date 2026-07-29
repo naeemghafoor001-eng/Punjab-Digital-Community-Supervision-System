@@ -18,11 +18,13 @@ class PDCSSWebPortalApp extends StatelessWidget {
       title: 'Raahnuma Management Portal',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.teal,
         useMaterial3: true,
         scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+        primaryColor: const Color(0xFF0F5A47),
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF0F766E),
+          seedColor: const Color(0xFF0F5A47),
+          primary: const Color(0xFF0F5A47),
+          secondary: const Color(0xFF157A62),
           brightness: Brightness.light,
         ),
       ),

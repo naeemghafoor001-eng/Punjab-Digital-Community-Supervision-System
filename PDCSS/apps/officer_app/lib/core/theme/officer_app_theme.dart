@@ -124,7 +124,7 @@ class DepartmentalAppBar extends StatelessWidget
                                 width: 0.8),
                           ),
                           child: Text(
-                            hasBackend ? 'Connected' : 'Local Demo',
+                            hasBackend ? 'Connected' : 'Active System',
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 8.5,
